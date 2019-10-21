@@ -4,11 +4,10 @@ stages:
   - deploy
 
 
-# Builds on linux, Mac OS and Windows
-lin_build:
+win_build:
   stage: build
   tags:
-    - FW_SECURITY_TEST_UBUNTU1804
+    - MBED_TEST
   script:
     - export https_proxy=http://proxy.ua.cypress.com:8080
     - python3 --version
