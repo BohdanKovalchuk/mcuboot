@@ -61,7 +61,7 @@ INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 
 # Specify linker script to use
-APP_LD ?= $(CUR_APP_PATH)/Application.ld
+APP_LD ?= $(CUR_APP_PATH)/$(APP_NAME).ld
 
 LDFLAGS += -T $(APP_LD)
 

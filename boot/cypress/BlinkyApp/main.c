@@ -7,9 +7,8 @@
 * the Red LED. The Cortex-M0+ starts the Cortex-M4 and enters sleep.
 *
 * Compatible Kits:
-*   CY8CKIT-062-BLE
-*   CY8CKIT-062-WIFI-BT
-*
+*    CY8CPROTO-062-4343W
+*    CY8CKIT-064S2-4343W
 * Migration to CY8CPROTO-062-4343W kit (ModusToolbox IDE):
 *   1. Create this project targeting the CY8CPROTO-062-4343W kit.
 *   2. Open design.modus file and replicate P0[3] configuration on P13[7]. Give
