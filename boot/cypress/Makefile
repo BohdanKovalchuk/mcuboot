@@ -207,6 +207,9 @@ gen_key_ecc256:
 	../../scripts/imgtool.py keygen -k keys/$(SIGN_KEY_FILE).pem -t ecdsa-p256
 	../../scripts/imgtool.py getpub -k keys/$(SIGN_KEY_FILE).pem > keys/$(SIGN_KEY_FILE).pub
 
+size:
+	
+
 ifeq ($(MAKEINFO) , 1)
 $(info ASM_FILES: $(ASM_FILES))
 $(info C_FILES: $(C_FILES))
