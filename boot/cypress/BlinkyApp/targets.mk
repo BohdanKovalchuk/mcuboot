@@ -26,7 +26,7 @@
 # Target board MCUBoot is built for. CY8CPROTO-062-4343W is set as default
 # Supported:
 #   - CY8CPROTO-062-4343W
-#	- CY8CKIT_062_WIFI_BT
+#	- CY8CKIT-064S2-4343W
 #	- more to come
 
 # default TARGET
