@@ -325,6 +325,8 @@ int     flash_area_to_sectors(int idx, int *cnt, struct flash_area *fa)
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
         // TODO:
+        (void)idx;
+        (void)cnt;
         rc = 0;
     }
 #ifdef CY_USE_EXTERNAL_FLASH

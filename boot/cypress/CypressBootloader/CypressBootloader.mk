@@ -44,7 +44,10 @@ DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 
 # TODO: MCUBoot library
 # Collect MCUBoot sourses
-SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
+# SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
+SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c image_ec.c image_ec256.c loader.c tlv.c
+SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
+
 # Collect MCUBoot Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)
 # Collect Flash Layer port sources
@@ -67,5 +70,9 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/os)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils/cy_secureboot_utils/cy_jwt)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils/3rd_party/cJSON)
+
+# Collect Utils sources
+SOURCES_APP += $(wildcard $(CUR_APP_PATH)/utils/flashboot_psacrypto/*.c)
+
 
 ASM_FILES_APP :=
