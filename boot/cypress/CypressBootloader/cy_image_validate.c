@@ -59,6 +59,11 @@
 *
 ********************************************************************************/
 
+#ifndef TEST_KEY_ID
+#define TEST_KEY_ID        8
+#endif
+
+
 #ifdef MCUBOOT_HAVE_ASSERT_H
 #include "mcuboot_config/mcuboot_assert.h"
 #else
@@ -102,12 +107,6 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
                   uint8_t *seed, int seed_len)
 {
     bootutil_sha256_context sha256_ctx;
-// #if defined(MCUBOOT_USE_FLASHBOOT_CRYPTO)
-//     fb_psa_hash_operation_t psa_op;
-// #else
-//     psa_hash_operation_t psa_op;
-// #endif
-
     uint32_t blk_sz;
     uint32_t size;
     uint16_t hdr_size;
@@ -146,51 +145,50 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
         if(0 == psa_ret)
         {
 
-    /* Hash is computed over image header and image itself. */
-    size = hdr_size = hdr->ih_hdr_size;
-    size += hdr->ih_img_size;
-    tlv_off = size;
+            /* Hash is computed over image header and image itself. */
+            size = hdr_size = hdr->ih_hdr_size;
+            size += hdr->ih_img_size;
+            tlv_off = size;
 
-    /* If protected TLVs are present they are also hashed. */
-    size += hdr->ih_protect_tlv_size;
+            /* If protected TLVs are present they are also hashed. */
+            size += hdr->ih_protect_tlv_size;
 
-    for (off = 0; off < size; off += blk_sz) {
-        blk_sz = size - off;
-        if (blk_sz > tmp_buf_sz) {
-            blk_sz = tmp_buf_sz;
-        }
+            for (off = 0; off < size; off += blk_sz) {
+                blk_sz = size - off;
+                if (blk_sz > tmp_buf_sz) {
+                    blk_sz = tmp_buf_sz;
+                }
 #ifdef MCUBOOT_ENC_IMAGES
-        /* The only data that is encrypted in an image is the payload;
-         * both header and TLVs (when protected) are not.
-         */
-        if ((off < hdr_size) && ((off + blk_sz) > hdr_size)) {
-            /* read only the header */
-            blk_sz = hdr_size - off;
-        }
-        if ((off < tlv_off) && ((off + blk_sz) > tlv_off)) {
-            /* read only up to the end of the image payload */
-            blk_sz = tlv_off - off;
-        }
+                /* The only data that is encrypted in an image is the payload;
+                 * both header and TLVs (when protected) are not.
+                 */
+                if ((off < hdr_size) && ((off + blk_sz) > hdr_size)) {
+                    /* read only the header */
+                    blk_sz = hdr_size - off;
+                }
+                if ((off < tlv_off) && ((off + blk_sz) > tlv_off)) {
+                    /* read only up to the end of the image payload */
+                    blk_sz = tlv_off - off;
+                }
 #endif
-        rc = flash_area_read(fap, off, tmp_buf, blk_sz);
-        if (rc) {
-            return rc;
-        }
+                rc = flash_area_read(fap, off, tmp_buf, blk_sz);
+                if (rc) {
+                    return rc;
+                }
 #ifdef MCUBOOT_ENC_IMAGES
-        if (MUST_DECRYPT(fap, image_index, hdr)) {
-            /* Only payload is encrypted (area between header and TLVs) */
-            if (off >= hdr_size && off < tlv_off) {
-                blk_off = (off - hdr_size) & 0xf;
-                boot_encrypt(enc_state, image_index, fap, off - hdr_size,
-                        blk_sz, blk_off, tmp_buf);
+                if (MUST_DECRYPT(fap, image_index, hdr)) {
+                    /* Only payload is encrypted (area between header and TLVs) */
+                    if (off >= hdr_size && off < tlv_off) {
+                        blk_off = (off - hdr_size) & 0xf;
+                        boot_encrypt(enc_state, image_index, fap, off - hdr_size,
+                                blk_sz, blk_off, tmp_buf);
+                    }
+                }
+#endif
+                psa_ret = bootutil_sha256_update(&sha256_ctx, tmp_buf, blk_sz);
             }
-        }
-#endif
-        psa_ret = bootutil_sha256_update(&sha256_ctx, tmp_buf, blk_sz);
-    }
 
-		psa_ret = bootutil_sha256_finish(&sha256_ctx, hash_result);
-
+    		psa_ret = bootutil_sha256_finish(&sha256_ctx, hash_result);
 	    }
     }
 
@@ -240,27 +238,71 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
 static int
 bootutil_find_key(uint8_t *keyhash, uint8_t keyhash_len)
 {
+	psa_status_t psa_ret = -1;
     bootutil_sha256_context sha256_ctx;
-    int i;
+    int i = 0;
     const struct bootutil_key *key;
-    uint8_t hash[32];
+    uint8_t hash[PSA_HASH_SIZE(PSA_ALG_SHA_256)];
 
-    if (keyhash_len > 32) {
-        return -1;
+    assert(keyhash_len <= PSA_HASH_SIZE(PSA_ALG_SHA_256));
+
+    if(bootutil_keys[0].key == NULL)
+    {/* skip [0] if go through PSA key storage */
+    	i = 1;
     }
 
-    for (i = 0; i < bootutil_key_cnt; i++) {
+    for (; i < bootutil_key_cnt; i++) {
         key = &bootutil_keys[i];
-        bootutil_sha256_init(&sha256_ctx);
-        bootutil_sha256_update(&sha256_ctx, key->key, *key->len);
-        bootutil_sha256_finish(&sha256_ctx, hash);
-        if (!memcmp(hash, keyhash, keyhash_len)) {
-            return i;
+
+        if (NULL != key->key)
+        {
+            psa_ret = bootutil_sha256_init(&sha256_ctx);
+            if(0 == psa_ret)
+            {
+                psa_ret = bootutil_sha256_update(&sha256_ctx, key->key, *key->len);
+            }
+            if(0 == psa_ret)
+            {
+                psa_ret = bootutil_sha256_finish(&sha256_ctx, hash);
+            }
+            if(0 == psa_ret)
+            {
+                if (!memcmp(hash, keyhash, keyhash_len)) {
+                    return i;
+                }
+                else
+                {
+                    psa_ret = -1;
+                }
+            }
+            else
+            {
+                psa_ret = -1;
+            }
         }
     }
-    return -1;
+    return psa_ret;
 }
 #endif
+
+extern bnu_policy_t cy_bl_bnu_policy;
+int cy_bootutil_find_key(int image_index)
+{
+    int key = 0;
+
+    if(0 == image_index)
+    {
+        key = cy_bl_bnu_policy.bnu_img_policy.boot_auth[0];
+    }
+    else if(1 == image_index)
+    {
+        key = cy_bl_bnu_policy.bnu_img_policy.upgrade_auth[0];
+    }
+
+    key = TEST_KEY_ID;
+
+    return key;
+}
 
 /*
  * Verify the integrity of the image.
@@ -278,7 +320,7 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
     int sha256_valid = 0;
 #ifdef EXPECTED_SIG_TLV
     int valid_signature = 0;
-    int key_id = -1;
+    uint8_t key_id = 0;
 #endif
     struct image_tlv_iter it;
     uint8_t buf[SIG_BUF_SIZE];
@@ -341,7 +383,10 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
             if (rc) {
                 return rc;
             }
-            key_id = bootutil_find_key(buf, len);
+
+            // key_id = bootutil_find_key(buf, len);
+            key_id = cy_bootutil_find_key(image_index);
+
             /*
              * The key may not be found, which is acceptable.  There
              * can be multiple signatures, each preceded by a key.
@@ -363,8 +408,8 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
             if (rc == 0) {
                 valid_signature = 1;
             }
-            key_id = -1;
-#endif
+            key_id = 0;
+#endif /* EXPECTED_SIG_TLV */
         }
     }
 
