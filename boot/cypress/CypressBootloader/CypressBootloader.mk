@@ -23,7 +23,7 @@
 # limitations under the License.
 ################################################################################
 
-# Cypress' MCUBoot Application supports GCC ARM only at this moment 
+# Cypress' MCUBoot Application supports GCC ARM only at this moment
 # Set default compiler to GCC if not specified from command line
 COMPILER ?= GCC_ARM
 
@@ -63,5 +63,9 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include/flash_map_bac
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/config)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/os)
+
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils/cy_secureboot_utils/cy_jwt)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils/3rd_party/cJSON)
 
 ASM_FILES_APP :=

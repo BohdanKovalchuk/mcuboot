@@ -140,4 +140,7 @@
         /* TODO: to be implemented */   \
     } while (0)
 
+
+#define MCUBOOT_USE_FLASHBOOT_CRYPTO
+
 #endif /* MCUBOOT_CONFIG_H */

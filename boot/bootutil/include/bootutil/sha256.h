@@ -39,6 +39,10 @@
 
 #ifdef MCUBOOT_USE_MBED_TLS
     #include <mbedtls/sha256.h>
+
+#if defined(MCUBOOT_USE_FLASHBOOT_CRYPTO)
+  #include "flashboot_psacrypto/flashboot_psacrypto.h"
+#endif
 #endif /* MCUBOOT_USE_MBED_TLS */
 
 #ifdef MCUBOOT_USE_TINYCRYPT
@@ -56,6 +60,33 @@ extern "C" {
 #endif
 
 #ifdef MCUBOOT_USE_MBED_TLS
+#if defined(MCUBOOT_USE_FLASHBOOT_CRYPTO)
+typedef fb_psa_hash_operation_t bootutil_sha256_context;
+typedef psa_status_t            bootutil_sha256_status;
+
+static inline bootutil_sha256_status bootutil_sha256_init(bootutil_sha256_context *psa_op)
+{
+    return fb_psa_hash_setup (psa_op, PSA_ALG_SHA_256);
+}
+
+static inline bootutil_sha256_status bootutil_sha256_update(bootutil_sha256_context *psa_op,
+                                          const void *data,
+                                          uint32_t data_len)
+{
+    return fb_psa_hash_update(psa_op, data, data_len);
+}
+
+static inline bootutil_sha256_status bootutil_sha256_finish(bootutil_sha256_context *psa_op,
+                                          uint8_t *output)
+{
+    psa_status_t psa_ret;
+    int hash_length;
+    psa_ret = fb_psa_hash_finish(psa_op, output, 32, (size_t*)&hash_length);
+
+    return psa_ret;
+}
+
+#else /* defined(MCUBOOT_USE_FLASHBOOT_CRYPTO) */
 typedef mbedtls_sha256_context bootutil_sha256_context;
 
 static inline void bootutil_sha256_init(bootutil_sha256_context *ctx)
@@ -76,6 +107,7 @@ static inline void bootutil_sha256_finish(bootutil_sha256_context *ctx,
 {
     (void)mbedtls_sha256_finish_ret(ctx, output);
 }
+#endif /* defined(MCUBOOT_USE_FLASHBOOT_CRYPTO) */
 #endif /* MCUBOOT_USE_MBED_TLS */
 
 #ifdef MCUBOOT_USE_TINYCRYPT
