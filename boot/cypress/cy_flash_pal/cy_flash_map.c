@@ -74,7 +74,7 @@
 
 #include "cy_pdl.h"
 
-#define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
+//#define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 
 #define FLASH_AREA_IMAGE_SECTOR_SIZE FLASH_AREA_IMAGE_SCRATCH_SIZE
 
@@ -163,7 +163,7 @@ static struct flash_area scratch =
 
 #ifdef CY_FLASH_MAP_EXT_DESC
 /* Use external Flash Map Descriptors */
-extern flash_area *boot_area_descs[];
+extern struct flash_area *boot_area_descs[];
 #else
 struct flash_area *boot_area_descs[] =
 {
@@ -183,9 +183,9 @@ int flash_area_open(uint8_t id, const struct flash_area **fa)
 {
     int ret = -1;
     uint32_t i = 0;
-    uint32_t descs_n = NELEMS(boot_area_descs);
+//    uint32_t descs_n = NELEMS(boot_area_descs);
 
-    for(i = 0; i < descs_n; i++)
+    while(NULL != boot_area_descs[i])
     {
         if(id == boot_area_descs[i]->fa_id)
         {
@@ -193,7 +193,18 @@ int flash_area_open(uint8_t id, const struct flash_area **fa)
             ret = 0;
             break;
         }
+        i++;
     }
+
+//    for(i = 0; i < descs_n; i++)
+//    {
+//        if(id == boot_area_descs[i]->fa_id)
+//        {
+//            *fa = boot_area_descs[i];
+//            ret = 0;
+//            break;
+//        }
+//    }
 
     return ret;
 }
@@ -430,22 +441,32 @@ int flash_area_get_sectors(int idx, uint32_t *cnt, struct flash_sector *ret)
 {
     int rc = 0;
     uint32_t i = 0;
-    uint32_t descs_n = NELEMS(boot_area_descs);
+//    uint32_t descs_n = NELEMS(boot_area_descs);
     struct flash_area *fa;
     size_t sector_size = 0;
     size_t sectors_n = 0;
     uint32_t addr = 0;
 
-    for(i = 0; i < descs_n; i++)
+    while(NULL != boot_area_descs[i])
     {
         if(idx == boot_area_descs[i]->fa_id)
         {
             fa = boot_area_descs[i];
             break;
         }
+        i++;
     }
 
-    if(i < descs_n)
+    //    for(i = 0; i < descs_n; i++)
+//    {
+//        if(idx == boot_area_descs[i]->fa_id)
+//        {
+//            fa = boot_area_descs[i];
+//            break;
+//        }
+//    }
+
+    if(NULL != boot_area_descs[i])
     {
         if(fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
         {
