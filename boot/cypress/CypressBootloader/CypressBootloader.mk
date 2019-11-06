@@ -37,25 +37,41 @@ include $(CUR_APP_PATH)/targets.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
 
+# add start address for each target device, since flash size is different
+ifeq ($(TARGET), CY8CKIT-064S2-4343W-M0)
+CY_BOOTLOADER_START ?= 0x101D0000 # PSoC6-2M
+else
+$(error $(APP_NAME) start address is not defined)
+endif
 # Application-specific DEFINES
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
-#DEFINES_APP += -DMCUBOOT_APP_DEF
+# use external flash map descriptors since flash map is driven by policy
+DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
+DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
+#DEFINES_APP += -DCY_BOOTLOADER_VERSION
+#DEFINES_APP += -DCY_BOOTLOADER_BUILD
 
 # TODO: MCUBoot library
 # Collect MCUBoot sourses
-# SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
-SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c image_ec.c image_ec256.c loader.c tlv.c
-SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
+SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
+#SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c image_ec.c image_ec256.c loader.c tlv.c
+#SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 
 # Collect MCUBoot Application sources
-SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)
+SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/source/*.c)
 # Collect Flash Layer port sources
 SOURCES_FLASH_PORT := $(wildcard $(CURDIR)/cy_flash_pal/*.c)
+# Cy secureboot utils
+SOURCES_SECBOOT_UTILS := $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_jwt/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_base64/base64/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson/cJSON/*.c)
+
 # Collect all the sources
 SOURCES_APP := $(SOURCES_MCUBOOT)
 SOURCES_APP += $(SOURCES_APP_SRC)
 SOURCES_APP += $(SOURCES_FLASH_PORT)
+SOURCES_APP += $(SOURCES_SECBOOT_UTILS)
 
 INCLUDES_DIRS_MCUBOOT := $(addprefix -I, $(CURDIR)/../bootutil/include)
 INCLUDES_DIRS_MCUBOOT += $(addprefix -I, $(CURDIR)/../bootutil/src)
@@ -66,10 +82,9 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include/flash_map_bac
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/config)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/os)
-
-INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils)
-INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils/cy_secureboot_utils/cy_jwt)
-INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/utils/3rd_party/cJSON)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_jwt)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_base64)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson/cJSON)
 
 # Collect Utils sources
 SOURCES_APP += $(wildcard $(CUR_APP_PATH)/utils/flashboot_psacrypto/*.c)
