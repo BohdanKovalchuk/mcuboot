@@ -1,1 +1,0 @@
- cy_secureboot_utils
