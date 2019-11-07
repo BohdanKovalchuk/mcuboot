@@ -56,7 +56,7 @@ DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
 
 # TODO: MCUBoot library
 # Collect MCUBoot sourses
-#SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
+# SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
 SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c image_ec.c image_ec256.c loader.c tlv.c
 SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 

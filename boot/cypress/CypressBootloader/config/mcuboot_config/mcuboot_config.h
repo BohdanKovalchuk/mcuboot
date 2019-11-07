@@ -133,7 +133,7 @@
 /* Uncomment if your platform has its own mcuboot_config/mcuboot_assert.h.
  * If so, it must provide an ASSERT macro for use by bootutil. Otherwise,
  * "assert" is used. */
-//#define MCUBOOT_HAVE_ASSERT_H
+#define MCUBOOT_HAVE_ASSERT_H
 
 #define MCUBOOT_WATCHDOG_FEED()         \
     do {                                \
