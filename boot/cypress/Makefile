@@ -165,7 +165,7 @@ ifeq ($(IMG_TYPE), UPGRADE)
 	UPGRADE :=_upgrade
 endif
 
-.PHONY: all app build clean sign load load_boot load_upgrade
+.PHONY: all app build clean post_build load load_boot load_upgrade
 
 all: clean app
 
@@ -175,9 +175,7 @@ app:
 	@`mkdir -p ./$(OUT_CFG)`
 	@`mkdir -p ./$(OUT_OBJ)`
 	$(MAKE) build -j8
-
-sign: $(OUT_APP)/$(APP_NAME).hex
-	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_APP)/$(APP_NAME).hex $(OUT_APP)/$(APP_NAME)_signed$(UPGRADE).hex
+	$(MAKE) post_build
 
 build: $(OUT_APP)/$(APP_NAME).hex
 	$(GCC_PATH)/bin/arm-none-eabi-objdump $(OUT_APP)/$(APP_NAME).hex -s > $(OUT_APP)/$(APP_NAME).lst
@@ -185,11 +183,6 @@ build: $(OUT_APP)/$(APP_NAME).hex
 
 $(OUT_APP)/$(APP_NAME).hex: $(OUT_APP)/$(APP_NAME).elf
 	$(GCC_PATH)/bin/arm-none-eabi-objcopy --change-addresses=$(HEADER_OFFSET) -O ihex $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME).hex
-
-#ifeq ($(SIGN), 1)
-#	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_APP)/$(APP_NAME).hex $(OUT_APP)/$(APP_NAME)_signed.hex
-#	$(GCC_PATH)/bin/arm-none-eabi-objdump $(OUT_APP)/$(APP_NAME)_signed.hex -s > $(OUT_APP)/$(APP_NAME)_signed.lst
-#endif
 
 $(OUT_APP)/$(APP_NAME).elf: $(addprefix $(OUT_OBJ)/, $(O_FILES))
 	@echo "LD $@"
@@ -236,14 +229,14 @@ else
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME).hex /Volumes/DAPLINK
 endif
 
-load_boot: sign
+load_boot:
 ifeq ($(HOST_OS), win)
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed.hex /d/
 else
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed.hex /Volumes/DAPLINK
 endif
 
-load_upgrade: sign
+load_upgrade:
 ifeq ($(HOST_OS), win)
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed_upgrade.hex /d/
 else

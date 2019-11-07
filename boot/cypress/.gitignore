@@ -39,3 +39,6 @@ rusty-tags.*
 *.hex
 *.log
 *.lst
+
+cy_state_internal.json
+*.jwt

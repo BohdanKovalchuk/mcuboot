@@ -64,3 +64,8 @@ INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 
 ASM_FILES_APP :=
+
+# Post build action to execute after main build job
+post_build: $(OUT_APP)/$(APP_NAME).hex
+	@echo [POST_BUILD] - Executing post build script for $(APP_NAME)
+	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_APP)/$(APP_NAME).hex $(OUT_APP)/$(APP_NAME)_signed$(UPGRADE).hex

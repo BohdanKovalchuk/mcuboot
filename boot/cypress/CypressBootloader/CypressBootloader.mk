@@ -33,6 +33,8 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
+KEY=$(CURDIR)/$(APP_NAME)/scripts/cy_state_internal.json
+
 include $(CUR_APP_PATH)/targets.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
@@ -54,9 +56,9 @@ DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
 
 # TODO: MCUBoot library
 # Collect MCUBoot sourses
-SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
-#SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c image_ec.c image_ec256.c loader.c tlv.c
-#SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
+#SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
+SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c image_ec.c image_ec256.c loader.c tlv.c
+SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 
 # Collect MCUBoot Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/source/*.c)
@@ -98,5 +100,11 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/flashboo
 # Collect Utils sources
 SOURCES_APP += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypto/*.c)
 
+# Post build action to execute after main build job
+post_build: $(OUT_APP)/$(APP_NAME).hex
+	@echo [POST_BUILD] - Calculating CRC of TOC3 for $(APP_NAME)
+	$(PYTHON_PATH) $(CUR_APP_PATH)/scripts/toc3_crc.py $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME)_CM0p.hex
+	@echo [POST_BUILD] - Creating image certificate for $(APP_NAME)
+	$(PYTHON_PATH) $(CUR_APP_PATH)/scripts/image_cert.py -i $(OUT_APP)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_APP)/$(APP_NAME)_CM0p.jwt
 
 ASM_FILES_APP :=
