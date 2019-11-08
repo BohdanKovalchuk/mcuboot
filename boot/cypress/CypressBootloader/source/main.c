@@ -120,6 +120,7 @@ bnu_policy_t cy_bl_bnu_policy;
 /** Debug policy structure */
 debug_policy_t debug_policy;
 
+#ifdef CY_FLASH_MAP_EXT_DESC
 /* FlashMap descriptors */
 static struct flash_area bootloader;
 static struct flash_area primary_1;
@@ -142,6 +143,7 @@ struct flash_area *boot_area_descs[] =
     &scratch,
     NULL
 };
+#endif
 
 /* Next image runner API */
 static void do_boot(struct boot_rsp *rsp)
