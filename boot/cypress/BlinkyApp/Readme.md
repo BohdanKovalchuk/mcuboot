@@ -91,3 +91,6 @@ When user application programmed in UPRADE slot and upgrade procedure was succes
 `[BlinkyApp] UART initialized`
 `[BlinkyApp] Retarget I/O set to 115200 baudrate`
 `[BlinkyApp] Red led blinks with 0.25 sec period`
+
+**Important**: make sure primary and secondary slot sizes are appropriate and correspond to flash area size defined in BlinkyApp linker file.
+**Important**: make sure primary and secondary slot sizes are appropriate and correspond to flash area size defined in BlinkyApp linker file.
