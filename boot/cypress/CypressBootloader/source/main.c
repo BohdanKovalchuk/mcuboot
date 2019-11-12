@@ -183,20 +183,6 @@ int main(void)
         CY_ASSERT(0);
     }
 
-    /* Stop if we are in the TEST MODE */
-//    if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
-//    {
-//        /* Get IPC base register address */
-//        IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
-//        Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
-//
-//        BOOT_LOG_INF("TEST MODE");
-//
-//        __disable_irq();
-//        Cy_BLServ_SRAMTestBitLoop();
-//        __enable_irq();
-//    }
-
     /* Initialize retarget-io to use the debug UART port */
     cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
 
@@ -207,42 +193,57 @@ int main(void)
     }
     else
     {
-        BOOT_LOG_INF("CypressBootloader Started");
+        BOOT_LOG_INF("TEST : CypressBootloader Started");
     }
     __enable_irq();
+    /* Processing of policy in JWT format */
+    uint32_t jwtLen;
+    char *jwt;
+    rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
+    if(0 == rc)
+    {
+        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
+                CY_BOOTLOADER_MASTER_IMG_ID);
+    }
+    // TODO: initialize SMIF if supported/requested
+    // FWSECURITY-676
+    if(0 != rc)
+    {
+        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
+    }
+    else /*    if(0 == rc) */
+    {
+        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-//    /* Processing of policy in JWT format */
-//    uint32_t jwtLen;
-//    char *jwt;
-//    rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
-//    if(0 == rc)
-//    {
-//        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
-//                CY_BOOTLOADER_MASTER_IMG_ID);
-//    }
-//    // TODO: initialize SMIF if supported/requested
-//
-//    if(0 != rc)
-//    {
-//        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
-//    }
-//    else /*    if(0 == rc) */
-//    {
-//        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
-//        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
-//
-//        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
-//        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
-//
-//        // TODO: add primary_2 + secondary_2
-//        // TODO: add bootloader
-//        // TODO: initialize scratch
-//
-//        // TODO: apply protections if supported/requested
-//    }
+        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
+        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
+
+        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
+        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
+
+        // TODO: add primary_2 + secondary_2
+        // FWSECURITY-935
+
+        // TODO: add bootloader
+        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
+        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        bootloader.fa_off = cyToc[4];
+        bootloader.fa_size = cyToc[5];
+
+        // TODO: initialize scratch
+        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
+        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
+        scratch.fa_off = 0x1000;
+
+        // TODO: apply protections if supported/requested
+    }
 
     rc = boot_go(&rsp);
-//    if (boot_go(&rsp) == 0)
     if(rc == 0)
     {
         BOOT_LOG_INF("User Application validated successfully");

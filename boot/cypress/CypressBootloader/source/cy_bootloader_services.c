@@ -306,11 +306,11 @@ void Cy_BLServ_Assert(int expr)
     {
         BOOT_LOG_ERR("There is an error occurred during bootloader flow. MCU stopped.");
 
-        rc = Cy_BLServ_EnableAccessPorts();
-        if(0 != rc)
-        {
-            BOOT_LOG_ERR("Error %x while enabling access ports", rc);
-        }
+//        rc = Cy_BLServ_EnableAccessPorts();
+//        if(0 != rc)
+//        {
+//            BOOT_LOG_ERR("Error %x while enabling access ports", rc);
+//        }
 
         if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
         {
