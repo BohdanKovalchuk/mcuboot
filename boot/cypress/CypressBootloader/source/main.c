@@ -77,15 +77,15 @@
  * CypressBootloader global defines
  * and variables.
  ************************************/
-#define TOC_FREQ_8MHZ_IDX       (1UL)
-#define TOC_FREQ_25MHZ_IDX      (0UL)
-#define TOC_FREQ_50HMZ_IDX      (2UL)
+#define TOC_FREQ_8MHZ_IDX                (1UL)
+#define TOC_FREQ_25MHZ_IDX               (0UL)
+#define TOC_FREQ_50HMZ_IDX               (2UL)
 
-#define TOC_LISTEN_WINDOW_0MS_IDX       (3UL)
-#define TOC_LISTEN_WINDOW_1MS_IDX       (2UL)
-#define TOC_LISTEN_WINDOW_10MS_IDX      (1UL)
-#define TOC_LISTEN_WINDOW_20MS_IDX      (0UL)
-#define TOC_LISTEN_WINDOW_100MS_IDX     (4UL)
+#define TOC_LISTEN_WINDOW_0MS_IDX        (3UL)
+#define TOC_LISTEN_WINDOW_1MS_IDX        (2UL)
+#define TOC_LISTEN_WINDOW_10MS_IDX       (1UL)
+#define TOC_LISTEN_WINDOW_20MS_IDX       (0UL)
+#define TOC_LISTEN_WINDOW_100MS_IDX      (4UL)
 
 #define CY_BOOTLOADER_IMG_ID_CM0P        (0UL)
 #define CY_BOOTLOADER_IMG_ID_TEE_CM0P    (1UL)
@@ -93,7 +93,8 @@
 #define CY_BOOTLOADER_IMG_ID_OEMTF_CM0P  (3UL)
 #define CY_BOOTLOADER_IMG_ID_CM4         (4UL)
 
-#define CY_BOOTLOADER_MASTER_IMG_ID CY_BOOTLOADER_IMG_ID_CM0P
+#define CY_BOOTLOADER_MASTER_IMG_ID      CY_BOOTLOADER_IMG_ID_CM0P
+
 /* TOC3 Table */
 /* valid TOC3, section name cy_toc_part2 used for CRC calculation */
 __attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 ] =
@@ -113,6 +114,7 @@ __attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 
     (TOC_LISTEN_WINDOW_20MS_IDX << 2) |
     (TOC_FREQ_25MHZ_IDX << 0),
 };
+
 /** SecureBoot policies*/
 /** Boot & Upgrade policy structure */
 bnu_policy_t cy_bl_bnu_policy;

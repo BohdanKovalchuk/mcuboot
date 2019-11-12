@@ -3,7 +3,7 @@
 # \version 1.0
 #
 # \brief
-# Makefile to describe libraries needed for Cypress MCUBoot based applications.
+# Makefile to describe libraries needed for CypressBootloader applications.
 #
 ################################################################################
 # \copyright

@@ -175,6 +175,7 @@ struct flash_area *boot_area_descs[] =
     &secondary_2,
 #endif
     &scratch,
+    NULL
 };
 #endif
 

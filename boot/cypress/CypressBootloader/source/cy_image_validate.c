@@ -59,11 +59,6 @@
 *
 ********************************************************************************/
 
-#ifndef TEST_KEY_ID
-#define TEST_KEY_ID        8
-#endif
-
-
 #ifdef MCUBOOT_HAVE_ASSERT_H
 #include "mcuboot_config/mcuboot_assert.h"
 #else
@@ -235,7 +230,7 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
 #endif
 
 #ifdef EXPECTED_SIG_TLV
-static int
+int
 bootutil_find_key(uint8_t *keyhash, uint8_t keyhash_len)
 {
 	psa_status_t psa_ret = -1;
@@ -286,7 +281,7 @@ bootutil_find_key(uint8_t *keyhash, uint8_t keyhash_len)
 #endif
 
 extern bnu_policy_t cy_bl_bnu_policy;
-int cy_bootutil_find_key(int image_index)
+static int cy_bootutil_find_key(int image_index)
 {
     int key = 0;
 
@@ -298,8 +293,6 @@ int cy_bootutil_find_key(int image_index)
     {
         key = cy_bl_bnu_policy.bnu_img_policy.upgrade_auth[0];
     }
-
-    key = TEST_KEY_ID;
 
     return key;
 }
@@ -320,7 +313,7 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
     int sha256_valid = 0;
 #ifdef EXPECTED_SIG_TLV
     int valid_signature = 0;
-    uint8_t key_id = 0;
+    int key_id = 0;
 #endif
     struct image_tlv_iter it;
     uint8_t buf[SIG_BUF_SIZE];

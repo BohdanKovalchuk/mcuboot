@@ -33,7 +33,7 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
-KEY=$(CURDIR)/$(APP_NAME)/scripts/cy_state_internal.json
+KEY=$(APP_NAME)/scripts/cy_state_internal.json
 
 include $(CUR_APP_PATH)/targets.mk
 include $(CUR_APP_PATH)/libs.mk
@@ -49,7 +49,7 @@ endif
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 # Use external flash map descriptors since flash map is driven by policy
-DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
+#DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
 DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
 #DEFINES_APP += -DCY_BOOTLOADER_VERSION
 #DEFINES_APP += -DCY_BOOTLOADER_BUILD
@@ -57,7 +57,7 @@ DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
 # TODO: MCUBoot library
 # Collect MCUBoot sourses
 # SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
-SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c image_ec.c image_ec256.c loader.c tlv.c
+SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c loader.c tlv.c
 SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 
 # Collect MCUBoot Application sources
@@ -84,6 +84,7 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include/flash_map_bac
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/config)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/os)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/source)
 # Include secure bootloader utility dependencies
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_jwt)
@@ -103,8 +104,8 @@ SOURCES_APP += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypt
 # Post build action to execute after main build job
 post_build: $(OUT_APP)/$(APP_NAME).hex
 	@echo [POST_BUILD] - Calculating CRC of TOC3 for $(APP_NAME)
-	$(PYTHON_PATH) $(CUR_APP_PATH)/scripts/toc3_crc.py $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME)_CM0p.hex
+	$(PYTHON_PATH) $(APP_NAME)/scripts/toc3_crc.py $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME)_CM0p.hex
 	@echo [POST_BUILD] - Creating image certificate for $(APP_NAME)
-	$(PYTHON_PATH) $(CUR_APP_PATH)/scripts/image_cert.py -i $(OUT_APP)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_APP)/$(APP_NAME)_CM0p.jwt
+	$(PYTHON_PATH) $(APP_NAME)/scripts/image_cert.py -i $(OUT_APP)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_APP)/$(APP_NAME)_CM0p.jwt
 
 ASM_FILES_APP :=
