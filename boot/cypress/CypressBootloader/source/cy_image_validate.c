@@ -293,9 +293,6 @@ static int cy_bootutil_find_key(int image_index)
     {
         key = cy_bl_bnu_policy.bnu_img_policy.upgrade_auth[0];
     }
-
-    key = 8;        // for test, TODO: remove after testing!!!
-
     return key;
 }
 
