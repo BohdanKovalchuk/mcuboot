@@ -294,6 +294,8 @@ static int cy_bootutil_find_key(int image_index)
         key = cy_bl_bnu_policy.bnu_img_policy.upgrade_auth[0];
     }
 
+    key = 8;        // for test, TODO: remove after testing!!!
+
     return key;
 }
 
@@ -386,7 +388,7 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
              */
         } else if (type == EXPECTED_SIG_TLV) {
             /* Ignore this signature if it is out of bounds. */
-            if (key_id < 0 || key_id >= bootutil_key_cnt) {
+            if (key_id <= 0 || key_id > CY_FB_MAX_KEY_COUNT) {
                 key_id = -1;
                 continue;
             }
