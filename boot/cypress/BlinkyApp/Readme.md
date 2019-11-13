@@ -16,29 +16,29 @@ Root directory for build is **boot/cypress.**
 
 The following command will build regular HEX file of a Blinky Application, BOOT slot:
 
-`make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=BOOT`
+    make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=BOOT
 
 This have following defaults suggested:
 
-`BUILDCFG=Debug`
-`IMG_TYPE=BOOT`
+    BUILDCFG=Debug
+    IMG_TYPE=BOOT
 
 To build UPGRADE image use following command:
 
-`make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000`
+    make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000
 
 **How to sign an image:**
 
 To sign obtained image use following command:
 
-`make sign APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=BOOT`
+    make sign APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=BOOT
 
-`make sign APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=UPGRADE`
+    make sign APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=UPGRADE
 
 Flags defaults:
 
-`BUILDCFG=Debug`
-`IMG_TYPE=BOOT`
+    BUILDCFG=Debug
+    IMG_TYPE=BOOT
 
 *Note:* before signing UPGRADE image it should be rebuilt with IMG_TYPE=UPGRADE parameter (clean \out before it).
 
@@ -50,15 +50,15 @@ Currently implemented makefile jobs use DAPLINK interface for programming.
 
 To program BOOT image:
 
-`make load_boot APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W`
+    make load_boot APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
 
 To program UPGRADE image:
 
-`make load_upgrade APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W`
+    make load_upgrade APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
 
 Flags defaults:
 
-`BUILDCFG=Debug`
+    BUILDCFG=Debug
 
 **Flags:**
 - `BUILDCFG` - configation **Release** of **Debug**
@@ -72,26 +72,22 @@ Flags defaults:
 
 When user application programmed in BOOT slot:
 
-`===========================`
-`[BlinkyApp] BlinkyApp v1.0`
-`===========================`
-
-`[BlinkyApp] GPIO initialized`
-`[BlinkyApp] UART initialized`
-`[BlinkyApp] Retarget I/O set to 115200 baudrate`
-`[BlinkyApp] Red led blinks with 1 sec period`
+    ===========================
+    [BlinkyApp] BlinkyApp v1.0
+    ===========================
+    [BlinkyApp] GPIO initialized
+    [BlinkyApp] UART initialized
+    [BlinkyApp] Retarget I/O set to 115200 baudrate
+    [BlinkyApp] Red led blinks with 1 sec period
 
 When user application programmed in UPRADE slot and upgrade procedure was successful:
 
-`===========================`
-`[BlinkyApp] BlinkyApp v2.0`
-`===========================`
+    ===========================
+    [BlinkyApp] BlinkyApp v2.0
+    ===========================
 
-`[BlinkyApp] GPIO initialized`
-`[BlinkyApp] UART initialized`
-`[BlinkyApp] Retarget I/O set to 115200 baudrate`
-`[BlinkyApp] Red led blinks with 0.25 sec period`
-`[BlinkyApp] Red led blinks with 0.25 sec period`
-
-**Important**: make sure primary and secondary slot sizes are appropriate and correspond to flash area size defined in BlinkyApp linker file.
-**Important**: make sure primary and secondary slot sizes are appropriate and correspond to flash area size defined in BlinkyApp linker file.
+    [BlinkyApp] GPIO initialized
+    [BlinkyApp] UART initialized
+    [BlinkyApp] Retarget I/O set to 115200 baudrate
+    [BlinkyApp] Red led blinks with 0.25 sec period
+    [BlinkyApp] Red led blinks with 0.25 sec period
