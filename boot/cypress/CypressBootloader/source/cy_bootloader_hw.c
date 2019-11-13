@@ -12,10 +12,16 @@
 * disclaimers, and limitations in the end user license agreement accompanying
 * the software package with which this file was provided.
 *******************************************************************************/
-#include "cy_bootloader_hw.h"
-
+#include "cy_pdl.h"
+#include "cyhal.h"
+#include "cybsp.h"
+#include "cybsp_types.h"
+#include "cy_retarget_io.h"
+#include "cy_result.h"
 #include "cy_device_headers.h"
 #include "cy_wdt.h"
+
+#include "cy_bootloader_hw.h"
 
 #include "mcuboot_config/mcuboot_logging.h"
 
@@ -58,71 +64,6 @@ const cy_stc_gpio_pin_config_t LED_RED_config =
 	.vohSel = 0UL,
 };
 #endif /* CY_BOOTLOADER_DIAGNOSTIC_GPIO */
-
-static void Cy_InitUart(void);
-
-/** Setup UART for logging messages */
-static void Cy_InitUart(void)
-{
-    static cy_stc_scb_uart_context_t UART_context;
-    static const cy_stc_gpio_pin_config_t ioss_0_port_5_pin_1_config =
-    {
-        .outVal = 1U,
-        .driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-        .hsiom = ioss_0_port_5_pin_1_HSIOM,
-        .intEdge = CY_GPIO_INTR_DISABLE,
-        .intMask = 0UL,
-        .vtrip = CY_GPIO_VTRIP_CMOS,
-        .slewRate = CY_GPIO_SLEW_FAST,
-        .driveSel = CY_GPIO_DRIVE_FULL,
-        .vregEn = 0UL,
-        .ibufMode = 0UL,
-        .vtripSel = 0UL,
-        .vrefSel = 0UL,
-        .vohSel = 0UL,
-    };
-    static const cy_stc_scb_uart_config_t scb_5_config =
-    {
-       .uartMode = CY_SCB_UART_STANDARD,
-       .enableMutliProcessorMode = false,
-       .smartCardRetryOnNack = false,
-       .irdaInvertRx = false,
-       .irdaEnableLowPowerReceiver = false,
-       .oversample = 8,
-       .enableMsbFirst = false,
-       .dataWidth = 8UL,
-       .parity = CY_SCB_UART_PARITY_NONE,
-       .stopBits = CY_SCB_UART_STOP_BITS_1,
-       .enableInputFilter = false,
-       .breakWidth = 11UL,
-       .dropOnFrameError = false,
-       .dropOnParityError = false,
-       .receiverAddress = 0x0UL,
-       .receiverAddressMask = 0x0UL,
-       .acceptAddrInFifo = false,
-       .enableCts = false,
-       .ctsPolarity = CY_SCB_UART_ACTIVE_LOW,
-       .rtsRxFifoLevel = 0UL,
-       .rtsPolarity = CY_SCB_UART_ACTIVE_LOW,
-       .rxFifoTriggerLevel = 63UL,
-       .rxFifoIntEnableMask = 0UL,
-       .txFifoTriggerLevel = 63UL,
-       .txFifoIntEnableMask = 0UL,
-    };
-
-    /* Configure UART Tx pin */
-    (void)Cy_GPIO_Pin_Init(ioss_0_port_5_pin_1_PORT, ioss_0_port_5_pin_1_PIN, &ioss_0_port_5_pin_1_config);
-
-    /* Configure clock for UART */
-    Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_8_BIT, 0U);
-    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 0U, 53U);
-    Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 0U);
-    Cy_SysClk_PeriphAssignDivider(PCLK_SCB5_CLOCK, CY_SYSCLK_DIV_8_BIT, 0U);
-
-    /* Configure and enable UART */
-    (void)Cy_SCB_UART_Init(SCB5, &scb_5_config, &UART_context);
-    Cy_SCB_UART_Enable(SCB5);
-}
 
 void Cy_InitSmifPins(void)
 {
@@ -243,6 +184,7 @@ void Cy_InitPSoC6_HW(void)
 #if defined(CY_BOOTLOADER_DIAGNOSTIC_GPIO)
     Cy_GPIO_Pin_Init(LED_RED_PORT, LED_RED_PIN, &LED_RED_config);
 #endif
-    Cy_InitUart();
+    /* Initialize retarget-io to use the debug UART port */
+    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
 #endif
 }

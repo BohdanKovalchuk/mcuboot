@@ -36,6 +36,9 @@ SIGN_KEY_FILE ?= cypress-test-ec-p256
 
 BUILDCFG ?= Debug
 
+# Temporary flag for CI enable build of bootlaoder without certificate generation
+NO_CERT ?= 0
+
 # Set of supported applications
 APPS := MCUBootApp BlinkyApp CypressBootloader
 # Output folder
@@ -69,6 +72,7 @@ O_FILES := $(notdir $(C_FILES:.c=.o)) $(addsuffix .o, $(notdir $(basename $(ASM_
 
 DEFINES := $(DEFINES_APP)
 DEFINES += $(DEFINES_LIBS)
+AS_FLAGS += $(DEFINES)
 
 ifeq ($(MAKEINFO), 1)
 $(info ==============================================================================)
@@ -125,6 +129,25 @@ VPATH = $(dir $(C_FILES) $(ASM_FILES))
 #endif
 #
 
+#
+# STDE: For cygwin, adjust paths for compiler
+#
+MY_FILES := $(subst /cygdrive/c,c:,$(C_FILES))
+#$(info MY_FILES $(MY_FILES))
+C_FILES=$(MY_FILES)
+
+MY_DIRS := $(subst /cygdrive/c,c:,$(INCLUDE_DIRS))
+#$(info MY_DIRS $(MY_DIRS))
+INCLUDE_DIRS=$(MY_DIRS)
+
+MY_ASM_FILES := $(subst /cygdrive/c,c:,$(ASM_FILES))
+#$(info MY_ASM_FILES $(MY_ASM_FILES))
+ASM_FILES=$(MY_ASM_FILES)
+
+MY_LDFLAGS := $(subst /cygdrive/c,c:,$(LDFLAGS))
+#$(info MY_LDFLAGS $(MY_LDFLAGS))
+LDFLAGS=$(MY_LDFLAGS)
+
 # Default name pattern for output files
 # may be modified in %Application%.mk file
 OUT_FILE_NAME ?= $(OUT_APP)/$(APP_NAME)
@@ -137,16 +160,7 @@ else
 PYTHON_PATH?=python3
 endif
 
-IMGTOOL_PATH ?=	../../scripts/imgtool.py
-
-SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 65536 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
-
-ifeq ($(IMG_TYPE), UPGRADE)
-	SIGN_ARGS += --pad
-	UPGRADE :=_upgrade
-endif
-
-.PHONY: all app build clean sign load load_boot load_upgrade
+.PHONY: all app build clean post_build load load_boot load_upgrade
 
 all: clean app
 
@@ -156,9 +170,7 @@ app:
 	@`mkdir -p ./$(OUT_CFG)`
 	@`mkdir -p ./$(OUT_OBJ)`
 	$(MAKE) build -j8
-
-sign: $(OUT_APP)/$(APP_NAME).hex
-	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_APP)/$(APP_NAME).hex $(OUT_APP)/$(APP_NAME)_signed$(UPGRADE).hex
+	$(MAKE) post_build
 
 build: $(OUT_APP)/$(APP_NAME).hex
 	$(GCC_PATH)/bin/arm-none-eabi-objdump $(OUT_APP)/$(APP_NAME).hex -s > $(OUT_APP)/$(APP_NAME).lst
@@ -166,11 +178,6 @@ build: $(OUT_APP)/$(APP_NAME).hex
 
 $(OUT_APP)/$(APP_NAME).hex: $(OUT_APP)/$(APP_NAME).elf
 	$(GCC_PATH)/bin/arm-none-eabi-objcopy --change-addresses=$(HEADER_OFFSET) -O ihex $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME).hex
-
-#ifeq ($(SIGN), 1)
-#	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_APP)/$(APP_NAME).hex $(OUT_APP)/$(APP_NAME)_signed.hex
-#	$(GCC_PATH)/bin/arm-none-eabi-objdump $(OUT_APP)/$(APP_NAME)_signed.hex -s > $(OUT_APP)/$(APP_NAME)_signed.lst
-#endif
 
 $(OUT_APP)/$(APP_NAME).elf: $(addprefix $(OUT_OBJ)/, $(O_FILES))
 	@echo "LD $@"
@@ -217,14 +224,14 @@ else
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME).hex /Volumes/DAPLINK
 endif
 
-load_boot: sign
+load_boot:
 ifeq ($(HOST_OS), win)
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed.hex /d/
 else
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed.hex /Volumes/DAPLINK
 endif
 
-load_upgrade: sign
+load_upgrade:
 ifeq ($(HOST_OS), win)
 	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed_upgrade.hex /d/
 else

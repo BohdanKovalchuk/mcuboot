@@ -32,7 +32,7 @@
 //#define MCUBOOT_SIGN_RSA
 
 /* Uncomment for ECDSA signatures using curve P-256. */
-//#define MCUBOOT_SIGN_EC256
+#define MCUBOOT_SIGN_EC256
 #define NUM_ECC_BYTES (256 / 8) 	// P-256 curve size in bytes, rnok: to make compilable
 
 // #define MCUBOOT_SIGN_EC
@@ -133,11 +133,14 @@
 /* Uncomment if your platform has its own mcuboot_config/mcuboot_assert.h.
  * If so, it must provide an ASSERT macro for use by bootutil. Otherwise,
  * "assert" is used. */
-//#define MCUBOOT_HAVE_ASSERT_H
+#define MCUBOOT_HAVE_ASSERT_H
 
 #define MCUBOOT_WATCHDOG_FEED()         \
     do {                                \
         /* TODO: to be implemented */   \
     } while (0)
+
+
+#define MCUBOOT_USE_FLASHBOOT_CRYPTO
 
 #endif /* MCUBOOT_CONFIG_H */

@@ -175,6 +175,7 @@ struct flash_area *boot_area_descs[] =
     &secondary_2,
 #endif
     &scratch,
+    NULL
 };
 #endif
 
@@ -336,6 +337,8 @@ int     flash_area_to_sectors(int idx, int *cnt, struct flash_area *fa)
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
         // TODO:
+        (void)idx;
+        (void)cnt;
         rc = 0;
     }
 #ifdef CY_USE_EXTERNAL_FLASH
@@ -455,7 +458,7 @@ int flash_area_get_sectors(int idx, uint32_t *cnt, struct flash_sector *ret)
         i++;
     }
 
-//    for(i = 0; i < descs_n; i++)
+    //    for(i = 0; i < descs_n; i++)
 //    {
 //        if(idx == boot_area_descs[i]->fa_id)
 //        {

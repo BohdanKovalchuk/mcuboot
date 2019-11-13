@@ -207,7 +207,7 @@ int psoc6_flash_write_hal(uint8_t data[],
     eeOffset = (uint32_t)address;
     writeBufferPointer = (uint8_t*)writeBuffer;
 
-    bool cond1, cond2, cond3;
+    bool cond1; //, cond2, cond3;
 
     /* Make sure, that varFlash[] points to Flash */
     cond1 = ((eeOffset >= CY_FLASH_BASE) &&

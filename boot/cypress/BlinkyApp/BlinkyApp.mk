@@ -23,7 +23,7 @@
 # limitations under the License.
 ################################################################################
 
-# Cypress' MCUBoot Application supports GCC ARM only at this moment 
+# Cypress' MCUBoot Application supports GCC ARM only at this moment
 # Set defaults to:
 # 	- compiler GCC
 #   - build configuration to Debug
@@ -61,8 +61,22 @@ INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 
 # Specify linker script to use
-APP_LD ?= $(CUR_APP_PATH)/$(APP_NAME).ld
+APP_LD ?= $(CUR_APP_PATH)/Application.ld
 
 LDFLAGS += -T $(APP_LD)
 
 ASM_FILES_APP :=
+
+IMGTOOL_PATH ?=	../../scripts/imgtool.py
+
+SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 65536 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
+
+ifeq ($(IMG_TYPE), UPGRADE)
+	SIGN_ARGS += --pad
+	UPGRADE :=_upgrade
+endif
+
+# Post build action to execute after main build job
+post_build: $(OUT_APP)/$(APP_NAME).hex
+	@echo [POST_BUILD] - Executing post build script for $(APP_NAME)
+	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_APP)/$(APP_NAME).hex $(OUT_APP)/$(APP_NAME)_signed$(UPGRADE).hex

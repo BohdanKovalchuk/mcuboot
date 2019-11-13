@@ -15,9 +15,9 @@ Features implemented:
 
 **Flash map used for MCUBoot Bootloader:**
 
-`0x10000 0000 - 0x1002 0000` - MCUBoot Bootloader
-`0x10002 0000 - 0x1003 0000` - BOOT slot of Bootloader
-`0x10003 0000 - 0x1004 0000` - UPGRADE slot of Bootloader
+    0x10000 0000 - 0x1002 0000 - MCUBoot Bootloader
+    0x10002 0000 - 0x1003 0000 - BOOT slot of Bootloader
+    0x10003 0000 - 0x1004 0000 - UPGRADE slot of Bootloader
 
 Size of slots `0x10000` - 64kb
 
@@ -27,12 +27,12 @@ Root directory for build is **boot/cypress**.
 
 The following command will build MCUBoot Bootloader HEX file:
 
-`make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W-M0`
+    make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W-M0
 
 Flags by defalt:
 
-`BUILDCFG=Debug`
-`MAKEINFO=0`
+    BUILDCFG=Debug
+    MAKEINFO=0
 
 **How to program MCUBoot Bootloader:**
 
@@ -42,14 +42,14 @@ Currently implemented makefile jobs use DAPLINK interface for programming.
 
 To program Bootloader image use following command:
 
-`make load APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W-M0`
+    make load APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W-M0
 
 **Example terminal output:**
 
 When user application programmed in BOOT slot:
 
-`[INF] MCUBoot Bootloader Started`
+    [INF] MCUBoot Bootloader Started
 
-`[INF] User Application validated successfully`
+    [INF] User Application validated successfully
 
-`[INF] Starting User Application on CM4 (wait)…`
+    [INF] Starting User Application on CM4 (wait)…

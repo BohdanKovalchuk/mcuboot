@@ -70,6 +70,7 @@
 #include "cy_jwt_policy.h"
 #include "cy_jwt_bnu_policy.h"
 
+#include "cy_bootloader_hw.h"
 #include "cy_bootloader_version.h"
 #include "cy_bootloader_services.h"
 
@@ -77,15 +78,15 @@
  * CypressBootloader global defines
  * and variables.
  ************************************/
-#define TOC_FREQ_8MHZ_IDX       (1UL)
-#define TOC_FREQ_25MHZ_IDX      (0UL)
-#define TOC_FREQ_50HMZ_IDX      (2UL)
+#define TOC_FREQ_8MHZ_IDX                (1UL)
+#define TOC_FREQ_25MHZ_IDX               (0UL)
+#define TOC_FREQ_50MHZ_IDX               (2UL)
 
-#define TOC_LISTEN_WINDOW_0MS_IDX       (3UL)
-#define TOC_LISTEN_WINDOW_1MS_IDX       (2UL)
-#define TOC_LISTEN_WINDOW_10MS_IDX      (1UL)
-#define TOC_LISTEN_WINDOW_20MS_IDX      (0UL)
-#define TOC_LISTEN_WINDOW_100MS_IDX     (4UL)
+#define TOC_LISTEN_WINDOW_0MS_IDX        (3UL)
+#define TOC_LISTEN_WINDOW_1MS_IDX        (2UL)
+#define TOC_LISTEN_WINDOW_10MS_IDX       (1UL)
+#define TOC_LISTEN_WINDOW_20MS_IDX       (0UL)
+#define TOC_LISTEN_WINDOW_100MS_IDX      (4UL)
 
 #define CY_BOOTLOADER_IMG_ID_CM0P        (0UL)
 #define CY_BOOTLOADER_IMG_ID_TEE_CM0P    (1UL)
@@ -93,7 +94,8 @@
 #define CY_BOOTLOADER_IMG_ID_OEMTF_CM0P  (3UL)
 #define CY_BOOTLOADER_IMG_ID_CM4         (4UL)
 
-#define CY_BOOTLOADER_MASTER_IMG_ID CY_BOOTLOADER_IMG_ID_CM0P
+#define CY_BOOTLOADER_MASTER_IMG_ID      CY_BOOTLOADER_IMG_ID_CM0P
+
 /* TOC3 Table */
 /* valid TOC3, section name cy_toc_part2 used for CRC calculation */
 __attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 ] =
@@ -111,8 +113,9 @@ __attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 
     0,
     [(512 / sizeof(int)) - 2] =
     (TOC_LISTEN_WINDOW_20MS_IDX << 2) |
-    (TOC_FREQ_25MHZ_IDX << 0),
+    (TOC_FREQ_50MHZ_IDX << 0),
 };
+
 /** SecureBoot policies*/
 /** Boot & Upgrade policy structure */
 bnu_policy_t cy_bl_bnu_policy;
@@ -120,6 +123,7 @@ bnu_policy_t cy_bl_bnu_policy;
 /** Debug policy structure */
 debug_policy_t debug_policy;
 
+#ifdef CY_FLASH_MAP_EXT_DESC
 /* FlashMap descriptors */
 static struct flash_area bootloader;
 static struct flash_area primary_1;
@@ -142,6 +146,7 @@ struct flash_area *boot_area_descs[] =
     &scratch,
     NULL
 };
+#endif
 
 /* Next image runner API */
 static void do_boot(struct boot_rsp *rsp)
@@ -171,74 +176,63 @@ int main(void)
     cy_rslt_t rc = !CY_RSLT_SUCCESS;
     struct boot_rsp rsp ;
 
-    /* Initialize the device and board peripherals */
-    rc = cybsp_init();
+#if defined(__NO_SYSTEM_INIT)
+    Cy_BLServ_SystemInit();
+#endif /* __NO_SYSTEM_INIT */
 
-    if (rc != CY_RSLT_SUCCESS)
+    /* Initialize PSOC6 specific */
+    Cy_InitPSoC6_HW();
+
+    BOOT_LOG_INF("TEST : CypressBootloader Started");
+
+    /* Processing of policy in JWT format */
+    uint32_t jwtLen;
+    char *jwt;
+    rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
+    if(0 == rc)
     {
-        CY_ASSERT(0);
+        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
+                CY_BOOTLOADER_MASTER_IMG_ID);
     }
-
-    /* Stop if we are in the TEST MODE */
-//    if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
-//    {
-//        /* Get IPC base register address */
-//        IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
-//        Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
-//
-//        BOOT_LOG_INF("TEST MODE");
-//
-//        __disable_irq();
-//        Cy_BLServ_SRAMTestBitLoop();
-//        __enable_irq();
-//    }
-
-    /* Initialize retarget-io to use the debug UART port */
-    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
-
-    /* enable interrupts */
-    if (rc != CY_RSLT_SUCCESS)
+    // TODO: initialize SMIF if supported/requested
+    // FWSECURITY-676
+    if(0 != rc)
     {
-        CY_ASSERT(0);
+        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
     }
-    else
+    else /*    if(0 == rc) */
     {
-        BOOT_LOG_INF("CypressBootloader Started");
-    }
-    __enable_irq();
+        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-//    /* Processing of policy in JWT format */
-//    uint32_t jwtLen;
-//    char *jwt;
-//    rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
-//    if(0 == rc)
-//    {
-//        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
-//                CY_BOOTLOADER_MASTER_IMG_ID);
-//    }
-//    // TODO: initialize SMIF if supported/requested
-//
-//    if(0 != rc)
-//    {
-//        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
-//    }
-//    else /*    if(0 == rc) */
-//    {
-//        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
-//        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
-//
-//        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
-//        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
-//
-//        // TODO: add primary_2 + secondary_2
-//        // TODO: add bootloader
-//        // TODO: initialize scratch
-//
-//        // TODO: apply protections if supported/requested
-//    }
+        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
+        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
+
+        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
+        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
+
+        // TODO: add primary_2 + secondary_2
+        // FWSECURITY-935
+
+        // TODO: add bootloader
+        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
+        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        bootloader.fa_off = cyToc[4];
+        bootloader.fa_size = cyToc[5];
+
+        // TODO: initialize scratch
+        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
+        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
+        scratch.fa_size = 0x1000;
+
+        // TODO: apply protections if supported/requested
+    }
 
     rc = boot_go(&rsp);
-//    if (boot_go(&rsp) == 0)
     if(rc == 0)
     {
         BOOT_LOG_INF("User Application validated successfully");
