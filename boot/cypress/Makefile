@@ -38,6 +38,9 @@ SIGN_KEY_FILE ?= cypress-test-ec-p256
 
 BUILDCFG ?= Debug
 
+# Temporary flag for CI enable build of bootlaoder without certificate generation
+NO_CERT ?= 0
+
 # Set of supported applications
 APPS := MCUBootApp BlinkyApp CypressBootloader
 # Output folder
@@ -91,6 +94,25 @@ CFLAGS += $(DEFINES)
 
 VPATH = $(dir $(C_FILES) $(ASM_FILES))
 
+
+#
+# STDE: For cygwin, adjust paths for compiler
+#
+MY_FILES := $(subst /cygdrive/c,c:,$(C_FILES))
+#$(info MY_FILES $(MY_FILES))
+C_FILES=$(MY_FILES)
+
+MY_DIRS := $(subst /cygdrive/c,c:,$(INCLUDE_DIRS))
+#$(info MY_DIRS $(MY_DIRS))
+INCLUDE_DIRS=$(MY_DIRS)
+
+MY_ASM_FILES := $(subst /cygdrive/c,c:,$(ASM_FILES))
+#$(info MY_ASM_FILES $(MY_ASM_FILES))
+ASM_FILES=$(MY_ASM_FILES)
+
+MY_LDFLAGS := $(subst /cygdrive/c,c:,$(LDFLAGS))
+#$(info MY_LDFLAGS $(MY_LDFLAGS))
+LDFLAGS=$(MY_LDFLAGS)
 
 #
 # STDE: For cygwin, adjust paths for compiler
