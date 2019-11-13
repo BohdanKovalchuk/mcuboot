@@ -238,7 +238,7 @@ int main(void)
         scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
         scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
         scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
-        scratch.fa_off = 0x1000;
+        scratch.fa_size = 0x1000;
 
         // TODO: apply protections if supported/requested
     }
