@@ -69,6 +69,7 @@ O_FILES := $(notdir $(C_FILES:.c=.o)) $(addsuffix .o, $(notdir $(basename $(ASM_
 
 DEFINES := $(DEFINES_APP)
 DEFINES += $(DEFINES_LIBS)
+AS_FLAGS += $(DEFINES)
 
 ifeq ($(MAKEINFO), 1)
 $(info ==============================================================================)

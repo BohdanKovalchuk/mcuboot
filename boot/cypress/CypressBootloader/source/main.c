@@ -70,6 +70,7 @@
 #include "cy_jwt_policy.h"
 #include "cy_jwt_bnu_policy.h"
 
+#include "cy_bootloader_hw.h"
 #include "cy_bootloader_version.h"
 #include "cy_bootloader_services.h"
 
@@ -79,7 +80,7 @@
  ************************************/
 #define TOC_FREQ_8MHZ_IDX                (1UL)
 #define TOC_FREQ_25MHZ_IDX               (0UL)
-#define TOC_FREQ_50HMZ_IDX               (2UL)
+#define TOC_FREQ_50MHZ_IDX               (2UL)
 
 #define TOC_LISTEN_WINDOW_0MS_IDX        (3UL)
 #define TOC_LISTEN_WINDOW_1MS_IDX        (2UL)
@@ -112,7 +113,7 @@ __attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 
     0,
     [(512 / sizeof(int)) - 2] =
     (TOC_LISTEN_WINDOW_20MS_IDX << 2) |
-    (TOC_FREQ_25MHZ_IDX << 0),
+    (TOC_FREQ_50MHZ_IDX << 0),
 };
 
 /** SecureBoot policies*/
@@ -175,27 +176,15 @@ int main(void)
     cy_rslt_t rc = !CY_RSLT_SUCCESS;
     struct boot_rsp rsp ;
 
-    /* Initialize the device and board peripherals */
-    rc = cybsp_init();
+#if defined(__NO_SYSTEM_INIT)
+    Cy_BLServ_SystemInit();
+#endif /* __NO_SYSTEM_INIT */
 
-    if (rc != CY_RSLT_SUCCESS)
-    {
-        CY_ASSERT(0);
-    }
+    /* Initialize PSOC6 specific */
+    Cy_InitPSoC6_HW();
 
-    /* Initialize retarget-io to use the debug UART port */
-    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+    BOOT_LOG_INF("TEST : CypressBootloader Started");
 
-    /* enable interrupts */
-    if (rc != CY_RSLT_SUCCESS)
-    {
-        CY_ASSERT(0);
-    }
-    else
-    {
-        BOOT_LOG_INF("TEST : CypressBootloader Started");
-    }
-    __enable_irq();
     /* Processing of policy in JWT format */
     uint32_t jwtLen;
     char *jwt;
