@@ -49,6 +49,8 @@ endif
 ifeq ($(HOST_OS), win)
 	ifeq ($(COMPILER), GCC_ARM)
 		TOOLCHAIN_PATH ?= c:/Users/$(USERNAME)/ModusToolbox_1.0/tools/gcc-7.2.1-1.0
+		MY_TOOLCHAIN_PATH:=$(subst \,/,$(TOOLCHAIN_PATH))
+		TOOLCHAIN_PATH := $(MY_TOOLCHAIN_PATH)
 		GCC_PATH := $(TOOLCHAIN_PATH)
 		# executables
 		CC       := "$(GCC_PATH)/bin/arm-none-eabi-gcc"
@@ -79,6 +81,16 @@ endif
 
 PDL_ELFTOOL := "hal/tools/$(HOST_OS)/elf/cymcuelftool"
 
+# Set executable names for compilers
+ifeq ($(COMPILER), GCC_ARM)
+	CC       := "$(GCC_PATH)/bin/arm-none-eabi-gcc"
+	LD       := $(CC)
+else
+	CC       := "$(IAR_PATH)/bin/iccarm.exe"
+	AS       := "$(IAR_PATH)/bin/iasmarm.exe"
+	LD       := "$(IAR_PATH)/bin/ilinkarm.exe"
+endif
+
 OBJDUMP  := "$(GCC_PATH)/bin/arm-none-eabi-objdump"
 OBJCOPY  := "$(GCC_PATH)/bin/arm-none-eabi-objcopy"
 
@@ -98,8 +110,6 @@ $(error BUILDCFG : '$(BUILDCFG)' is not supported)
 	CFLAGS := $(CFLAGS_COMMON) $(INCLUDES)
 	CC_DEPEND = -MD -MP -MF
 
-# TODO: create Application-Specific Linker
-
 	LDFLAGS_COMMON := -mcpu=cortex-m0plus -mthumb -specs=nano.specs -ffunction-sections -fdata-sections  -Wl,--gc-sections -L "$(GCC_PATH)/lib/gcc/arm-none-eabi/7.2.1/thumb/v6-m" -ffat-lto-objects -g --enable-objc-gc
 	ifeq ($(BUILDCFG), Debug)
 		LDFLAGS_COMMON += -Og
@@ -110,7 +120,7 @@ $(error BUILDCFG : '$(BUILDCFG)' is not supported)
 	endif
 	LDFLAGS_NANO := -L "$(GCC_PATH)/arm-none-eabi/lib/thumb/v6-m"
 	# TODO: check .map name
-	LDFLAGS := $(LDFLAGS_COMMON) $(LDFLAGS_NANO) -T $(LINKER_SCRIPT)
+	LDFLAGS := $(LDFLAGS_COMMON) $(LDFLAGS_NANO)
 
 else ifeq ($(COMPILER), IAR)
 

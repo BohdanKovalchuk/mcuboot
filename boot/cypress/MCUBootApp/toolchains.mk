@@ -76,7 +76,7 @@ else ifeq ($(HOST_OS), linux)
 	GCC_PATH := $(TOOLCHAIN_PATH)
 	# executables
 	CC := "$(GCC_PATH)/bin/arm-none-eabi-gcc"
-	LD := $(CC) 
+	LD := $(CC)
 endif
 
 PDL_ELFTOOL := "hal/tools/$(HOST_OS)/elf/cymcuelftool"
@@ -133,7 +133,7 @@ else ifeq ($(COMPILER), IAR)
 	AS_FLAGS := -s+ "-M<>" -w+ -r --cpu Cortex-M0+ --fpu None -S
 
 	LINKER_SCRIPT := $(CHIP_SERIES).icf
-	
+
 	#options to extend stack analize: --log call_graph --log_file $(OUT)/stack_usage_$(SUFFIX).txt
 	LDFLAGS_STACK_USAGE := --stack_usage_control $(STACK_CONTROL_FILE) --diag_suppress=Ls015 --diag_suppress=Ls016
 	LDFLAGS_COMMON := --vfe --text_out locale --silent --inline --merge_duplicate_sections

@@ -73,23 +73,6 @@ SOURCES_MBEDTLS += $(wildcard $(CUR_LIBS_PATH)/mbedtls/crypto/library/*.c)
 SOURCES_LIBS += $(SOURCES_MBEDTLS)
 ## mbedTLS settings
 
-# ################################################################################
-# # FB_Mbedcrypto settings
-# ################################################################################
-# # FB_Mbedcrypto related include directories
-# FB_MBEDCRYPTO_DIR = fb_mbedcrypto
-# INCLUDE_DIRS_FB_MBEDCRYPTO += $(FB_MBEDCRYPTO_DIR) $(FB_MBEDCRYPTO_DIR)/fb_psacrypto
-# INCLUDE_DIRS_FB_MBEDCRYPTO += $(FB_MBEDCRYPTO_DIR)/fb_cryptolib/mbedtls_target
-# INCLUDE_DIRS_FB_MBEDCRYPTO += $(FB_MBEDCRYPTO_DIR)/fb_cryptolib/crypto_driver
-# #
-# INCLUDE_DIRS_LIBS += $(addprefix -I$(CUR_LIBS_PATH)/,$(INCLUDE_DIRS_FB_MBEDCRYPTO))
-# # Collect source files for FB_Mbedcrypto
-# # SOURCES_FB_MBEDCRYPTO := $(wildcard $(CUR_LIBS_PATH)/mbedtls/library/*.c)
-# # SOURCES_FB_MBEDCRYPTO += $(wildcard $(CUR_LIBS_PATH)/mbedtls/crypto/library/*.c)
-# # Collected source files for libraries
-# # SOURCES_LIBS += $(SOURCES_FB_MBEDCRYPTO)
-# ## mbedTLS settings
-
 ASM_FILES_PDL :=
 ifeq ($(COMPILER), GCC_ARM)
 ASM_FILES_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/source/TOOLCHAIN_GCC_ARM/cy_syslib_gcc.S
