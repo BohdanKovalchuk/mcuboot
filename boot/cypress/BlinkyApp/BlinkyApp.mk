@@ -40,9 +40,6 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
-# Specify linker script to use
-LINKER_SCRIPT = $(CUR_APP_PATH)/$(APP_NAME).ld
-
 include $(CUR_APP_PATH)/targets.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
@@ -63,7 +60,23 @@ SOURCES_APP += $(SOURCES_APP_SRC)
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 
+# Overwite path to linker script if custom is required, otherwise default from BSP is used
+ifeq ($(COMPILER), GCC_ARM)
+LINKER_SCRIPT := $(CUR_APP_PATH)/$(APP_NAME).ld
+else
+$(error Only GCC ARM is supported at this moment)
+endif
+
 ASM_FILES_APP :=
+
+IMGTOOL_PATH ?=	../../scripts/imgtool.py
+
+SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 65536 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
+
+ifeq ($(IMG_TYPE), UPGRADE)
+	SIGN_ARGS += --pad
+	UPGRADE :=_upgrade
+endif
 
 # Post build action to execute after main build job
 post_build: $(OUT_APP)/$(APP_NAME).hex

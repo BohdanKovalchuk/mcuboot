@@ -89,42 +89,6 @@ CFLAGS += $(DEFINES)
 
 VPATH = $(dir $(C_FILES) $(ASM_FILES))
 
-## Set colors for unix compatible terminals, otherwise comment this code
-#ifeq ($(JENKINS), yes)
-#	COLOR_RESET    = \033[0m
-#	COLOR_make_std = \033[3$1m      # defined for 1 through 7
-#	COLOR_make     = \033[38;5;$1m  # defined for 1 through 255
-#	COLOR_WRN = $(strip $(call COLOR_make,11))
-#	COLOR_ERR = $(strip $(call COLOR_make,9))
-#	COLOR_STD = $(strip $(call COLOR_make,243))
-#
-#	COLOR_OUTPUT = 2>&1 |                                         \
-#		while IFS='' read -r line; do                             \
-#			if  [[ $$line == *Error\[* ]]; then                   \
-#				echo -e -n "$(COLOR_ERR)";                        \
-#				echo -n $${line};                                 \
-#				echo -e "$(COLOR_RESET)";                         \
-#			elif [[ $$line == *Warning\[* ]]; then                \
-#				echo -e -n "$(COLOR_WRN)";                        \
-#				echo -n $${line};                                 \
-#				echo -e "$(COLOR_RESET)";                         \
-#			else                                                  \
-#				echo -e -n "$(COLOR_STD)";                        \
-#				echo -n $${line};                                 \
-#				echo -e "$(COLOR_RESET)";                         \
-#			fi;                                                   \
-#		done; exit $${PIPESTATUS[0]};
-#else
-#	COLOR_RESET    =
-#	COLOR_make_std =
-#	COLOR_make     =
-#	COLOR_WRN =
-#	COLOR_ERR =
-#	COLOR_STD =
-#
-#	COLOR_OUTPUT =
-#endif
-#
 
 #
 # STDE: For cygwin, adjust paths for compiler
@@ -157,15 +121,6 @@ else
 PYTHON_PATH?=python3
 endif
 
-IMGTOOL_PATH ?=	../../scripts/imgtool.py
-
-SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 65536 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
-
-ifeq ($(IMG_TYPE), UPGRADE)
-	SIGN_ARGS += --pad
-	UPGRADE :=_upgrade
-endif
-
 .PHONY: all app build clean post_build load load_boot load_upgrade
 
 all: clean app
@@ -188,9 +143,9 @@ $(OUT_APP)/$(APP_NAME).hex: $(OUT_APP)/$(APP_NAME).elf
 $(OUT_APP)/$(APP_NAME).elf: $(addprefix $(OUT_OBJ)/, $(O_FILES))
 	@echo "LD $@"
 ifeq ($(MAKEINFO), 1)
-	@echo $(LD) $(O_FILES) $(CC_DEPEND) $(@:.o=.d) -o $@ $(LDFLAGS) -Wl,-Map,$(OUT_FILE_NAME).map
+	@echo $(LD) $(O_FILES) $(CC_DEPEND) $(@:.o=.d) -o $@ $(LDFLAGS) -T $(LINKER_SCRIPT) -Wl,-Map,$(OUT_FILE_NAME).map
 endif
-	@$(LD) $(addprefix $(OUT_OBJ)/, $(O_FILES)) $(CC_DEPEND) $(@:.o=.d) -o $@ $(LDFLAGS) -Wl,-Map,$(OUT_FILE_NAME).map
+	@$(LD) $(addprefix $(OUT_OBJ)/, $(O_FILES)) $(CC_DEPEND) $(@:.o=.d) -o $@ $(LDFLAGS) -T $(LINKER_SCRIPT) -Wl,-Map,$(OUT_FILE_NAME).map
 
 
 $(OUT_OBJ)/%.o: %.c
@@ -248,9 +203,6 @@ gen_key_ecc256:
 	@echo Generate ECC256 keys: $(SIGN_KEY_FILE).pem and $(SIGN_KEY_FILE).pub
 	../../scripts/imgtool.py keygen -k keys/$(SIGN_KEY_FILE).pem -t ecdsa-p256
 	../../scripts/imgtool.py getpub -k keys/$(SIGN_KEY_FILE).pem > keys/$(SIGN_KEY_FILE).pub
-
-size:
-	
 
 ifeq ($(MAKEINFO) , 1)
 $(info ASM_FILES: $(ASM_FILES))

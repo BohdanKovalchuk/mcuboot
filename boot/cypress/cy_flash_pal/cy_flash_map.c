@@ -74,8 +74,6 @@
 
 #include "cy_pdl.h"
 
-//#define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
-
 #define FLASH_AREA_IMAGE_SECTOR_SIZE FLASH_AREA_IMAGE_SCRATCH_SIZE
 
 #ifndef CY_BOOT_INTERNAL_FLASH_ERASE_VALUE
@@ -121,7 +119,7 @@ static struct flash_area primary_2 =
 {
     .fa_id = FLASH_AREA_IMAGE_PRIMARY(1),
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
-        .fa_off = CY_FLASH_BASE +\
+    .fa_off = CY_FLASH_BASE +\
                 CY_BOOT_BOOTLOADER_SIZE +\
                 CY_BOOT_PRIMARY_1_SIZE +\
                 CY_BOOT_SECONDARY_1_SIZE,
@@ -147,7 +145,7 @@ static struct flash_area scratch =
     .fa_id = FLASH_AREA_IMAGE_SCRATCH,
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
 #if (MCUBOOT_IMAGE_NUMBER == 1) /* if single-image */
-        .fa_off = CY_FLASH_BASE +\
+     .fa_off = CY_FLASH_BASE +\
                 CY_BOOT_BOOTLOADER_SIZE +\
                 CY_BOOT_PRIMARY_1_SIZE +\
                 CY_BOOT_SECONDARY_1_SIZE,
@@ -186,7 +184,6 @@ int flash_area_open(uint8_t id, const struct flash_area **fa)
 {
     int ret = -1;
     uint32_t i = 0;
-//    uint32_t descs_n = NELEMS(boot_area_descs);
 
     while(NULL != boot_area_descs[i])
     {
@@ -199,15 +196,6 @@ int flash_area_open(uint8_t id, const struct flash_area **fa)
         i++;
     }
 
-//    for(i = 0; i < descs_n; i++)
-//    {
-//        if(id == boot_area_descs[i]->fa_id)
-//        {
-//            *fa = boot_area_descs[i];
-//            ret = 0;
-//            break;
-//        }
-//    }
 
     return ret;
 }
@@ -444,7 +432,6 @@ int flash_area_get_sectors(int idx, uint32_t *cnt, struct flash_sector *ret)
 {
     int rc = 0;
     uint32_t i = 0;
-//    uint32_t descs_n = NELEMS(boot_area_descs);
     struct flash_area *fa;
     size_t sector_size = 0;
     size_t sectors_n = 0;
@@ -460,14 +447,6 @@ int flash_area_get_sectors(int idx, uint32_t *cnt, struct flash_sector *ret)
         i++;
     }
 
-    //    for(i = 0; i < descs_n; i++)
-//    {
-//        if(idx == boot_area_descs[i]->fa_id)
-//        {
-//            fa = boot_area_descs[i];
-//            break;
-//        }
-//    }
 
     if(NULL != boot_area_descs[i])
     {
