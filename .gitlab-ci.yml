@@ -1,22 +1,28 @@
+variables:  
+    GIT_STRATEGY: clone
+    GIT_CLEAN_FLAGS: -ffdx
+
 stages:
   - build
   - sim
   - deploy
 
-
-win_build:
+lin_build:
   stage: build
   tags:
-    - MBED_TEST
+    - FW_SECURITY_TEST_UBUNTU1804
   script:
+    - env
     - export https_proxy=http://proxy.ua.cypress.com:8080
     - python3 --version
     - pwd
     - git submodule deinit --all -f
     - git submodule update --init --recursive
     - cd boot/cypress
-    - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W-M0 BUILDCFG=Debug TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
-    
+    - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+
+    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug NO_CERT=1 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+
     - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
     
     - make clean APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
@@ -34,8 +40,10 @@ mac_build:
     - git submodule deinit --all -f
     - git submodule update --init --recursive
     - cd boot/cypress
-    - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W-M0 BUILDCFG=Debug TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
     
+    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug NO_CERT=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+
     - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
 
     - make clean APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
@@ -52,18 +60,121 @@ win_build:
     - git submodule deinit --all -f
     - git submodule update --init --recursive
     - cd boot/cypress
-    - C:/msys64/usr/bin/make.exe app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W-M0 BUILDCFG=Debug TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
     
+    - C:/msys64/usr/bin/make.exe app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
+    
+    - C:/msys64/usr/bin/make.exe app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug NO_CERT=1 TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
+
     - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT  TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
 
-    - C:/msys64/usr/bin/make.exe clean APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
 
-    - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE  TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
 
 # Preparing build artifacts for a deployment job
     - cd ../..
     - mkdir deploy
-    - Copy-Item -Path ./boot/cypress/MCUBootApp/out/CY8CPROTO-062-4343W-M0/Debug -Destination ./deploy/MCUBootApp/CY8CPROTO-062-4343W-M0/Debug -Recurse
+    
+
+############################################################# CY8CPROTO-062-4343W ############################################################################
+
+# Collect MCUBoot for CY8CPROTO-062-4343W deploy
+    - New-Item -ItemType Directory -Path ./deploy/CY8CPROTO-062-4343W/MCUBootApp/Debug
+    - New-Item -ItemType Directory -Path ./develop/CY8CPROTO-062-4343W/MCUBootApp/Debug
+    - Copy-Item -Path ./boot/cypress/MCUBootApp/out/CY8CPROTO-062-4343W/Debug/*.hex -Destination ./deploy/CY8CPROTO-062-4343W/MCUBootApp/Debug/ -Recurse
+    
+# Collect MCUBoot for CY8CPROTO-062-4343W develop
+    - Copy-Item -Path ./boot/cypress/MCUBootApp/out/CY8CPROTO-062-4343W/Debug/*.hex -Destination ./develop/CY8CPROTO-062-4343W/MCUBootApp/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/MCUBootApp/out/CY8CPROTO-062-4343W/Debug/*.lst -Destination ./develop/CY8CPROTO-062-4343W/MCUBootApp/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/MCUBootApp/out/CY8CPROTO-062-4343W/Debug/*.elf -Destination ./develop/CY8CPROTO-062-4343W/MCUBootApp/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/MCUBootApp/out/CY8CPROTO-062-4343W/Debug/*.map -Destination ./develop/CY8CPROTO-062-4343W/MCUBootApp/Debug/ -Recurse
+
+
+# Collect BlinkyApp BOOT for CY8CPROTO-062-4343W deploy
+    - New-Item -ItemType Directory -Path ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug
+    - New-Item -ItemType Directory -Path ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug
+    - New-Item -ItemType Directory -Path ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/BlinkyApp_signed.hex -Destination ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ -Recurse
+
+# Collect BlinkyApp BOOT for CY8CPROTO-062-4343W develop
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.hex -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.lst -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.elf -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.map -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    
+    
+# Clean and build BlinkyApp UPGRADE    
+    - cd boot/cypress
+    - C:/msys64/usr/bin/make.exe clean APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
+    - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE  TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1    
+    - cd ../..
+    
+    
+# Collect BlinkyApp UPGRADE for CY8CPROTO-062-4343W deploy
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/BlinkyApp_signed_upgrade.hex -Destination ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ -Recurse
+
+# Collect BlinkyApp UPGRADE for CY8CPROTO-062-4343W develop
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.hex -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.lst -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.elf -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.map -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse    
+
+# Clean BlinkyApp  
+    - cd boot/cypress
+    - C:/msys64/usr/bin/make.exe clean APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
+    - cd ../..
+    
+    
+    
+############################################################# CY8CKIT-064S2-4343W ############################################################################
+
+# Collect CypressBootloader for CY8CKIT-064S2-4343W deploy
+    - New-Item -ItemType Directory -Path ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug
+    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/CypressBootloader_CM0p.hex  -Destination ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+    - sh cysign_bootloader -f ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+    
+# Collect CypressBootloader for CY8CKIT-064S2-4343W develop
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.map -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+
+    - cd boot/cypress
+    - C:/msys64/usr/bin/make.exe clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
+    - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
+    - cd ../..
+
+
+# Collect BlinkyApp BOOT for CY8CKIT-064S2-4343W deploy
+    - New-Item -ItemType Directory -Path ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug
+    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug
+    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/BlinkyApp_signed.hex -Destination ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ -Recurse
+
+# Collect MCUBoot for CY8CKIT-064S2-4343W develop
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    
+    
+    - cd boot/cypress
+    - C:/msys64/usr/bin/make.exe clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
+    - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
+    - cd ../..
+
+
+# Collect BlinkyApp BOOT for CY8CKIT-064S2-4343W deploy    
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/BlinkyApp_signed_upgrade.hex  -Destination ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ -Recurse
+
+# Collect BlinkyApp for CY8CKIT-064S2-4343W develop
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+        
+
   artifacts:
     expire_in: 1 weeks
     paths:
