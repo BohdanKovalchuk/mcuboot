@@ -117,7 +117,7 @@ endif
 post_build: $(OUT_APP)/$(APP_NAME).hex
 	@echo [POST_BUILD] - Calculating CRC of TOC3 for $(APP_NAME)
 	$(PYTHON_PATH) $(APP_NAME)/scripts/toc3_crc.py $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME)_CM0p.hex
-ifneq ($(NO_CERT), 1)
+ifeq ($(GENERATE_CERT), 1)
     @echo [POST_BUILD] - Creating image certificate for $(APP_NAME)
 	$(PYTHON_PATH) $(APP_NAME)/scripts/image_cert.py -i $(OUT_APP)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_APP)/$(APP_NAME)_CM0p.jwt
 endif

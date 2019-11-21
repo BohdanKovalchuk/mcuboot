@@ -31,8 +31,8 @@
 MAKEINFO ?= 1
 # Application name by default
 APP_NAME ?= MCUBootApp
-# Jwt certificate for cyBootloader will be created by default (change to '1' if you dont need that)
-NO_CERT ?= 0
+# Jwt certificate for cyBootloader will be created by default (change to '0' if you dont need that)
+GENERATE_CERT ?= 1
 
 SIGN_KEY_FILE ?= cypress-test-ec-p256
 
