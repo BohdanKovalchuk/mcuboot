@@ -111,6 +111,25 @@ MY_LDFLAGS := $(subst /cygdrive/c,c:,$(LDFLAGS))
 #$(info MY_LDFLAGS $(MY_LDFLAGS))
 LDFLAGS=$(MY_LDFLAGS)
 
+#
+# STDE: For cygwin, adjust paths for compiler
+#
+MY_FILES := $(subst /cygdrive/c,c:,$(C_FILES))
+#$(info MY_FILES $(MY_FILES))
+C_FILES=$(MY_FILES)
+
+MY_DIRS := $(subst /cygdrive/c,c:,$(INCLUDE_DIRS))
+#$(info MY_DIRS $(MY_DIRS))
+INCLUDE_DIRS=$(MY_DIRS)
+
+MY_ASM_FILES := $(subst /cygdrive/c,c:,$(ASM_FILES))
+#$(info MY_ASM_FILES $(MY_ASM_FILES))
+ASM_FILES=$(MY_ASM_FILES)
+
+MY_LDFLAGS := $(subst /cygdrive/c,c:,$(LDFLAGS))
+#$(info MY_LDFLAGS $(MY_LDFLAGS))
+LDFLAGS=$(MY_LDFLAGS)
+
 # Default name pattern for output files
 # may be modified in %Application%.mk file
 OUT_FILE_NAME ?= $(OUT_APP)/$(APP_NAME)
@@ -206,6 +225,9 @@ gen_key_ecc256:
 	@echo Generate ECC256 keys: $(SIGN_KEY_FILE).pem and $(SIGN_KEY_FILE).pub
 	../../scripts/imgtool.py keygen -k keys/$(SIGN_KEY_FILE).pem -t ecdsa-p256
 	../../scripts/imgtool.py getpub -k keys/$(SIGN_KEY_FILE).pem > keys/$(SIGN_KEY_FILE).pub
+
+size:
+	
 
 ifeq ($(MAKEINFO) , 1)
 $(info ASM_FILES: $(ASM_FILES))
