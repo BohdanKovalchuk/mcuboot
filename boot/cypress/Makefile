@@ -123,7 +123,7 @@ else
 PYTHON_PATH?=python3
 endif
 
-.PHONY: all app build clean post_build load load_boot load_upgrade
+.PHONY: all app build clean pre_build post_build load load_boot load_upgrade
 
 all: clean app
 
@@ -132,6 +132,7 @@ app:
 	@`mkdir -p ./$(OUT_TARGET)`
 	@`mkdir -p ./$(OUT_CFG)`
 	@`mkdir -p ./$(OUT_OBJ)`
+	$(MAKE) pre_build
 	$(MAKE) build -j8
 	$(MAKE) post_build
 
