@@ -25,3 +25,6 @@
 [submodule "boot/cypress/CypressBootloader/cy_secureboot_utils"]
 	path = boot/cypress/CypressBootloader/cy_secureboot_utils
 	url = http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_secureboot_utils.git
+[submodule "boot/cypress/libs/bsp/TARGET_CY8CKIT-064S2-4343W-M0"]
+	path = boot/cypress/libs/bsp/TARGET_CY8CKIT-064S2-4343W-M0
+	url = http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/TARGET_CY8CKIT-064S2-4343W-M0.git

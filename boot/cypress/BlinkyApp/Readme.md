@@ -2,15 +2,25 @@
 
 **Description:**
 
-Implements simple Blinky LED CM4 application to demonstrate MCUBoot Application operation in terms of BOOT and UPGRADE process.
+Implements simple Blinky LED CM4 application to demonstrate MCUBoot Application and CypressBootloader operation in terms of BOOT and UPGRADE process.
 
-It is started by MCUBoot Application which is running on CM0p.
+It is started by MCUBoot Application or CypressBootloader which is running on CM0p.
 
 * Blinks RED led with 2 different rates, depending on type of image - BOOT or UPGRADE.
 * Prints debug info and version of itself to terminal at 115200 baud.
-* Can be built for BOOT slot or UPGRADE slot of MCUBoot Bootloader.
+* Can be built for BOOT slot or UPGRADE slot bootloader.
 
-**How to build an application:**
+**Pre-build action:**
+
+Pre-build action is implemented for defining start address and size of flash dedicated to BlinkyApp. Pre-build action calls GCC preprocessor to instantiate values to `BlinkyApp_template.ld` found in `main.h` file of BlinkyApp of defined at compile time via macroses `-DUSER_APP_START` and `-DUSER_APP_SIZE`.
+
+Default values set for currently supported targets:
+* CY8CPROTO_062_4343W in `BlinkyApp.mk` to `-DUSER_APP_START=0x10010000`
+* CY8CKIT_064S2_4343W in `BlinkyApp.mk` to `-DUSER_APP_START=0x10000000`
+
+Start of `BlinkyApp` built to use with Secure Boot enabled targets corresponds to default policy settings provided with `cysecuretools` package.
+
+**Build an application:**
 
 Root directory for build is **boot/cypress.**
 
@@ -27,24 +37,13 @@ To build UPGRADE image use following command:
 
     make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000
 
-**How to sign an image:**
+**Post-Build:**
 
-To sign obtained image use following command:
-
-    make sign APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=BOOT
-
-    make sign APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=UPGRADE
-
-Flags defaults:
-
-    BUILDCFG=Debug
-    IMG_TYPE=BOOT
-
-*Note:* before signing UPGRADE image it should be rebuilt with IMG_TYPE=UPGRADE parameter (clean \out before it).
+Post build action is executed at compile time for `BlinkyApp`. It calls `imgtool` from `MCUBoot` scripts and add signature to compiled image. This signature is then validated by CypressBootloader or MCUBoot application.
 
 **How to program an application:**
 
-Use any preffered tool for programming hex files.
+**_Use any preffered tool for programming hex files._**
 
 Currently implemented makefile jobs use DAPLINK interface for programming.
 
