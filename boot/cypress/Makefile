@@ -38,9 +38,6 @@ SIGN_KEY_FILE ?= cypress-test-ec-p256
 
 BUILDCFG ?= Debug
 
-# Temporary flag for CI enable build of bootlaoder without certificate generation
-NO_CERT ?= 0
-
 # Set of supported applications
 APPS := MCUBootApp BlinkyApp CypressBootloader
 # Output folder
