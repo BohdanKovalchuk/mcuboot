@@ -39,7 +39,7 @@ SIGN_KEY_FILE ?= cypress-test-ec-p256
 BUILDCFG ?= Debug
 
 # Set of supported applications
-APPS := MCUBootApp BlinkyApp CypressBootloader
+APPS := MCUBootApp BlinkyApp CypressBootloader SecureBlinkyApp
 # Output folder
 OUT := $(APP_NAME)/out
 # Output folder to contain build artifacts

@@ -184,6 +184,7 @@ int main(void)
     Cy_InitPSoC6_HW();
 
     BOOT_LOG_INF("TEST : CypressBootloader Started");
+    BOOT_LOG_INF("TEST : Number of images required to BOOT: %d", MCUBOOT_IMAGE_NUMBER);
 
     /* Processing of policy in JWT format */
     uint32_t jwtLen;
@@ -196,41 +197,41 @@ int main(void)
     }
     // TODO: initialize SMIF if supported/requested
     // FWSECURITY-676
-    if(0 != rc)
-    {
-        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
-    }
-    else /*    if(0 == rc) */
-    {
-        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
-        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+    // if(0 != rc)
+    // {
+    //     BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
+    // }
+    // else /*    if(0 == rc) */
+    // {
+        // primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+        // primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
-        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
+        // primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
+        // primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
 
-        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
-        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        // secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+        // secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
-        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
+        // secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
+        // secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
 
-        // TODO: add primary_2 + secondary_2
-        // FWSECURITY-935
+        // // TODO: add primary_2 + secondary_2
+        // // FWSECURITY-935
 
-        // TODO: add bootloader
-        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
-        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        bootloader.fa_off = cyToc[4];
-        bootloader.fa_size = cyToc[5];
+        // // TODO: add bootloader
+        // bootloader.fa_id = FLASH_AREA_BOOTLOADER;
+        // bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        // bootloader.fa_off = cyToc[4];
+        // bootloader.fa_size = cyToc[5];
 
-        // TODO: initialize scratch
-        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
-        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
-        scratch.fa_size = 0x1000;
+        // // TODO: initialize scratch
+        // scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
+        // scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        // scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
+        // scratch.fa_size = 0x1000;
 
-        // TODO: apply protections if supported/requested
-    }
+        // // TODO: apply protections if supported/requested
+    // }
 
     rc = boot_go(&rsp);
     if(rc == 0)

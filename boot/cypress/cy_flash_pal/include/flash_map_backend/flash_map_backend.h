@@ -76,7 +76,7 @@
 #endif
 
 #ifndef CY_BOOT_BOOTLOADER_SIZE
-#define CY_BOOT_BOOTLOADER_SIZE             (0x10000)
+#define CY_BOOT_BOOTLOADER_SIZE             (0x0) // not count bootloader for multiimage
 #endif
 
 #ifndef CY_BOOT_PRIMARY_1_SIZE

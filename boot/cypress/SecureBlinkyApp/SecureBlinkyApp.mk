@@ -53,10 +53,13 @@ endif
 
 # Define start of application as it can be build for Secure Boot target
 ifeq ($(TARGET), CY8CKIT-064S2-4343W)
-DEFINES_APP += -DUSER_APP_START=0x10030000
+DEFINES_APP += -DSECURE_APP_START=0x10000000
 else
-DEFINES_APP += -DUSER_APP_START=0x10010000
+DEFINES_APP += -DSECURE_APP_START=0x10010000
 endif
+# BSP does not define this macro for CM0p so define it here
+DEFINES_APP += -DCY_USING_HAL
+
 # Collect Test Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)
 # Collect all the sources

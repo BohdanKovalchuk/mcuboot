@@ -52,7 +52,7 @@ DEFINES_APP += -DCORE=$(CORE)
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
 # Use external flash map descriptors since flash map is driven by policy
-DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
+# DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
 DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
 #DEFINES_APP += -DCY_BOOTLOADER_VERSION
 #DEFINES_APP += -DCY_BOOTLOADER_BUILD
