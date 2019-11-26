@@ -59,7 +59,9 @@ uint32_t bootutil_get_caps(void)
 uint32_t bootutil_get_num_images(void)
 {
 #if defined(MCUBOOT_IMAGE_NUMBER)
-    return MCUBOOT_IMAGE_NUMBER;
+    // TODO: run-time multi-image
+//    return MCUBOOT_IMAGE_NUMBER;
+    return boot_img_number;
 #else
     return 1;
 #endif

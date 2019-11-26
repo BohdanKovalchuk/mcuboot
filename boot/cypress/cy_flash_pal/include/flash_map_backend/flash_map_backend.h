@@ -87,7 +87,8 @@
 #define CY_BOOT_SECONDARY_1_SIZE            (0x10000)
 #endif
 
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+// TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 2) /* if dual-image */
 #ifndef CY_BOOT_PRIMARY_2_SIZE
 #define CY_BOOT_PRIMARY_2_SIZE              (0x10000)
 #endif
@@ -95,33 +96,7 @@
 #ifndef CY_BOOT_SECONDARY_2_SIZE
 #define CY_BOOT_SECONDARY_2_SIZE            (0x10000)
 #endif
-#endif
-
-#if (MCUBOOT_IMAGE_NUMBER == 1)
-
-#define FLASH_AREA_IMAGE_PRIMARY(x)    (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_0 : \
-                                         FLASH_AREA_IMAGE_0)
-#define FLASH_AREA_IMAGE_SECONDARY(x)  (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_1 : \
-                                         FLASH_AREA_IMAGE_1)
-
-#elif (MCUBOOT_IMAGE_NUMBER == 2)
-
-#define FLASH_AREA_IMAGE_PRIMARY(x)    (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_0 : \
-                                        ((x) == 1) ?          \
-                                         FLASH_AREA_IMAGE_2 : \
-                                         255)
-#define FLASH_AREA_IMAGE_SECONDARY(x)  (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_1 : \
-                                        ((x) == 1) ?          \
-                                         FLASH_AREA_IMAGE_3 : \
-                                         255)
-
-#else
-#error "Image slot and flash area mapping is not defined"
-#endif
+//#endif
 
 /**
  *
