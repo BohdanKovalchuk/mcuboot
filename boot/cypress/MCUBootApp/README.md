@@ -13,13 +13,13 @@ Features implemented:
 
 **Flash map used for MCUBoot Bootloader:**
 
-`0x10000000 - 0x10020000` - MCUBoot Bootloader
+`0x10000000 - 0x10010000` - MCUBoot Bootloader
 
-`0x10020000 - 0x10030000` - BOOT slot of Bootloader
+`0x10010000 - 0x10020000` - BOOT slot of Bootloader
 
-`0x10030000 - 0x10040000` - UPGRADE slot of Bootloader
+`0x10020000 - 0x10030000` - UPGRADE slot of Bootloader
 
-`0x10040000 - 0x10040100` - Scratch of Bootloader
+`0x10030000 - 0x10030100` - Scratch of Bootloader
 
 Size of slots `0x10000` - 64kb
 
@@ -80,17 +80,17 @@ This ensures two dependent applications can be accepted by device only in case b
 
 **Default Flash map for Multi-Image operation:**
 
-`0x10000000 - 0x10020000` - MCUBoot Bootloader
+`0x10000000 - 0x10010000` - MCUBoot Bootloader
 
-`0x10020000 - 0x10030000` - Primary_1 (BOOT) slot of Bootloader
+`0x10010000 - 0x10020000` - Primary_1 (BOOT) slot of Bootloader
 
-`0x10030000 - 0x10040000` - Secondary_1 (UPGRADE) slot of Bootloader
+`0x10020000 - 0x10030000` - Secondary_1 (UPGRADE) slot of Bootloader
 
-`0x10040000 - 0x10050000` - Primary_2 (BOOT) slot of Bootloader
+`0x10030000 - 0x10040000` - Primary_2 (BOOT) slot of Bootloader
 
-`0x10050000 - 0x10060000` - Secondary_2 (UPGRADE) slot of Bootloader
+`0x10040000 - 0x10050000` - Secondary_2 (UPGRADE) slot of Bootloader
 
-`0x10060000 - 0x10060100` - Scratch of Bootloader
+`0x10050000 - 0x10050100` - Scratch of Bootloader
 
 Size of slots `0x10000` - 64kb
 
@@ -109,7 +109,7 @@ Flags by defalt:
 
 **How to program MCUBoot Bootloader:**
 
-Use any preffered tool for programming hex files.
+**_Use any preffered tool for programming hex files._**
 
 Currently implemented makefile jobs use DAPLINK interface for programming.
 
