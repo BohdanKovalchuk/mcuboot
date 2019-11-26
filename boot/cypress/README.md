@@ -12,9 +12,9 @@ The device supported is CY8CPROTO-062-4343W board which is PSoC6 device with 2M 
 
 The default flash map implemented is next:
 
-* [0x10000000, 0x10020000] - MCUBootApp (bootloader) area;
-* [0x10020000, 0x10030000] - primary slot for BlinkyApp;
-* [0x10030000, 0x10040000] - secondary slot for BlinkyApp;
+* [0x10000000, 0x10010000] - MCUBootApp (bootloader) area;
+* [0x10010000, 0x10020000] - primary slot for BlinkyApp;
+* [0x10020000, 0x10030000] - secondary slot for BlinkyApp;
 * [0x10030000, 0x10040000] - secondary slot for BlinkyApp;
 * [0x10040000, 0x10041000] - scratch area;
 
@@ -38,12 +38,8 @@ To retrieve source code with subsequent submodules pull:
 Submodules can also be updated and initialized separately:
 
     cd cy_mcuboot
-    git submodule update --init
+    git submodule update --init --recursive
 
-MbedTLS library also relies on submodule crypto:
-
-    cd boot/cypress/libs/mbedtls/crypto
-    git submodule update
 
 
 **Building Solution**
@@ -63,7 +59,6 @@ Root directory for build is **boot/cypress.**
 Following CLI / IDE can be used for project build:
 
 * Cygwin
-* Powerhell
 * Msys2
 * Git bash
 * Eclipse / ModusToolbox ("makefile project from existing source")
