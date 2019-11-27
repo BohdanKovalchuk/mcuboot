@@ -154,7 +154,7 @@ static void do_boot(struct boot_rsp *rsp)
 {
     uintptr_t flash_base;
     int rc;
-    uint32_t app_addr = CY_FLASH_BASE; // 0x1000 0000
+    uint32_t app_addr = CY_FLASH_BASE + 0x400; // 0x1000 0000
 
     /* The beginning of the image is the ARM vector table, containing
      * the initial stack pointer address and the reset vector

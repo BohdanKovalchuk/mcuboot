@@ -178,12 +178,13 @@ static void Cy_BLServ_TurnOnCM4(void)
 int Cy_BLServ_EnableAccessPorts(void)
 {
     int rc = 0;
-    if((PERM_ENABLED == debug_policy.m4_policy.permission) ||
-            (PERM_ALLOWED == debug_policy.m4_policy.permission))
-    {
+    // if((PERM_ENABLED == debug_policy.m4_policy.permission) ||
+    //         (PERM_ALLOWED == debug_policy.m4_policy.permission))
+    // {
         rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
-    }
+    //}
 
+#if 0
     if(0 == rc)
     {
         if((PERM_ENABLED == debug_policy.sys_policy.permission) ||
@@ -192,6 +193,7 @@ int Cy_BLServ_EnableAccessPorts(void)
             rc = Cy_BLServ_AccessPortControl(CY_SYS_AP, CY_AP_EN);
         }
     }
+#endif
 
     /* The delay is required after Access port was enabled for
      * debugger/programmer to connect and set TEST BIT */
@@ -204,7 +206,7 @@ void Cy_BLServ_StartAppCM0p(uint32_t appAddr)
 {
     int rc = -1;
 
-#if 0 /* temporary disabled */
+#if 1 /* temporary disabled */
     /* If it is not SECURE */
     if(3 != CPUSS->PROTECTION)
     {
