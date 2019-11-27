@@ -148,6 +148,33 @@ struct flash_area *boot_area_descs[] =
 };
 #endif
 
+#ifdef MCUBOOT_IMAGE_NUMBER > 1
+
+static void do_boot(struct boot_rsp *rsp)
+{
+    uintptr_t flash_base;
+    int rc;
+    uint32_t app_addr = CY_FLASH_BASE; // 0x1000 0000
+
+    /* The beginning of the image is the ARM vector table, containing
+     * the initial stack pointer address and the reset vector
+     * consecutively. Manually set the stack pointer and jump into the
+     * reset vector
+     */
+    //rc = Cy_BLServ_FreeHeap();
+    //assert(rc == 0);
+
+    /* Set Protection Context 2 for CM0p trusted apps with IDs 2 and 3 */
+    //Cy_Prot_SetActivePC(CPUSS_MS_ID_CM0, (uint32_t)CY_PROT_PC2);
+    Cy_BLServ_StartAppCM0p(app_addr);
+
+    while (1)
+    {
+        __WFI() ;
+    }
+}
+
+#else
 /* Next image runner API */
 static void do_boot(struct boot_rsp *rsp)
 {
@@ -167,6 +194,7 @@ static void do_boot(struct boot_rsp *rsp)
         __WFI() ;
     }
 }
+#endif /* MCUBOOT_IMAGE_NUMBER */
 
 /************************************
  * CypressBootloader main()
@@ -195,43 +223,46 @@ int main(void)
         rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
                 CY_BOOTLOADER_MASTER_IMG_ID);
     }
+
+#ifdef CY_FLASH_MAP_EXT_DESC
     // TODO: initialize SMIF if supported/requested
     // FWSECURITY-676
-    // if(0 != rc)
-    // {
-    //     BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
-    // }
-    // else /*    if(0 == rc) */
-    // {
-        // primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
-        // primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+    if(0 != rc)
+    {
+        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
+    }
+    else /*    if(0 == rc) */
+    {
+        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-        // primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
-        // primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
+        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
+        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
 
-        // secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
-        // secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-        // secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
-        // secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
+        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
+        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
 
-        // // TODO: add primary_2 + secondary_2
-        // // FWSECURITY-935
+        // TODO: add primary_2 + secondary_2
+        // FWSECURITY-935
 
-        // // TODO: add bootloader
-        // bootloader.fa_id = FLASH_AREA_BOOTLOADER;
-        // bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        // bootloader.fa_off = cyToc[4];
-        // bootloader.fa_size = cyToc[5];
+        // TODO: add bootloader
+        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
+        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        bootloader.fa_off = cyToc[4];
+        bootloader.fa_size = cyToc[5];
 
-        // // TODO: initialize scratch
-        // scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
-        // scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        // scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
-        // scratch.fa_size = 0x1000;
+        // TODO: initialize scratch
+        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
+        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
+        scratch.fa_size = 0x1000;
 
-        // // TODO: apply protections if supported/requested
-    // }
+        // TODO: apply protections if supported/requested
+    }
+#endif /* CY_FLASH_MAP_EXT_DESC */
 
     rc = boot_go(&rsp);
     if(rc == 0)

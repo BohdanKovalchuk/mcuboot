@@ -204,6 +204,7 @@ void Cy_BLServ_StartAppCM0p(uint32_t appAddr)
 {
     int rc = -1;
 
+#if 0 /* temporary disabled */
     /* If it is not SECURE */
     if(3 != CPUSS->PROTECTION)
     {
@@ -213,6 +214,7 @@ void Cy_BLServ_StartAppCM0p(uint32_t appAddr)
             BOOT_LOG_ERR("Error %x while enabling access ports", rc);
         }
     }
+#endif
 
     /* Stop if we are in the TEST MODE */
     if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
