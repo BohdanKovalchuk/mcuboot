@@ -62,22 +62,22 @@
 #define CY_SYS_CM4_PWR_CTL_KEY_OPEN     (0x05FAUL)
 #define CY_BL_CM4_ROM_LOOP_ADDR         (0x16004000UL)
 
-#define CM4_APP_START_ADDR              (0x10030000)
+#define CM4_APP_START_ADDR              (0x10020400UL)
 
 #ifdef BOOT_IMG
     #define BLINK_PERIOD          (250u)
     #define CM0_TIMEOUT           (40u)
-    #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v1.0\n"
-    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks fast for 10 sec\n \
-                                   [SecureBlinkyApp] Then CM4 app will be started\n"
+    #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v1.0\r\n"
+    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks fast for 10 sec\r\n\
+[SecureBlinkyApp] Then CM4 app will be started\r\n"
 #elif UPGRADE_IMG
     #define BLINK_PERIOD          (1000u)
     #define CM0_TIMEOUT           (10u)
-    #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v2.0 [+]\n"
-    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks slow for 10 sec\n \
-                                   [SecureBlinkyApp] Then CM4 app will be started\n"
+    #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v2.0 [+]\r\n"
+    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks slow for 10 sec\r\n \
+[SecureBlinkyApp] Then CM4 app will be started\r\n"
 #else
-    #error "[BlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\n\r"
+    #error "[SecureBlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\n\r"
 #endif
 
 void check_result(int res)
@@ -117,7 +117,12 @@ void start_cm4_app(void)
         while((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL);
         __enable_irq();
     }
-    Cy_SysEnableCM4(CM4_APP_START_ADDR);
+    Cy_SysEnableCM4(0x10020400); //CM4_APP_START_ADDR
+
+    while (1)
+    {
+        __WFI() ;
+    }
 }
 
 void test_app_init_hardware(void)
@@ -141,9 +146,9 @@ void test_app_init_hardware(void)
     check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
                                  CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF));
 
-    printf("\r[BlinkyApp] GPIO initialized \r\n");
-    printf("[BlinkyApp] UART initialized \r\n");
-    printf("[BlinkyApp] Retarget I/O set to 115200 baudrate \r\n");
+    printf("\r[SecureBlinkyApp] GPIO initialized \r\n");
+    printf("[SecureBlinkyApp] UART initialized \r\n");
+    printf("[SecureBlinkyApp] Retarget I/O set to 115200 baudrate \r\n");
     
 }
 
@@ -158,7 +163,7 @@ int main(void)
 
     for (i = 0; i < CM0_TIMEOUT ; i++)
     {
-		/* Toggle the user LED periodically */
+        /* Toggle the user LED periodically */
         Cy_SysLib_Delay(blinky_period/2);
 
         /* Invert the USER LED state */
