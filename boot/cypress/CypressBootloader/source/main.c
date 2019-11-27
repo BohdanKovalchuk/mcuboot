@@ -123,6 +123,9 @@ bnu_policy_t cy_bl_bnu_policy;
 /** Debug policy structure */
 debug_policy_t debug_policy;
 
+// TODO:
+extern uint8_t boot_img_number;
+
 #ifdef CY_FLASH_MAP_EXT_DESC
 /* FlashMap descriptors */
 static struct flash_area bootloader;
@@ -157,6 +160,7 @@ static void do_boot(struct boot_rsp *rsp)
 
     app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
 
+    BOOT_LOG_INF("User Application at: 0x%08x", app_addr);
     BOOT_LOG_INF("Starting User Application on CM4 (wait)...");
     Cy_SysLib_Delay(100);
 
@@ -200,36 +204,71 @@ int main(void)
     // FWSECURITY-676
     if(0 != rc)
     {
-        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
+        BOOT_LOG_ERR("Policy parsing failed with code 0x%08x", rc);
     }
     else /*    if(0 == rc) */
     {
+#if(1) /* Debug code for run-time multi-image */
+
+        /* assume it is single- or multi-image */
+        boot_img_number = 2;
+
         primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
         primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-
-        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
-        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
+        primary_1.fa_off = 0x10020000;
+        primary_1.fa_size = 0x10000;
 
         secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
         secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        secondary_1.fa_off = 0x10030000;
+        secondary_1.fa_size = 0x10000;
 
-        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
-        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
+        primary_2.fa_id = FLASH_AREA_IMAGE_PRIMARY(1);
+        primary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        primary_2.fa_off = 0x10040000;
+        primary_2.fa_size = 0x10000;
 
-        // TODO: add primary_2 + secondary_2
-        // FWSECURITY-935
+        secondary_2.fa_id = FLASH_AREA_IMAGE_SECONDARY(1);
+        secondary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        secondary_2.fa_off = 0x10050000;
+        secondary_2.fa_size = 0x10000;
 
-        // TODO: add bootloader
         bootloader.fa_id = FLASH_AREA_BOOTLOADER;
         bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        bootloader.fa_off = cyToc[4];
-        bootloader.fa_size = cyToc[5];
+        bootloader.fa_off = 0x101D0000;
+        bootloader.fa_size = 0x10000;
 
-        // TODO: initialize scratch
         scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
         scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
+        scratch.fa_off = 0x10060000;
         scratch.fa_size = 0x1000;
+#endif
+//        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+//        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+//
+//        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
+//        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
+//
+//        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+//        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+//
+//        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
+//        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
+//
+//        // TODO: add primary_2 + secondary_2
+//        // FWSECURITY-935
+//
+//        // TODO: add bootloader
+//        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
+//        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+//        bootloader.fa_off = cyToc[4];
+//        bootloader.fa_size = cyToc[5];
+//
+//        // TODO: initialize scratch
+//        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
+//        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+//        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
+//        scratch.fa_size = 0x1000;
 
         // TODO: apply protections if supported/requested
     }
@@ -242,7 +281,7 @@ int main(void)
     }
     else
     {
-        BOOT_LOG_INF("CyrpessBootloader found none of bootable images") ;
+        BOOT_LOG_INF("CypressBootloader found none of bootable images") ;
         Cy_BLServ_Assert(0 == rc);
     }
 

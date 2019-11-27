@@ -294,11 +294,12 @@ static inline bool boot_u16_safe_add(uint16_t *dest, uint16_t a, uint16_t b)
  */
 
 /* These are macros so they can be used as lvalues. */
-#if (BOOT_IMAGE_NUMBER > 1)
+// TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
 #define BOOT_CURR_IMG(state) ((state)->curr_img_idx)
-#else
-#define BOOT_CURR_IMG(state) 0
-#endif
+//#else
+//#define BOOT_CURR_IMG(state) 0
+//#endif
 #ifdef MCUBOOT_ENC_IMAGES
 #define BOOT_CURR_ENC(state) ((state)->enc[BOOT_CURR_IMG(state)])
 #else
