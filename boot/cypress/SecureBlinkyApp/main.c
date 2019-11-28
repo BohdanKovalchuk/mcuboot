@@ -68,13 +68,13 @@
     #define BLINK_PERIOD          (250u)
     #define CM0_TIMEOUT           (40u)
     #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v1.0 [CM0p]\r\n"
-    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks fast for 10 sec\r\n\
+    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks FAST for 10 sec\r\n\
 [SecureBlinkyApp] Then CM4 app will be started\r\n"
 #elif UPGRADE_IMG
     #define BLINK_PERIOD          (1000u)
     #define CM0_TIMEOUT           (10u)
     #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v2.0 [+]\r\n"
-    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks slow for 10 sec\r\n \
+    #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks SLOW for 10 sec\r\n \
 [SecureBlinkyApp] Then CM4 app will be started\r\n"
 #else
     #error "[SecureBlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\n\r"
@@ -138,9 +138,9 @@ void test_app_init_hardware(void)
     check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
                                      CY_RETARGET_IO_BAUDRATE));
     
-    printf("===========================\r\n");
+    printf("======================================\r\n");
     printf(GREETING_MESSAGE_VER);
-    printf("===========================\r\n");
+    printf("======================================\r\n");
 
     /* Initialize the User LED */
     check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
