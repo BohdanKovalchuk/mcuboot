@@ -67,7 +67,7 @@
 #ifdef BOOT_IMG
     #define BLINK_PERIOD          (250u)
     #define CM0_TIMEOUT           (40u)
-    #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v1.0\r\n"
+    #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v1.0 [CM0p]\r\n"
     #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks fast for 10 sec\r\n\
 [SecureBlinkyApp] Then CM4 app will be started\r\n"
 #elif UPGRADE_IMG
@@ -117,7 +117,7 @@ void start_cm4_app(void)
         while((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL);
         __enable_irq();
     }
-    Cy_SysEnableCM4(0x10020400); //CM4_APP_START_ADDR
+    Cy_SysEnableCM4(CM4_APP_START_ADDR);
 
     while (1)
     {

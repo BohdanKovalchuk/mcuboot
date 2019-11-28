@@ -56,7 +56,7 @@
 
 #ifdef BOOT_IMG
     #define BLINK_PERIOD          (1000u)
-    #define GREETING_MESSAGE_VER  "[BlinkyApp] BlinkyApp v1.0\n"
+    #define GREETING_MESSAGE_VER  "[BlinkyApp] BlinkyApp v1.0 [CM4]\n"
     #define GREETING_MESSAGE_INFO "[BlinkyApp] Red led blinks with 1 sec period\n"
 #elif UPGRADE_IMG
     #define BLINK_PERIOD          (250u)
