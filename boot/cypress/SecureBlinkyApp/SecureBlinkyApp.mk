@@ -87,11 +87,18 @@ ifeq ($(IMG_TYPE), UPGRADE)
 	UPGRADE :=_upgrade
 endif
 
+# Set build directory for BOOT and UPGRADE images
+ifeq ($(IMG_TYPE), BOOT)
+	OUT_CFG := $(OUT_CFG)/boot
+else
+	OUT_CFG := $(OUT_CFG)/upgrade
+endif
+
 pre_build:
 	$(info [PRE_BUILD] - Generating linker script for application $(CUR_APP_PATH)/linker/$(APP_NAME).ld)
 	@$(CC) -E -x c $(CFLAGS) $(INCLUDE_DIRS) $(CUR_APP_PATH)/linker/$(APP_NAME)_template.ld | grep -v '^#' >$(CUR_APP_PATH)/linker/$(APP_NAME).ld
 
 # Post build action to execute after main build job
-post_build: $(OUT_APP)/$(APP_NAME).hex
+post_build: $(OUT_CFG)/$(APP_NAME).hex
 	$(info [POST_BUILD] - Executing post build script for $(APP_NAME))
-	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_APP)/$(APP_NAME).hex $(OUT_APP)/$(APP_NAME)_signed$(UPGRADE).hex
+	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_signed$(UPGRADE).hex

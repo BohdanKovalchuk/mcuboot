@@ -46,8 +46,6 @@ OUT := $(APP_NAME)/out
 OUT_TARGET := $(OUT)/$(TARGET)
 
 OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
-OUT_OBJ := $(OUT_CFG)/obj
-OUT_APP := $(OUT_CFG)
 
 HEADER_OFFSET ?= 0
 
@@ -91,26 +89,6 @@ CFLAGS += $(DEFINES)
 
 VPATH = $(dir $(C_FILES) $(ASM_FILES))
 
-
-#
-# STDE: For cygwin, adjust paths for compiler
-#
-MY_FILES := $(subst /cygdrive/c,c:,$(C_FILES))
-#$(info MY_FILES $(MY_FILES))
-C_FILES=$(MY_FILES)
-
-MY_DIRS := $(subst /cygdrive/c,c:,$(INCLUDE_DIRS))
-#$(info MY_DIRS $(MY_DIRS))
-INCLUDE_DIRS=$(MY_DIRS)
-
-MY_ASM_FILES := $(subst /cygdrive/c,c:,$(ASM_FILES))
-#$(info MY_ASM_FILES $(MY_ASM_FILES))
-ASM_FILES=$(MY_ASM_FILES)
-
-MY_LDFLAGS := $(subst /cygdrive/c,c:,$(LDFLAGS))
-#$(info MY_LDFLAGS $(MY_LDFLAGS))
-LDFLAGS=$(MY_LDFLAGS)
-
 #
 # STDE: For cygwin, adjust paths for compiler
 #
@@ -141,6 +119,9 @@ PYTHON_PATH?=python
 else
 PYTHON_PATH?=python3
 endif
+
+OUT_OBJ := $(OUT_CFG)/obj
+OUT_APP := $(OUT_CFG)
 
 .PHONY: all app build clean pre_build post_build load load_boot load_upgrade
 
@@ -199,6 +180,14 @@ clean:
 	@echo "Cleanup out directory..."
 	rm -rf ./$(APP_NAME)/out
 
+clean_boot:
+	@echo "Cleanup out BOOT directory of $(APP_NAME)..."
+	rm -rf $(OUT_TARGET)/$(BUILDCFG)/boot
+
+clean_upgrade:
+	@echo "Cleanup out UPGRADE directory of $(APP_NAME)..."
+	rm -rf $(OUT_TARGET)/$(BUILDCFG)/upgrade
+
 # TODO: update with generic solution
 load:
 ifeq ($(HOST_OS), win)
@@ -209,16 +198,16 @@ endif
 
 load_boot:
 ifeq ($(HOST_OS), win)
-	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed.hex /d/
+	cp $(OUT)/$(TARGET)/$(BUILDCFG)/boot/$(APP_NAME)_signed.hex /d/
 else
-	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed.hex /Volumes/DAPLINK
+	cp $(OUT)/$(TARGET)/$(BUILDCFG)/boot/$(APP_NAME)_signed.hex /Volumes/DAPLINK
 endif
 
 load_upgrade:
 ifeq ($(HOST_OS), win)
-	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed_upgrade.hex /d/
+	cp $(OUT)/$(TARGET)/$(BUILDCFG)/upgrade/$(APP_NAME)_signed_upgrade.hex /d/
 else
-	cp $(OUT)/$(TARGET)/$(BUILDCFG)/$(APP_NAME)_signed_upgrade.hex /Volumes/DAPLINK
+	cp $(OUT)/$(TARGET)/$(BUILDCFG)/upgrade/$(APP_NAME)_signed_upgrade.hex /Volumes/DAPLINK
 endif
 
 gen_key_ecc256:
