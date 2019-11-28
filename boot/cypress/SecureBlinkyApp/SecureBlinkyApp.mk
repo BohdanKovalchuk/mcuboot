@@ -80,7 +80,7 @@ ASM_FILES_APP :=
 
 IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
-SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 327680 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
+SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 65536 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
 ifeq ($(IMG_TYPE), UPGRADE)
 	SIGN_ARGS += --pad
