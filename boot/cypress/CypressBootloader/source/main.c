@@ -260,8 +260,8 @@ int main(void)
         secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.start;
         secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.size;
 
-        if((cy_bl_bnu_policy.bnu_img_policy[0].multi_img == 1) &&
-            (cy_bl_bnu_policy.bnu_img_policy[1].multi_img == 2))
+        if((cy_bl_bnu_policy.bnu_img_policy[0].multi_image == 1) &&
+            (cy_bl_bnu_policy.bnu_img_policy[1].multi_image == 2))
         {
             boot_img_number = 2;
 
