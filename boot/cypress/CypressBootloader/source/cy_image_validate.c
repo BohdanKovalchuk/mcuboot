@@ -282,17 +282,34 @@ bootutil_find_key(uint8_t *keyhash, uint8_t keyhash_len)
 #endif
 
 extern bnu_policy_t cy_bl_bnu_policy;
-static int cy_bootutil_find_key(int image_index)
+static int cy_bootutil_find_key(const struct flash_area *fap)
 {
     int key = 0;
+    int multi_idx;
 
-    if(0 == image_index)
+        /* find out if it is some of multi-image */
+    if((fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(0)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(0)))
     {
-        key = cy_bl_bnu_policy.bnu_img_policy.boot_auth[0];
+        multi_idx = 0;
     }
-    else if(1 == image_index)
+    else
+    if((fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(1)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(1)))
     {
-        key = cy_bl_bnu_policy.bnu_img_policy.upgrade_auth[0];
+        multi_idx = 1;
+    }
+        /* find out if it is slot_0 or slot_1*/
+    if((fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(0)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(1)))
+    {
+        key = cy_bl_bnu_policy.bnu_img_policy[multi_idx].boot_auth[0];
+    }
+    else
+    if((fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(0)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(1)))
+    {
+        key = cy_bl_bnu_policy.bnu_img_policy[multi_idx].upgrade_auth[0];
     }
     return key;
 }
@@ -378,8 +395,7 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
             }
 
             // key_id = bootutil_find_key(buf, len);
-            key_id = cy_bootutil_find_key(image_index);
-
+            key_id = cy_bootutil_find_key(fap);
             /*
              * The key may not be found, which is acceptable.  There
              * can be multiple signatures, each preceded by a key.

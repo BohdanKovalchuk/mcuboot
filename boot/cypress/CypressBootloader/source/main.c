@@ -96,6 +96,8 @@
 
 #define CY_BOOTLOADER_MASTER_IMG_ID      CY_BOOTLOADER_IMG_ID_CM0P
 
+#define CY_BOOTLOADER_SCRATCH_SIZE (0x1000)
+
 /* TOC3 Table */
 /* valid TOC3, section name cy_toc_part2 used for CRC calculation */
 __attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 ] =
@@ -208,10 +210,10 @@ int main(void)
     }
     else /*    if(0 == rc) */
     {
-#if(1) /* Debug code for run-time multi-image */
+#if(0) /* Debug code for run-time multi-image */
 
         /* assume it is single- or multi-image */
-        boot_img_number = 2;
+        boot_img_number = 1;
 
         primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
         primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
@@ -242,35 +244,57 @@ int main(void)
         scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
         scratch.fa_off = 0x10060000;
         scratch.fa_size = 0x1000;
-#endif
-//        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
-//        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-//
-//        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
-//        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
-//
-//        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
-//        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-//
-//        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
-//        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
-//
-//        // TODO: add primary_2 + secondary_2
-//        // FWSECURITY-935
-//
-//        // TODO: add bootloader
-//        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
-//        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-//        bootloader.fa_off = cyToc[4];
-//        bootloader.fa_size = cyToc[5];
-//
-//        // TODO: initialize scratch
-//        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
-//        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-//        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
-//        scratch.fa_size = 0x1000;
+#else
+            /* assume single-image is requested by policy */
+        boot_img_number = 1;
+
+        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.start;
+        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.size;
+
+        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.start;
+        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.size;
+
+        if((cy_bl_bnu_policy.bnu_img_policy[0].multi_img == 1) &&
+            (cy_bl_bnu_policy.bnu_img_policy[1].multi_img == 2))
+        {
+            boot_img_number = 2;
+
+            primary_2.fa_id = FLASH_AREA_IMAGE_PRIMARY(1);
+            primary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+            primary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.start;
+            primary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.size;
+
+            secondary_2.fa_id = FLASH_AREA_IMAGE_SECONDARY(1);
+            secondary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+            secondary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.start;
+            secondary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.size;
+
+            BOOT_LOG_INF("Enabled multi-image N = %d:", boot_img_number);
+        }
+        else{
+            BOOT_LOG_INF("Single-image N = %d:", boot_img_number);
+        }
+            /* add bootloader */
+        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
+        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        bootloader.fa_off = cyToc[4];
+        bootloader.fa_size = cyToc[5];
+            /* initialize scratch */
+        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
+        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        scratch.fa_off = bootloader.fa_off - CY_BOOTLOADER_SCRATCH_SIZE;
+        scratch.fa_size = CY_BOOTLOADER_SCRATCH_SIZE;
 
         // TODO: apply protections if supported/requested
+#endif
     }
 
     rc = boot_go(&rsp);
