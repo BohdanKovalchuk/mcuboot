@@ -177,13 +177,20 @@ static void Cy_BLServ_TurnOnCM4(void)
 
 int Cy_BLServ_EnableAccessPorts(void)
 {
+    /*rnok: enable CM4 in CyBootloader until multiimage policy integrated */
     int rc = 0;
-    // if((PERM_ENABLED == debug_policy.m4_policy.permission) ||
-    //         (PERM_ALLOWED == debug_policy.m4_policy.permission))
-    // {
-        rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
-    //}
+    rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
 
+#if 0
+    int rc = 0;
+    if((PERM_ENABLED == debug_policy.m4_policy.permission) ||
+             (PERM_ALLOWED == debug_policy.m4_policy.permission))
+    {
+        rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
+    }
+#endif
+
+    /*rnok: do not try to switch on SYS_AP on 2M targets  */
 #if 0
     if(0 == rc)
     {
@@ -310,11 +317,11 @@ void Cy_BLServ_Assert(int expr)
     {
         BOOT_LOG_ERR("There is an error occurred during bootloader flow. MCU stopped.");
 
-//        rc = Cy_BLServ_EnableAccessPorts();
-//        if(0 != rc)
-//        {
-//            BOOT_LOG_ERR("Error %x while enabling access ports", rc);
-//        }
+        rc = Cy_BLServ_EnableAccessPorts();
+       if(0 != rc)
+       {
+           BOOT_LOG_ERR("Error %x while enabling access ports", rc);
+       }
 
         if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
         {

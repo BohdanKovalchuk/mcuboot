@@ -88,13 +88,19 @@ void check_result(int res)
     }
 }
 
-static void turn_on_cm4(void)
+CY_SECTION(".cy_ramfunc") CY_NOINLINE
+static void Cy_BLServ_SRAMTestBitLoop(void)
+{
+    while((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL);
+}
+
+static void Cy_BLServ_TurnOnCM4(void)
 {
     uint32_t regValue;
 
     regValue = CPUSS->CM4_PWR_CTL & ~(CPUSS_CM4_PWR_CTL_VECTKEYSTAT_Msk | CPUSS_CM4_PWR_CTL_PWR_MODE_Msk);
     regValue |= _VAL2FLD(CPUSS_CM4_PWR_CTL_VECTKEYSTAT, CY_SYS_CM4_PWR_CTL_KEY_OPEN);
-    regValue |= 3; // CY_SYS_CM4_STATUS_ENABLED;
+    regValue |= CY_SYS_CM4_STATUS_ENABLED;
     CPUSS->CM4_PWR_CTL = regValue;
 
     while((CPUSS->CM4_STATUS & CPUSS_CM4_STATUS_PWR_DONE_Msk) == 0UL)
@@ -105,16 +111,24 @@ static void turn_on_cm4(void)
 
 void start_cm4_app(void)
 {
-    /* Stop in case we are in the TEST MODE */
-    if ( (CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL )
+    /* Stop if we are in the TEST MODE */
+    if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
     {
-        IPC->STRUCT[CY_IPC_CHAN_SYSCALL_DAP].DATA0 = TST_MODE_ENTERED_MAGIC;
+        /* Get IPC base register address */
+        IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
+        Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
+
+        printf("[SecureBlinkeApp] - TEST MODE");
+
         __disable_irq();
+
         CPUSS->CM4_VECTOR_TABLE_BASE = CY_BL_CM4_ROM_LOOP_ADDR;
-        turn_on_cm4();
+        Cy_BLServ_TurnOnCM4();
+
         Cy_SysLib_Delay(1);
+
         CPUSS->CM4_VECTOR_TABLE_BASE = CM4_APP_START_ADDR;
-        while((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL);
+        Cy_BLServ_SRAMTestBitLoop();
         __enable_irq();
     }
     Cy_SysEnableCM4(CM4_APP_START_ADDR);

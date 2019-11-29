@@ -16,14 +16,14 @@
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerExecutable" value="/Applications/ModusToolbox_1.1/tools/openocd-2.1/bin/openocd"/>
 <intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerGdbPortNumber" value="3333"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerLog" value=""/>
-<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerOther" value="-s &quot;${cy_tools_path:openocd}/scripts&quot;&#13;&#10;-c &quot;set ENABLE_ACQUIRE 1; set ENABLE_CM4 0; set ENABLE_CM0 1&quot;&#13;&#10;-c &quot;source [find interface/kitprog3.cfg]&quot;&#13;&#10;-c &quot;transport select swd&quot;&#13;&#10;-c &quot;source [find target/psoc6_2m.cfg]&quot;&#13;&#10;-c &quot;puts stderr {Started by GNU MCU Eclipse}&quot;"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerOther" value="-s &quot;${cy_tools_path:openocd}/scripts&quot;&#13;&#10;-c &quot;set TARGET_AP cm4_ap&quot;&#13;&#10;-c &quot;source [find interface/kitprog3.cfg]&quot;&#13;&#10;-c &quot;transport select swd&quot;&#13;&#10;-c &quot;source [find target/psoc6_2m_secure.cfg]&quot;&#13;&#10;-c &quot;puts stderr {Started by GNU MCU Eclipse}&quot;"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerTclPortNumber" value="6666"/>
 <intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerTelnetPortNumber" value="4444"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.otherInitCommands" value=""/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.otherRunCommands" value=""/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.secondResetType" value=""/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.svdPath" value=""/>
-<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageFileName" value="/Users/rnok/repos/cy_mcuboot_project/cy_mcuboot/boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/BlinkyApp.elf"/>
+<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageFileName" value="/Users/rnok/repos/cy_mcuboot_project/cy_mcuboot/boot/cypress/BlinkyApp/out/boot/CY8CKIT-064S2-4343W/Debug/BlinkyApp.elf"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageOffset" value=""/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.ipAddress" value="localhost"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.jtagDevice" value="GNU MCU OpenOCD"/>
@@ -35,7 +35,7 @@
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setResume" value="false"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setStopAt" value="false"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.stopAt" value=""/>
-<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsFileName" value="/Users/rnok/repos/cy_mcuboot_project/cy_mcuboot/boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/BlinkyApp.elf"/>
+<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsFileName" value="/Users/rnok/repos/cy_mcuboot_project/cy_mcuboot/boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp.elf"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsOffset" value=""/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForImage" value="true"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForSymbols" value="true"/>
@@ -47,7 +47,7 @@
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="0"/>
 <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_REGISTER_GROUPS" value=""/>
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="/Users/rnok/repos/cy_mcuboot_project/cy_mcuboot/boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/BlinkyApp.elf"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="/Users/rnok/repos/cy_mcuboot_project/cy_mcuboot/boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp.elf"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="cy_mcuboot"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.1139973781"/>
