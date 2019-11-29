@@ -53,7 +53,7 @@ endif
 
 # Define start of application as it can be build for Secure Boot target
 ifeq ($(TARGET), CY8CKIT-064S2-4343W)
-DEFINES_APP += -DUSER_APP_START=0x10000000
+DEFINES_APP += -DUSER_APP_START=0x10020000
 else
 DEFINES_APP += -DUSER_APP_START=0x10010000
 endif

@@ -67,6 +67,10 @@ INCLUDE_DIRS := $(INCLUDE_DIRS_APP)
 INCLUDE_DIRS += $(INCLUDES_DIRS_MCUBOOT)
 INCLUDE_DIRS += $(INCLUDE_DIRS_LIBS)
 
+#INCLUDE_FILES := $(INCLUDE_FILES_APP)
+
+#INCLUDES := $(addprefix -include , $(INCLUDE_FILES)) 
+
 O_FILES := $(notdir $(C_FILES:.c=.o)) $(addsuffix .o, $(notdir $(basename $(ASM_FILES))))
 
 DEFINES := $(DEFINES_APP)
@@ -228,6 +232,8 @@ gen_key_ecc256:
 
 size:
 	
+
+$(info INCLUDES: $(INCLUDES))
 
 ifeq ($(MAKEINFO) , 1)
 $(info ASM_FILES: $(ASM_FILES))
