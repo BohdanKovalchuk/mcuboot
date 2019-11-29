@@ -125,7 +125,7 @@ bnu_policy_t cy_bl_bnu_policy;
 /** Debug policy structure */
 debug_policy_t debug_policy;
 
-// TODO:
+/* TODO: multi-image run-time config variable */
 extern uint8_t boot_img_number;
 
 #ifdef CY_FLASH_MAP_EXT_DESC
