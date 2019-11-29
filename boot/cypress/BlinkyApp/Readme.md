@@ -60,7 +60,7 @@ Post build action is executed at compile time for `BlinkyApp`. It calls `imgtool
 
 **How to program an application:**
 
-**_Use any preffered tool for programming hex files._**
+**_Use any preferred tool for programming hex files._**
 
 Currently implemented makefile jobs use DAPLINK interface for programming.
 
@@ -77,13 +77,13 @@ Flags defaults:
     BUILDCFG=Debug
 
 **Flags:**
-- `BUILDCFG` - configation **Release** of **Debug**
-- `MAKEINFO` - 0 (default) - less build info, 1 - verbose output of complilation.
-- `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size MCUBoot Bootloader in this example
-- `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of MCUBoot Bootloader, `UPGRADE` - build image for `UPGRADE` slot of MCUBoot Bootloader.
+- `BUILDCFG` - configuration **Release** or **Debug**
+- `MAKEINFO` - 0 (default) - less build info, 1 - verbose output of compilation.
+- `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size MCUBoot Bootloader in this example.
+- `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of MCUBoot Bootloader, `UPGRADE` - build image for UPGRADE slot of MCUBoot Bootloader.
 - `MULTI_IMAGE` - `0` (default) - set addresses for single image scheme. `1` - set addresses for multiimage scheme.
 
-**NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to MCUBoot Bootloader slot size
+**NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to MCUBoot Bootloader slot size.
 
 **Example terminal output:**
 

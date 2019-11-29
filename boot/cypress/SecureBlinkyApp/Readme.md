@@ -24,7 +24,7 @@ Start of `SecureBlinkyApp` built to use with Secure Boot enabled targets corresp
 
 Root directory for build is **boot/cypress.**
 
-The following command will build regular HEX file of a Blinky Application, BOOT slot:
+The following command will build regular HEX file of a Secure Blinky Application, BOOT slot:
 
     make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W IMG_TYPE=BOOT
 
@@ -43,9 +43,9 @@ Post build action is executed at compile time for `SecureBlinkyApp`. It calls `i
 
 **How to program an application:**
 
-**_Use any preffered tool for programming hex files._**
+**_Use any preferred tool for programming hex files._**
 
-Currently implemented makefile jobs use DAPLINK interface for programming.
+Currently implemented makefile jobs use CMSIS DAP interface for programming.
 
 To program BOOT image:
 
@@ -60,10 +60,10 @@ Flags defaults:
     BUILDCFG=Debug
 
 **Flags:**
-- `BUILDCFG` - configation **Release** of **Debug**
-- `MAKEINFO` - 0 (default) - less build info, 1 - verbose output of complilation.
-- `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size CyBootloader in this example
-- `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of CyBootloader, `UPGRADE` - build image for `UPGRADE` slot of CyBootloader.
+- `BUILDCFG` - configuration **Release** or **Debug**
+- `MAKEINFO` - 0 (default) - less build info, 1 - verbose output of compilation.
+- `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size CyBootloader in this example.
+- `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of CyBootloader, `UPGRADE` - build image for UPGRADE slot of CyBootloader.
 
 **NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to MCUBoot Bootloader slot size
 
