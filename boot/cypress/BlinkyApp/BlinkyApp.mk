@@ -68,7 +68,7 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 
 # Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)
-LINKER_SCRIPT := $(CUR_APP_PATH)/linker/$(APP_NAME).ld
+LINKER_SCRIPT := $(subst /cygdrive/c,c:,$(CUR_APP_PATH)/linker/$(APP_NAME).ld)
 else
 $(error Only GCC ARM is supported at this moment)
 endif
@@ -77,7 +77,7 @@ ASM_FILES_APP :=
 
 IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
-SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 65536 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
+SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 327680 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
 ifeq ($(IMG_TYPE), UPGRADE)
 	SIGN_ARGS += --pad
