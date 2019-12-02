@@ -51,6 +51,8 @@ DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
+# multi-image setup ?
+# DEFINES_APP += -DBOOT_IMAGE_NUMBER=1
 # Use external flash map descriptors since flash map is driven by policy
 DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
 DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
@@ -102,6 +104,10 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/fb_mbedc
 #INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/fb_mbedcrypto/fb_mbedtls)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/fb_mbedcrypto/fb_psacrypto)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypto)
+
+INCLUDE_FILES_MCUBOOT := bootutil_priv.h
+
+INCLUDE_FILES_APP := $(addprefix $(CURDIR)/../bootutil/src/, $(INCLUDE_FILES_MCUBOOT))
 
 # Collect Utils sources
 SOURCES_APP += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypto/*.c)

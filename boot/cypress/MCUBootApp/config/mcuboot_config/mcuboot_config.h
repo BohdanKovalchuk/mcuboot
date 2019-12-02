@@ -6,6 +6,7 @@
  */
 #ifndef MCUBOOT_CONFIG_H
 #define MCUBOOT_CONFIG_H
+
 /*
  * Template configuration file for MCUboot.
  *

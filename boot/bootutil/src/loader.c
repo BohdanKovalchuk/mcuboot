@@ -50,13 +50,13 @@ static struct boot_loader_state boot_data;
 
 uint8_t boot_img_number = BOOT_IMAGE_NUMBER;
 
-#if (BOOT_IMAGE_NUMBER > 1)
+//#if (BOOT_IMAGE_NUMBER > 1)
 // TODO: run-time multi-image
 //#define IMAGES_ITER(x) for ((x) = 0; (x) < BOOT_IMAGE_NUMBER; ++(x))
 #define IMAGES_ITER(x) for ((x) = 0; (x) < boot_img_number; ++(x))
-#else
-#define IMAGES_ITER(x)
-#endif
+//#else
+//#define IMAGES_ITER(x)
+//#endif
 
 /*
  * This macro allows some control on the allocation of local variables.
@@ -2246,7 +2246,9 @@ boot_prepare_image_for_update(struct boot_loader_state *state,
         // TODO: run-time multi-image
 //#if (BOOT_IMAGE_NUMBER > 1)
         if (boot_img_number > 1)
+        {
             boot_review_image_swap_types(state, true);
+        }
 //#endif
 
 #ifdef MCUBOOT_OVERWRITE_ONLY
@@ -2282,7 +2284,9 @@ boot_prepare_image_for_update(struct boot_loader_state *state,
         // TODO: run-time multi-image
 //#if (BOOT_IMAGE_NUMBER > 1)
         if (boot_img_number > 1)
+        {
             boot_review_image_swap_types(state, false);
+        }
 //#endif
 
 #ifdef MCUBOOT_BOOTSTRAP
@@ -2516,7 +2520,7 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
 
     // TODO: run-time multi-image
 //#if (BOOT_IMAGE_NUMBER > 1)
-    if (boot_img_number > 1)
+//    if (boot_img_number > 1)
         /* Always boot from the primary slot of Image 0. */
         BOOT_CURR_IMG(state) = 0;
 //#endif

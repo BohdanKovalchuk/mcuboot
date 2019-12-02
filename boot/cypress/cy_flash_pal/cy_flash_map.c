@@ -175,10 +175,10 @@ struct flash_area *boot_area_descs[] =
     &bootloader,
     &primary_1,
     &secondary_1,
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     &primary_2,
     &secondary_2,
-#endif
+//#endif
     &scratch,
     NULL
 };
