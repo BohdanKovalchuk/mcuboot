@@ -63,14 +63,14 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
     int rc;
     uint32_t blk_off;
     uint32_t tlv_off;
-
-#if (BOOT_IMAGE_NUMBER == 1) || !defined(MCUBOOT_ENC_IMAGES)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1) || !defined(MCUBOOT_ENC_IMAGES)
     (void)enc_state;
     (void)image_index;
     (void)hdr_size;
     (void)blk_off;
     (void)tlv_off;
-#endif
+//#endif
 
 #ifdef MCUBOOT_ENC_IMAGES
     /* Encrypted images only exist in the secondary slot */

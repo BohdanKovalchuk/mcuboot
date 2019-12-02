@@ -118,7 +118,8 @@ static struct flash_area secondary_1 =
                 CY_BOOT_PRIMARY_1_SIZE,
     .fa_size = CY_BOOT_SECONDARY_1_SIZE
 };
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+// TODO: run-time multi-image
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
 static struct flash_area primary_2 =
 {
     .fa_id = FLASH_AREA_IMAGE_PRIMARY(1),
@@ -143,24 +144,24 @@ static struct flash_area secondary_2 =
                 CY_BOOT_PRIMARY_2_SIZE,
     .fa_size = CY_BOOT_SECONDARY_2_SIZE
 };
-#endif
+//#endif
 static struct flash_area scratch =
 {
     .fa_id = FLASH_AREA_IMAGE_SCRATCH,
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
-#if (MCUBOOT_IMAGE_NUMBER == 1) /* if single-image */
-     .fa_off = CY_FLASH_BASE +\
-                CY_BOOT_BOOTLOADER_SIZE +\
-                CY_BOOT_PRIMARY_1_SIZE +\
-                CY_BOOT_SECONDARY_1_SIZE,
-#elif (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+//#if (MCUBOOT_IMAGE_NUMBER == 1) /* if single-image */
+//     .fa_off = CY_FLASH_BASE +\
+//                CY_BOOT_BOOTLOADER_SIZE +\
+//                CY_BOOT_PRIMARY_1_SIZE +\
+//                CY_BOOT_SECONDARY_1_SIZE,
+//#elif (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     .fa_off = CY_FLASH_BASE +\
                 CY_BOOT_BOOTLOADER_SIZE +\
                 CY_BOOT_PRIMARY_1_SIZE +\
                 CY_BOOT_SECONDARY_1_SIZE +\
                 CY_BOOT_PRIMARY_2_SIZE +\
                 CY_BOOT_SECONDARY_2_SIZE,
-#endif
+//#endif
     .fa_size = CY_BOOT_SCRATCH_SIZE
 };
 #endif

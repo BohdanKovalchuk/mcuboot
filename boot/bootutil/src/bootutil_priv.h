@@ -140,6 +140,7 @@ struct boot_swap_state {
 
 #ifdef MCUBOOT_IMAGE_NUMBER
 #define BOOT_IMAGE_NUMBER          MCUBOOT_IMAGE_NUMBER
+extern uint8_t boot_img_number;
 #else
 #define BOOT_IMAGE_NUMBER          1
 #endif
@@ -220,9 +221,10 @@ struct boot_loader_state {
     struct enc_key_data enc[BOOT_IMAGE_NUMBER][BOOT_NUM_SLOTS];
 #endif
 
-#if (BOOT_IMAGE_NUMBER > 1)
+// TODO: runtime multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
     uint8_t curr_img_idx;
-#endif
+//#endif
 };
 
 int bootutil_verify_sig(uint8_t *hash, uint32_t hlen, uint8_t *sig,

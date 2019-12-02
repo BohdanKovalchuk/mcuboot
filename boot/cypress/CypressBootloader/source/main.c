@@ -128,10 +128,11 @@ debug_policy_t debug_policy;
 static struct flash_area bootloader;
 static struct flash_area primary_1;
 static struct flash_area secondary_1;
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+// TODO: run-time multi-image
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
 static struct flash_area primary_2;
 static struct flash_area secondary_2;
-#endif
+//#endif
 static struct flash_area scratch;
 
 struct flash_area *boot_area_descs[] =
@@ -139,10 +140,11 @@ struct flash_area *boot_area_descs[] =
     &bootloader,
     &primary_1,
     &secondary_1,
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+    // TODO: run-time multi-image
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     &primary_2,
     &secondary_2,
-#endif
+//#endif
     &scratch,
     NULL
 };
