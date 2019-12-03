@@ -158,21 +158,50 @@ struct flash_area *boot_area_descs[] =
 /* Next image runner API */
 static void do_boot(struct boot_rsp *rsp)
 {
+    uintptr_t flash_base;
+    int rc;
     uint32_t app_addr = 0;
 
-    app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
+    /* The beginning of the image is the ARM vector table, containing
+     * the initial stack pointer address and the reset vector
+     * consecutively. Manually set the stack pointer and jump into the
+     * reset vector
+     */
+    rc = flash_device_base(rsp->br_flash_dev_id, &flash_base);
+    assert(rc == 0);
 
-    BOOT_LOG_INF("User Application at: 0x%08x", app_addr);
-    BOOT_LOG_INF("Starting User Application on CM4 (wait)...");
-    Cy_SysLib_Delay(100);
+    app_addr = (flash_base + rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
 
-    cy_retarget_io_deinit();
+#if 0 /* need to test this */
+    rc = Cy_BLServ_FreeHeap();
+    assert(rc == 0);
+#endif
 
-    Cy_SysEnableCM4(app_addr);
-
-    while (1)
+    /* hardcode image id to run CM0p first until fwsecurity-645 merged */
+    /* switch (cy_bl_bnu_policy.bnu_img_policy.id) */ 
+    switch(CY_BOOTLOADER_IMG_ID_TEE_CM0P)
     {
-        __WFI() ;
+        case CY_BOOTLOADER_IMG_ID_TEE_CM0P:
+            /* Do not change protection context for CM0p SPM image with ID=1 */
+            Cy_BLServ_StartAppCM0p(app_addr);
+            break;
+        case CY_BOOTLOADER_IMG_ID_CYTF_CM0P:
+        case CY_BOOTLOADER_IMG_ID_OEMTF_CM0P:
+            /* Set Protection Context 2 for CM0p trusted apps with IDs 2 and 3 */
+            Cy_Prot_SetActivePC(CPUSS_MS_ID_CM0, (uint32_t)CY_PROT_PC2);
+            Cy_BLServ_StartAppCM0p(app_addr);
+            break;
+        case CY_BOOTLOADER_IMG_ID_CM4:
+            /* Set Protection Context 6 for CM4 application */
+            Cy_Prot_SetActivePC(CPUSS_MS_ID_CM4, (uint32_t)CY_PROT_PC6);
+            Cy_BLServ_StartAppCM4(app_addr);
+            break;
+        default:
+            BOOT_LOG_ERR("Unable to find bootable image");
+            while (1)
+            {
+                __WFI() ;
+            };
     }
 }
 
@@ -192,6 +221,7 @@ int main(void)
     Cy_InitPSoC6_HW();
 
     BOOT_LOG_INF("TEST : CypressBootloader Started");
+    BOOT_LOG_INF("TEST : Number of images required to BOOT: %d", MCUBOOT_IMAGE_NUMBER);
 
     /* Processing of policy in JWT format */
     uint32_t jwtLen;
@@ -202,6 +232,7 @@ int main(void)
         rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
                 CY_BOOTLOADER_MASTER_IMG_ID);
     }
+
     // TODO: initialize SMIF if supported/requested
     // FWSECURITY-676
     if(0 != rc)

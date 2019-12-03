@@ -20,7 +20,27 @@ Default values set for currently supported targets:
 
 Start of `BlinkyApp` built to use with Secure Boot enabled targets corresponds to default policy settings provided with `cysecuretools` package.
 
-**Build an application:**
+**Building Multi-Image**
+
+`BlinkyApp` can be built to use in multi-image bootloader configuration. In this case there is another application `SecureBlinkyApp` present in system, that is running on `CM0p` and starts `BlinkyApp` on `CM4`.
+
+Note: only 2 images are supported at the moment.
+
+To build appropriate image build flag `MULTI_IMAGE=1` has to be passed to `make`. Default value is `MULTI_IMAGE=0`(disabled).
+
+Default `BlinkyApp` addresses for `BOOT` and `UPGRADE`:
+
+Single image scheme (default):
+    
+    BOOT    - 0x10000000
+    UPGRADE - 0x10010000
+
+Miltiimage scheme (`MULTI_IMAGE=1`):
+
+    BOOT    - 0x10020000
+    UPGRADE - 0x10030000
+
+**Building an application:**
 
 Root directory for build is **boot/cypress.**
 
@@ -43,7 +63,7 @@ Post build action is executed at compile time for `BlinkyApp`. It calls `imgtool
 
 **How to program an application:**
 
-**_Use any preffered tool for programming hex files._**
+**_Use any preferred tool for programming hex files._**
 
 Currently implemented makefile jobs use DAPLINK interface for programming.
 
@@ -60,19 +80,20 @@ Flags defaults:
     BUILDCFG=Debug
 
 **Flags:**
-- `BUILDCFG` - configation **Release** of **Debug**
-- `MAKEINFO` - 0 (default) - less build info, 1 - verbose output of complilation.
-- `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size MCUBoot Bootloader in this example
-- `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of MCUBoot Bootloader, `UPGRADE` - build image for `UPGRADE` slot of MCUBoot Bootloader.
+- `BUILDCFG` - configuration **Release** or **Debug**
+- `MAKEINFO` - 0 (default) - less build info, 1 - verbose output of compilation.
+- `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size MCUBoot Bootloader in this example.
+- `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of MCUBoot Bootloader, `UPGRADE` - build image for UPGRADE slot of MCUBoot Bootloader.
+- `MULTI_IMAGE` - `0` (default) - set addresses for single image scheme. `1` - set addresses for multiimage scheme.
 
-**NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to MCUBoot Bootloader slot size
+**NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to MCUBoot Bootloader slot size.
 
 **Example terminal output:**
 
 When user application programmed in BOOT slot:
 
     ===========================
-    [BlinkyApp] BlinkyApp v1.0
+    [BlinkyApp] BlinkyApp v1.0 [CM4]
     ===========================
     [BlinkyApp] GPIO initialized
     [BlinkyApp] UART initialized
@@ -82,7 +103,7 @@ When user application programmed in BOOT slot:
 When user application programmed in UPRADE slot and upgrade procedure was successful:
 
     ===========================
-    [BlinkyApp] BlinkyApp v2.0
+    [BlinkyApp] BlinkyApp v2.0 [CM4]
     ===========================
 
     [BlinkyApp] GPIO initialized

@@ -177,13 +177,21 @@ static void Cy_BLServ_TurnOnCM4(void)
 
 int Cy_BLServ_EnableAccessPorts(void)
 {
+    /*rnok: enable CM4 in CyBootloader until multiimage policy integrated */
+    int rc = 0;
+    rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
+
+#if 0
     int rc = 0;
     if((PERM_ENABLED == debug_policy.m4_policy.permission) ||
-            (PERM_ALLOWED == debug_policy.m4_policy.permission))
+             (PERM_ALLOWED == debug_policy.m4_policy.permission))
     {
         rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
     }
+#endif
 
+    /*rnok: do not try to switch on SYS_AP on 2M targets  */
+#if 0
     if(0 == rc)
     {
         if((PERM_ENABLED == debug_policy.sys_policy.permission) ||
@@ -192,6 +200,7 @@ int Cy_BLServ_EnableAccessPorts(void)
             rc = Cy_BLServ_AccessPortControl(CY_SYS_AP, CY_AP_EN);
         }
     }
+#endif
 
     /* The delay is required after Access port was enabled for
      * debugger/programmer to connect and set TEST BIT */
@@ -204,6 +213,7 @@ void Cy_BLServ_StartAppCM0p(uint32_t appAddr)
 {
     int rc = -1;
 
+#if 1 /* temporary disabled */
     /* If it is not SECURE */
     if(3 != CPUSS->PROTECTION)
     {
@@ -213,6 +223,7 @@ void Cy_BLServ_StartAppCM0p(uint32_t appAddr)
             BOOT_LOG_ERR("Error %x while enabling access ports", rc);
         }
     }
+#endif
 
     /* Stop if we are in the TEST MODE */
     if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
@@ -306,11 +317,11 @@ void Cy_BLServ_Assert(int expr)
     {
         BOOT_LOG_ERR("There is an error occurred during bootloader flow. MCU stopped.");
 
-//        rc = Cy_BLServ_EnableAccessPorts();
-//        if(0 != rc)
-//        {
-//            BOOT_LOG_ERR("Error %x while enabling access ports", rc);
-//        }
+        rc = Cy_BLServ_EnableAccessPorts();
+       if(0 != rc)
+       {
+           BOOT_LOG_ERR("Error %x while enabling access ports", rc);
+       }
 
         if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
         {
@@ -328,18 +339,20 @@ void Cy_BLServ_Assert(int expr)
     }
 }
 
-//int Cy_BLServ_FreeHeap(void)
-//{
-//    cy_en_prot_status_t status = CY_PROT_SUCCESS;
-//    uint8_t *heapStart = (uint8_t*)&__HeapBase;
-//    uint8_t *heapEnd = (uint8_t*)&__HeapLimit;
-//
-//    memset(heapStart, 0, (heapEnd - heapStart));
-//
-//    status = release_protections();
-//
-//    return (int)status;
-//}
+#if 0 /* need to test this */
+int Cy_BLServ_FreeHeap(void)
+{
+   cy_en_prot_status_t status = CY_PROT_SUCCESS;
+   uint8_t *heapStart = (uint8_t*)&__HeapBase;
+   uint8_t *heapEnd = (uint8_t*)&__HeapLimit;
+
+   memset(heapStart, 0, (heapEnd - heapStart));
+
+   status = release_protections();
+
+   return (int)status;
+}
+#endif
 
 int Cy_BLServ_AccessPortControl(cy_ap_name_t ap, cy_ap_control_t en)
 {
