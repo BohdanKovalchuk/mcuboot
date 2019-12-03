@@ -56,14 +56,14 @@
 
 #ifdef BOOT_IMG
     #define BLINK_PERIOD          (1000u)
-    #define GREETING_MESSAGE_VER  "[BlinkyApp] BlinkyApp v1.0 [CM4]\n"
-    #define GREETING_MESSAGE_INFO "[BlinkyApp] Red led blinks with 1 sec period\n"
+    #define GREETING_MESSAGE_VER  "[BlinkyApp] BlinkyApp v1.0 [CM4]\r\n"
+    #define GREETING_MESSAGE_INFO "[BlinkyApp] Red led blinks with 1 sec period\r\n"
 #elif UPGRADE_IMG
     #define BLINK_PERIOD          (250u)
-    #define GREETING_MESSAGE_VER  "[BlinkyApp] BlinkyApp v2.0 [+]\n"
-    #define GREETING_MESSAGE_INFO "[BlinkyApp] Red led blinks with 0.25 sec period\n"
+    #define GREETING_MESSAGE_VER  "[BlinkyApp] BlinkyApp v2.0 [+]\r\n"
+    #define GREETING_MESSAGE_INFO "[BlinkyApp] Red led blinks with 0.25 sec period\r\n"
 #else
-    #error "[BlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\n\r"
+    #error "[BlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\r\n"
 #endif
 
 void check_result(int res)

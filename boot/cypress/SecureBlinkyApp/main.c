@@ -77,7 +77,7 @@
     #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks SLOW for 10 sec\r\n \
 [SecureBlinkyApp] Then CM4 app will be started\r\n"
 #else
-    #error "[SecureBlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\n\r"
+    #error "[SecureBlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\r\n"
 #endif
 
 void check_result(int res)
