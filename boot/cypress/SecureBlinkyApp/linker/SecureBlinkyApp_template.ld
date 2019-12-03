@@ -67,8 +67,8 @@ MEMORY
      * Your changes must be aligned with the corresponding memory regions for CM0+ core in 'xx_cm0plus.ld',
      * where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.ld'.
      */
-    ram               (rwx)   : ORIGIN = 0x08003000, LENGTH = 0x3000
-    flash             (rx)    : ORIGIN = USER_APP_START, LENGTH = USER_APP_SIZE
+    ram               (rwx)   : ORIGIN = 0x08000000, LENGTH = 0x3000
+    flash             (rx)    : ORIGIN = SECURE_APP_START, LENGTH = SECURE_APP_SIZE
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.
      * You can assign sections to this memory region for only one of the cores.

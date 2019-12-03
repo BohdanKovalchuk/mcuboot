@@ -72,7 +72,18 @@
 #include <sysflash/sysflash.h>
 #include "cy_flash_psoc6.h"
 
+#include "bootutil/bootutil_log.h"
+
 #include "cy_pdl.h"
+
+/*
+ * For now, we only support one flash device.
+ *
+ * Pick a random device ID for it that's unlikely to collide with
+ * anything "real".
+ */
+#define FLASH_DEVICE_ID 	111
+#define FLASH_MAP_ENTRY_MAGIC 0xd00dbeef
 
 #define FLASH_AREA_IMAGE_SECTOR_SIZE FLASH_AREA_IMAGE_SCRATCH_SIZE
 
@@ -183,6 +194,18 @@ struct flash_area *boot_area_descs[] =
     NULL
 };
 #endif
+
+/*< Returns device flash start based on supported fa_id */
+int flash_device_base(uint8_t fd_id, uintptr_t *ret)
+{
+    if (fd_id != FLASH_DEVICE_ID) {
+        BOOT_LOG_ERR("invalid flash ID %d; expected %d",
+                     fd_id, FLASH_DEVICE_ID);
+        return -1;
+    }
+    *ret = CY_FLASH_BASE; 
+    return 0;
+}
 
 /*< Opens the area for use. id is one of the `fa_id`s */
 int flash_area_open(uint8_t id, const struct flash_area **fa)

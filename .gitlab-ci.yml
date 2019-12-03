@@ -90,15 +90,15 @@ win_build:
 
 # Collect BlinkyApp BOOT for CY8CPROTO-062-4343W deploy
     - New-Item -ItemType Directory -Path ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug
-    - New-Item -ItemType Directory -Path ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug
-    - New-Item -ItemType Directory -Path ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/BlinkyApp_signed.hex -Destination ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ -Recurse
+    - New-Item -ItemType Directory -Path ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/boot
+    - New-Item -ItemType Directory -Path ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/upgrade
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/BlinkyApp_signed.hex -Destination ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ -Recurse
 
 # Collect BlinkyApp BOOT for CY8CPROTO-062-4343W develop
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.hex -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.lst -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.elf -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.map -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/BOOT/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/*.hex -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/boot/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/*.lst -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/boot/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/*.elf -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/boot/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/*.map -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/boot/ -Recurse
     
     
 # Clean and build BlinkyApp UPGRADE    
@@ -109,13 +109,13 @@ win_build:
     
     
 # Collect BlinkyApp UPGRADE for CY8CPROTO-062-4343W deploy
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/BlinkyApp_signed_upgrade.hex -Destination ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/BlinkyApp_signed_upgrade.hex -Destination ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ -Recurse
 
 # Collect BlinkyApp UPGRADE for CY8CPROTO-062-4343W develop
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.hex -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.lst -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.elf -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/*.map -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse    
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/*.hex -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/upgrade/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/*.lst -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/upgrade/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/*.elf -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/upgrade/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/*.map -Destination ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/upgrade/ -Recurse    
 
 # Clean BlinkyApp  
     - cd boot/cypress
@@ -148,17 +148,17 @@ win_build:
 
 # Collect BlinkyApp BOOT for CY8CKIT-064S2-4343W deploy
     - New-Item -ItemType Directory -Path ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug
-    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug
-    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/BlinkyApp_signed.hex -Destination ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ -Recurse
+    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot
+    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp_signed.hex -Destination ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ -Recurse
 
 # Collect MCUBoot for CY8CKIT-064S2-4343W develop
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/BOOT/Debug/ -Recurse
-    
-    
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot/ -Recurse
+
+
     - cd boot/cypress
     - C:/msys64/usr/bin/make.exe clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
     - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
@@ -166,13 +166,13 @@ win_build:
 
 
 # Collect BlinkyApp BOOT for CY8CKIT-064S2-4343W deploy    
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/BlinkyApp_signed_upgrade.hex  -Destination ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/BlinkyApp_signed_upgrade.hex  -Destination ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ -Recurse
 
 # Collect BlinkyApp for CY8CKIT-064S2-4343W develop
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/UPGRADE/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade/ -Recurse
+    - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade/ -Recurse
         
 
   artifacts:
