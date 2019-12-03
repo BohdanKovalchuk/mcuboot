@@ -168,6 +168,7 @@ static void do_boot(struct boot_rsp *rsp)
      * reset vector
      */
     app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
+    BOOT_LOG_INF("Application at: 0x%08x", app_addr);
 
 #if 0 /* need to test this */
     rc = Cy_BLServ_FreeHeap();
