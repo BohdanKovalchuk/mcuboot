@@ -198,9 +198,9 @@ struct flash_area *boot_area_descs[] =
 /*< Returns device flash start based on supported fa_id */
 int flash_device_base(uint8_t fd_id, uintptr_t *ret)
 {
-    if (fd_id != FLASH_DEVICE_ID) {
+    if (fd_id != FLASH_DEVICE_INTERNAL_FLASH) {
         BOOT_LOG_ERR("invalid flash ID %d; expected %d",
-                     fd_id, FLASH_DEVICE_ID);
+                     fd_id, FLASH_DEVICE_INTERNAL_FLASH);
         return -1;
     }
     *ret = CY_FLASH_BASE; 
