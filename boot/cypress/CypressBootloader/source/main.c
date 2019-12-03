@@ -167,10 +167,7 @@ static void do_boot(struct boot_rsp *rsp)
      * consecutively. Manually set the stack pointer and jump into the
      * reset vector
      */
-    rc = flash_device_base(rsp->br_flash_dev_id, &flash_base);
-    assert(rc == 0);
-
-    app_addr = (flash_base + rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
+    app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
 
 #if 0 /* need to test this */
     rc = Cy_BLServ_FreeHeap();
