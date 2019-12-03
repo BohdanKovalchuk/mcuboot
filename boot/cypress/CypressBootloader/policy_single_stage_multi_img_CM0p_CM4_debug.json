@@ -87,7 +87,7 @@
                 "boot_auth": [
                     8
                 ],
-                "id": 4,
+                "id": 1,
                 "monotonic": 0,
                 "smif_id": 0,
                 "upgrade": true,
