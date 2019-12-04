@@ -63,7 +63,12 @@
 * so agrees to indemnify Cypress against all liability.
 *
 ******************************************************************************/
+#ifdef MCUBOOT_HAVE_ASSERT_H
+#include "mcuboot_config/mcuboot_assert.h"
+#else
 #include <assert.h>
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>

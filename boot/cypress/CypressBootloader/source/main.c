@@ -49,6 +49,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+#ifdef MCUBOOT_HAVE_ASSERT_H
+#include "mcuboot_config/mcuboot_assert.h"
+#else
+#include <assert.h>
+#endif
 
 /* Cypress pdl/bsp headers */
 #include "cy_pdl.h"
