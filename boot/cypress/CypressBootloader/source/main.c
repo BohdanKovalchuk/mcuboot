@@ -176,8 +176,7 @@ static void do_boot(struct boot_rsp *rsp)
 #endif
 
     /* hardcode image id to run CM0p first until fwsecurity-645 merged */
-    /* switch (cy_bl_bnu_policy.bnu_img_policy.id) */ 
-    switch(CY_BOOTLOADER_IMG_ID_TEE_CM0P)
+    switch (cy_bl_bnu_policy.bnu_img_policy[0].id)
     {
         case CY_BOOTLOADER_IMG_ID_TEE_CM0P:
             /* Do not change protection context for CM0p SPM image with ID=1 */
