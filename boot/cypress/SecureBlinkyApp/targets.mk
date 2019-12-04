@@ -31,7 +31,7 @@
 # default TARGET
 TARGET ?= CY8CKIT-064S2-4343W
 #
-TARGETS := CY8CKIT-064S2-4343W
+SB_TARGETS := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W
 
 # For which core this application is built
 CORE := CM0P
@@ -39,7 +39,7 @@ CORE := CM0P
 CUR_LIBS_PATH := $(CURDIR)/libs
 BSP_PATH  := $(CUR_LIBS_PATH)/bsp/TARGET_$(TARGET)
 
-ifneq ($(filter $(TARGET), $(TARGETS)),)
+ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
 include ./libs/bsp/TARGET_$(TARGET)/$(TARGET).mk
 else
 $(error Not supported target: '$(TARGET)')

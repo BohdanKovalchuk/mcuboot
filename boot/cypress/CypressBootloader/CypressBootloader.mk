@@ -40,11 +40,12 @@ include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
 
 # add start address for each target device, since flash size is different
-ifeq ($(TARGET), CY8CKIT-064S2-4343W)
+ifneq ($(filter $(TARGET), $(TARGETS)),)
 CY_BOOTLOADER_START ?= 0x101D0000 # PSoC6-2M
 else
 $(error $(APP_NAME) start address is not defined)
 endif
+
 # Application-specific DEFINES
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
@@ -53,6 +54,7 @@ DEFINES_APP += -DCORE=$(CORE)
 DEFINES_APP += -DCY_USING_HAL
 # multi-image setup ?
 # DEFINES_APP += -DBOOT_IMAGE_NUMBER=1
+
 # Use external flash map descriptors since flash map is driven by policy
 DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
 DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)

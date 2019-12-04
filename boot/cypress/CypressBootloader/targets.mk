@@ -34,7 +34,7 @@
 # this must be 064-series only
 TARGET ?= CY8CKIT-064S2-4343W
  
-TARGETS := CY8CKIT-064S2-4343W
+TARGETS := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W
 # For which core this application is built
 CORE := CM0P
 
