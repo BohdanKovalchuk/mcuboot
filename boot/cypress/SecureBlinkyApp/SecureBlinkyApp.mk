@@ -51,14 +51,11 @@ else
 	DEFINES_APP := -DUPGRADE_IMG
 endif
 
-# Define start of application as it can be build for Secure Boot target
-ifeq ($(TARGET), CY8CKIT-064S2-4343W)
+# Define start of application unconditionally,
+# as it only can be built for multiimage case now
 DEFINES_APP += -DSECURE_APP_START=0x10000000
-SLOT_SIZE ?= 0x50000
-else
-DEFINES_APP += -DSECURE_APP_START=0x10010000
 SLOT_SIZE ?= 0x10000
-endif
+
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
 

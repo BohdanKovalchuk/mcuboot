@@ -54,9 +54,9 @@ else
 	DEFINES_APP := -DUPGRADE_IMG
 endif
 
-# Define start of application as it can be build for Secure Boot target
+# Define start of application as it can be built for Secure Boot target
 # Also check if this image will be used with multi image CyBootloader
-ifeq ($(TARGET), CY8CKIT-064S2-4343W)
+ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
 	ifeq ($(MULTI_IMAGE), 0)
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x50000
