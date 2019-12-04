@@ -219,7 +219,6 @@ int main(void)
     Cy_InitPSoC6_HW();
 
     BOOT_LOG_INF("TEST : CypressBootloader Started");
-    BOOT_LOG_INF("TEST : Number of images required to BOOT: %d", MCUBOOT_IMAGE_NUMBER);
 
     /* Processing of policy in JWT format */
     uint32_t jwtLen;
