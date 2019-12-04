@@ -22,7 +22,7 @@
 /* Default maximum number of flash sectors per image slot; change
  * as desirable. */
 #ifndef MCUBOOT_MAX_IMG_SECTORS
-#define MCUBOOT_MAX_IMG_SECTORS 2560 /* the sector is temporary 128 bytes now */
+#define MCUBOOT_MAX_IMG_SECTORS 14848 /* the sector is temporary 128 bytes now */
 #endif
 
 /*
