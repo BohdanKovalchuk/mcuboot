@@ -70,6 +70,7 @@
 #include "cy_jwt_policy.h"
 #include "cy_jwt_bnu_policy.h"
 
+#include "cy_secure_utils.h"
 #include "cy_bootloader_hw.h"
 #include "cy_bootloader_version.h"
 #include "cy_bootloader_services.h"
@@ -180,18 +181,18 @@ static void do_boot(struct boot_rsp *rsp)
     {
         case CY_BOOTLOADER_IMG_ID_TEE_CM0P:
             /* Do not change protection context for CM0p SPM image with ID=1 */
-            Cy_BLServ_StartAppCM0p(app_addr);
+            Cy_Utils_StartAppCM0p(app_addr);
             break;
         case CY_BOOTLOADER_IMG_ID_CYTF_CM0P:
         case CY_BOOTLOADER_IMG_ID_OEMTF_CM0P:
             /* Set Protection Context 2 for CM0p trusted apps with IDs 2 and 3 */
             Cy_Prot_SetActivePC(CPUSS_MS_ID_CM0, (uint32_t)CY_PROT_PC2);
-            Cy_BLServ_StartAppCM0p(app_addr);
+            Cy_Utils_StartAppCM0p(app_addr);
             break;
         case CY_BOOTLOADER_IMG_ID_CM4:
             /* Set Protection Context 6 for CM4 application */
             Cy_Prot_SetActivePC(CPUSS_MS_ID_CM4, (uint32_t)CY_PROT_PC6);
-            Cy_BLServ_StartAppCM4(app_addr);
+            Cy_Utils_StartAppCM4(app_addr);
             break;
         default:
             BOOT_LOG_ERR("Unable to find bootable image");

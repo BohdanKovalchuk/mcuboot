@@ -26,6 +26,7 @@
 #include "cy_bootloader_services.h"
 #include "cy_bootloader_hw.h"
 #include "cy_jwt_policy.h"
+#include "cy_secure_utils.h"
 //#include "cyprotection.h"
 
 #ifdef MCUBOOT_HAVE_ASSERT_H
@@ -141,174 +142,6 @@ void Cy_BLServ_FlashInit(void)
 }
 #endif  /* defined (CY_IPC_DEFAULT_CFG_DISABLE) */
 
-CY_SECTION(".cy_ramfunc") CY_NOINLINE
-// PSVP: static void Cy_BLServ_SRAMBusyLoop(void)
-void Cy_BLServ_SRAMBusyLoop(void)
-{
-    while(1)
-    {
-#if defined(CY_BOOTLOADER_DIAGNOSTIC_GPIO)
-        Cy_GPIO_Inv(LED_RED_PORT, LED_RED_PIN); /* toggle the pin */
-        Cy_SysLib_DelayCycles(100000000/1);
-#endif /* CY_BOOTLOADER_DIAGNOSTIC_GPIO */
-    }
-}
-
-CY_SECTION(".cy_ramfunc") CY_NOINLINE
-static void Cy_BLServ_SRAMTestBitLoop(void)
-{
-    while((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL);
-}
-
-static void Cy_BLServ_TurnOnCM4(void)
-{
-    uint32_t regValue;
-
-    regValue = CPUSS->CM4_PWR_CTL & ~(CPUSS_CM4_PWR_CTL_VECTKEYSTAT_Msk | CPUSS_CM4_PWR_CTL_PWR_MODE_Msk);
-    regValue |= _VAL2FLD(CPUSS_CM4_PWR_CTL_VECTKEYSTAT, CY_SYS_CM4_PWR_CTL_KEY_OPEN);
-    regValue |= CY_SYS_CM4_STATUS_ENABLED;
-    CPUSS->CM4_PWR_CTL = regValue;
-
-    while((CPUSS->CM4_STATUS & CPUSS_CM4_STATUS_PWR_DONE_Msk) == 0UL)
-    {
-        /* Wait for the power mode to take effect */
-    }
-}
-
-int Cy_BLServ_EnableAccessPorts(void)
-{
-    /*rnok: enable CM4 in CyBootloader until multiimage policy integrated */
-    int rc = 0;
-    rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
-
-#if 0
-    int rc = 0;
-    if((PERM_ENABLED == debug_policy.m4_policy.permission) ||
-             (PERM_ALLOWED == debug_policy.m4_policy.permission))
-    {
-        rc = Cy_BLServ_AccessPortControl(CY_CM4_AP, CY_AP_EN);
-    }
-#endif
-
-    /*rnok: do not try to switch on SYS_AP on 2M targets  */
-#if 0
-    if(0 == rc)
-    {
-        if((PERM_ENABLED == debug_policy.sys_policy.permission) ||
-                (PERM_ALLOWED == debug_policy.sys_policy.permission))
-        {
-            rc = Cy_BLServ_AccessPortControl(CY_SYS_AP, CY_AP_EN);
-        }
-    }
-#endif
-
-    /* The delay is required after Access port was enabled for
-     * debugger/programmer to connect and set TEST BIT */
-    Cy_SysLib_Delay(100);
-
-    return rc;
-}
-
-void Cy_BLServ_StartAppCM0p(uint32_t appAddr)
-{
-    int rc = -1;
-
-#if 1 /* temporary disabled */
-    /* If it is not SECURE */
-    if(3 != CPUSS->PROTECTION)
-    {
-        rc = Cy_BLServ_EnableAccessPorts();
-        if(0 != rc)
-        {
-            BOOT_LOG_ERR("Error %x while enabling access ports", rc);
-        }
-    }
-#endif
-
-    /* Stop if we are in the TEST MODE */
-    if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
-    {
-        /* Get IPC base register address */
-        IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
-        Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
-
-        BOOT_LOG_INF("TEST MODE");
-
-        __disable_irq();
-        Cy_BLServ_SRAMTestBitLoop();
-        __enable_irq();
-    }
-#if (MCUBOOT_LOG_LEVEL != MCUBOOT_LOG_LEVEL_OFF)
-    while(!Cy_SCB_UART_IsTxComplete(SCB5))
-    {
-        /* Wait until UART transmission complete */
-    }
-#endif
-    /* Relocate Vector Table */
-    CPUSS->CM0_VECTOR_TABLE_BASE = appAddr;
-    SCB->VTOR = appAddr;
-
-    /* Jump to the next application */
-    uint32_t stack_pointer = ((uint32_t*)appAddr)[0]; /* The Stack Pointer of the app to switch to */
-    uint32_t reset_handler = ((uint32_t*)appAddr)[1]; /* Reset_Handler() address */
-
-    __set_MSP(stack_pointer);
-    ((void (*)(void))reset_handler)();
-
-    while(1)
-    {
-        /* We shouldn't be here */
-    }
-}
-
-void Cy_BLServ_StartAppCM4(uint32_t appAddr)
-{
-    int rc = -1;
-
-    rc = Cy_BLServ_EnableAccessPorts();
-    if(0 != rc)
-    {
-        BOOT_LOG_ERR("Error %x while enabling access ports", rc);
-    }
-
-    /* Stop if we are in the TEST MODE */
-    if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
-    {
-        /* Get IPC base register address */
-        IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
-        Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
-
-        BOOT_LOG_INF("TEST MODE");
-
-        __disable_irq();
-
-        CPUSS->CM4_VECTOR_TABLE_BASE = CY_BL_CM4_ROM_LOOP_ADDR;
-        Cy_BLServ_TurnOnCM4();
-
-        Cy_SysLib_Delay(1);
-
-        CPUSS->CM4_VECTOR_TABLE_BASE = appAddr;
-        Cy_BLServ_SRAMTestBitLoop();
-        __enable_irq();
-    }
-
-#if (MCUBOOT_LOG_LEVEL != MCUBOOT_LOG_LEVEL_OFF)
-    while(!Cy_SCB_UART_IsTxComplete(SCB5))
-    {
-        /* Wait until UART transmission complete */
-    }
-#endif
-
-    /* It is aligned to 0x400 (256 records in vector table*4bytes each) */
-    Cy_SysEnableCM4(appAddr);
-
-    while(1)
-    {
-        Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
-        // TODO: Cy_BLServ_SRAMBusyLoop(); /* use this for PSVP */
-    }
-}
-
 void Cy_BLServ_Assert(int expr)
 {
     int rc = -1;
@@ -317,7 +150,7 @@ void Cy_BLServ_Assert(int expr)
     {
         BOOT_LOG_ERR("There is an error occurred during bootloader flow. MCU stopped.");
 
-        rc = Cy_BLServ_EnableAccessPorts();
+        rc = Cy_Utils_EnableAccessPorts();
        if(0 != rc)
        {
            BOOT_LOG_ERR("Error %x while enabling access ports", rc);
@@ -335,7 +168,7 @@ void Cy_BLServ_Assert(int expr)
 
         Cy_SysEnableCM4(CY_BL_CM4_ROM_LOOP_ADDR);
 
-        Cy_BLServ_SRAMBusyLoop();
+        Cy_Utils_SRAMBusyLoop();
     }
 }
 
@@ -353,56 +186,6 @@ int Cy_BLServ_FreeHeap(void)
    return (int)status;
 }
 #endif
-
-int Cy_BLServ_AccessPortControl(cy_ap_name_t ap, cy_ap_control_t en)
-{
-    int rc = -1;
-    volatile uint32_t syscallCmd = 0U;
-    uint32_t timeout = 0U;
-
-    syscallCmd |= DAPCONTROL_SYSCALL_OPCODE;
-    syscallCmd |= (uint8_t)en << 16;
-    syscallCmd |= (uint8_t)ap << 8;
-    syscallCmd |= 1;
-
-    
-    /* Get IPC base register address */
-    IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL);
-
-    while((CY_IPC_DRV_SUCCESS != Cy_IPC_Drv_LockAcquire(ipcStruct)) &&
-            (timeout < SYSCALL_TIMEOUT))
-    {
-        ++timeout;
-    }
-
-    if(timeout < SYSCALL_TIMEOUT)
-    {
-        timeout = 0U;
-
-        Cy_IPC_Drv_WriteDataValue(ipcStruct, syscallCmd);
-        Cy_IPC_Drv_AcquireNotify(ipcStruct, (1<<CY_IPC_CHAN_SYSCALL));
-
-        while((Cy_IPC_Drv_IsLockAcquired(ipcStruct))&&
-                (timeout < SYSCALL_TIMEOUT))
-        {
-            ++timeout;
-        }
-
-        if(timeout < SYSCALL_TIMEOUT)
-        {
-            syscallCmd = Cy_IPC_Drv_ReadDataValue(ipcStruct);
-            if(CY_FB_SYSCALL_SUCCESS != syscallCmd)
-            {
-                rc = syscallCmd;
-            }
-            else
-            {
-                rc = 0;
-            }
-        }
-    }
-    return rc;
-}
 
 #if defined(__NO_SYSTEM_INIT)
 void Cy_BLServ_SystemInit(void)
