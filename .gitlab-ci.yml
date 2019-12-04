@@ -182,7 +182,7 @@ win_build:
       - develop
 
 
-MCUboot_simulator:
+.MCUboot_simulator:
   stage: sim
   tags:
     - FW_SECURITY_TEST_UBUNTU1804
