@@ -59,11 +59,14 @@ endif
 ifeq ($(TARGET), CY8CKIT-064S2-4343W)
 	ifeq ($(MULTI_IMAGE), 0)
 		DEFINES_APP += -DUSER_APP_START=0x10000000
+        SLOT_SIZE ?= 0x50000
 	else
 		DEFINES_APP += -DUSER_APP_START=0x10020000
+        SLOT_SIZE ?= 0x10000
 	endif
 else
 	DEFINES_APP += -DUSER_APP_START=0x10010000
+    SLOT_SIZE ?= 0x10000
 endif
 
 # Collect Test Application sources
@@ -86,7 +89,7 @@ ASM_FILES_APP :=
 
 IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
-SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S 65536 -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
+SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
 ifeq ($(IMG_TYPE), UPGRADE)
 	SIGN_ARGS += --pad
