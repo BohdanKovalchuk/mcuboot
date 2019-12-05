@@ -46,6 +46,9 @@ INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/bsp/core-lib/include
 # Retarget-io related include directories
 INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
 
+# Collect source files for MbedTLS
+INCLUDE_DIRS_MBEDTLS := $(CUR_LIBS_PATH)/mbedtls/crypto/include
+
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
 SOURCES_LIBS += $(SOURCES_BSP)
@@ -55,6 +58,7 @@ SOURCES_LIBS += $(SOURCES_RETARGET_IO)
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_BSP))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
+INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_MBEDTLS))
 
 ASM_FILES_PDL :=
 ifeq ($(COMPILER), GCC_ARM)

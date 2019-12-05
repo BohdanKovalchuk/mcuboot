@@ -56,6 +56,9 @@
 #include "cybsp.h"
 #include "cy_retarget_io.h"
 
+#include "cy_secure_utils.h"
+#include "cy_jwt_policy.h"
+
 #define CY_SRSS_TST_MODE_ADDR           (SRSS_BASE | 0x0100UL)
 #define TST_MODE_TEST_MODE_MASK         (0x80000000UL)
 #define TST_MODE_ENTERED_MAGIC          (0x12344321UL)
@@ -80,62 +83,13 @@
     #error "[SecureBlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\r\n"
 #endif
 
+debug_policy_t debug_policy;
+
 void check_result(int res)
 {
     if (res != CY_RSLT_SUCCESS)
     {
         CY_ASSERT(0);
-    }
-}
-
-CY_SECTION(".cy_ramfunc") CY_NOINLINE
-static void Cy_BLServ_SRAMTestBitLoop(void)
-{
-    while((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL);
-}
-
-static void Cy_BLServ_TurnOnCM4(void)
-{
-    uint32_t regValue;
-
-    regValue = CPUSS->CM4_PWR_CTL & ~(CPUSS_CM4_PWR_CTL_VECTKEYSTAT_Msk | CPUSS_CM4_PWR_CTL_PWR_MODE_Msk);
-    regValue |= _VAL2FLD(CPUSS_CM4_PWR_CTL_VECTKEYSTAT, CY_SYS_CM4_PWR_CTL_KEY_OPEN);
-    regValue |= CY_SYS_CM4_STATUS_ENABLED;
-    CPUSS->CM4_PWR_CTL = regValue;
-
-    while((CPUSS->CM4_STATUS & CPUSS_CM4_STATUS_PWR_DONE_Msk) == 0UL)
-    {
-        /* Wait for the power mode to take effect */
-    }
-}
-
-void start_cm4_app(void)
-{
-    /* Stop if we are in the TEST MODE */
-    if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
-    {
-        /* Get IPC base register address */
-        IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
-        Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
-
-        printf("[SecureBlinkyApp] - TEST MODE");
-
-        __disable_irq();
-
-        CPUSS->CM4_VECTOR_TABLE_BASE = CY_BL_CM4_ROM_LOOP_ADDR;
-        Cy_BLServ_TurnOnCM4();
-
-        Cy_SysLib_Delay(1);
-
-        CPUSS->CM4_VECTOR_TABLE_BASE = CM4_APP_START_ADDR;
-        Cy_BLServ_SRAMTestBitLoop();
-        __enable_irq();
-    }
-    Cy_SysEnableCM4(CM4_APP_START_ADDR);
-
-    while (1)
-    {
-        __WFI() ;
     }
 }
 
@@ -184,7 +138,7 @@ int main(void)
         cyhal_gpio_toggle((cyhal_gpio_t) CYBSP_USER_LED1);
     }
 
-    start_cm4_app();
+    Cy_Utils_StartAppCM4(CM4_APP_START_ADDR);
 
     return 0;
 }
