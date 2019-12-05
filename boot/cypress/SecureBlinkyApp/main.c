@@ -75,7 +75,7 @@
 #define GREETING_MESSAGE          "[SecureBlinkyApp]"
 #ifdef BOOT_IMG
     #define BLINK_PERIOD          (250u)
-    #define CM0_TIMEOUT           (40u)
+    #define CM0_TIMEOUT           (10u)
     #define GREETING_MESSAGE_VER  "[SecureBlinkyApp] SecureBlinkyApp v1.0 [CM0p]\r\n"
     #define GREETING_MESSAGE_INFO "[SecureBlinkyApp] Red led blinks FAST for 10 sec\r\n\
 [SecureBlinkyApp] Then CM4 app will be started\r\n"
