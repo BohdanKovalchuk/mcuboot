@@ -222,8 +222,6 @@ gen_key_ecc256:
 size:
 	
 
-$(info INCLUDES: $(INCLUDES))
-
 ifeq ($(MAKEINFO) , 1)
 $(info ASM_FILES: $(ASM_FILES))
 $(info C_FILES: $(C_FILES))

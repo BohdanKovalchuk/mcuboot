@@ -41,7 +41,7 @@ include $(CUR_APP_PATH)/toolchains.mk
 
 # add start address for each target device, since flash size is different
 ifneq ($(filter $(TARGET), $(TARGETS)),)
-CY_BOOTLOADER_START ?= 0x101D0000 # PSoC6-2M
+CY_BOOTLOADER_APP_START ?= 0x101D0000 # PSoC6-2M
 else
 $(error $(APP_NAME) start address is not defined)
 endif
@@ -57,11 +57,12 @@ DEFINES_APP += -DCY_USING_HAL
 
 # Use external flash map descriptors since flash map is driven by policy
 DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
-DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_START)
+DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_APP_START)
 #DEFINES_APP += -DCY_BOOTLOADER_VERSION
 #DEFINES_APP += -DCY_BOOTLOADER_BUILD
 DEFINES_APP += -D__NO_SYSTEM_INIT
 DEFINES_APP += -DCY_BOOTLOADER_DIAGNOSTIC_GPIO
+DEFINES_APP += $(DEFINES_USER)
 
 # TODO: MCUBoot library
 # Collect MCUBoot sourses

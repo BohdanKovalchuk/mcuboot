@@ -1,7 +1,13 @@
 variables:  
     GIT_STRATEGY: clone
     GIT_CLEAN_FLAGS: -ffdx
+    
+    MAJOR_VERSION: "1"
+    MINOR_VERSION: "1"
+    PATCH_VERSION: "0"
+    BUILD_NUMBER: $CI_PIPELINE_IID
 
+    
 stages:
   - build
   - sim
@@ -51,6 +57,7 @@ win_build:
   tags:
     - MBED_TEST
   script:
+    - "Get-ChildItem Env:" 
     - cd
     - python --version
     - git submodule deinit --all -f
@@ -59,8 +66,8 @@ win_build:
     
     - C:/msys64/usr/bin/make.exe app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
     
-    - C:/msys64/usr/bin/make.exe app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug GENERATE_CERT=0 TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
-    - C:/msys64/usr/bin/make.exe app APP_NAME=CypressBootloader TARGET=CY8CKIT-064B0S2-4343W BUILDCFG=Debug GENERATE_CERT=0 TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
+    - C:/msys64/usr/bin/make.exe app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug GENERATE_CERT=0 DEFINES_USER='-DCY_BOOTLOADER_MAJOR=1 -DCY_BOOTLOADER_MINOR=1 -DCY_BOOTLOADER_REV=0 -DCY_BOOTLOADER_BUILD=424' TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1 MAKEINFO=0
+    - C:/msys64/usr/bin/make.exe app APP_NAME=CypressBootloader TARGET=CY8CKIT-064B0S2-4343W BUILDCFG=Debug GENERATE_CERT=0 DEFINES_USER='-DCY_BOOTLOADER_MAJOR=1 -DCY_BOOTLOADER_MINOR=1 -DCY_BOOTLOADER_REV=0 -DCY_BOOTLOADER_BUILD=424' TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1 MAKEINFO=0
 
     - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT  TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
     - C:/msys64/usr/bin/make.exe app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT  TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1
