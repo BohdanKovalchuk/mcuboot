@@ -63,7 +63,12 @@
 * so agrees to indemnify Cypress against all liability.
 *
 ******************************************************************************/
+#ifdef MCUBOOT_HAVE_ASSERT_H
+#include "mcuboot_config/mcuboot_assert.h"
+#else
 #include <assert.h>
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -72,7 +77,18 @@
 #include <sysflash/sysflash.h>
 #include "cy_flash_psoc6.h"
 
+#include "bootutil/bootutil_log.h"
+
 #include "cy_pdl.h"
+
+/*
+ * For now, we only support one flash device.
+ *
+ * Pick a random device ID for it that's unlikely to collide with
+ * anything "real".
+ */
+#define FLASH_DEVICE_ID 	111
+#define FLASH_MAP_ENTRY_MAGIC 0xd00dbeef
 
 #define FLASH_AREA_IMAGE_SECTOR_SIZE FLASH_AREA_IMAGE_SCRATCH_SIZE
 
@@ -118,7 +134,8 @@ static struct flash_area secondary_1 =
                 CY_BOOT_PRIMARY_1_SIZE,
     .fa_size = CY_BOOT_SECONDARY_1_SIZE
 };
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+// TODO: run-time multi-image
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
 static struct flash_area primary_2 =
 {
     .fa_id = FLASH_AREA_IMAGE_PRIMARY(1),
@@ -143,24 +160,24 @@ static struct flash_area secondary_2 =
                 CY_BOOT_PRIMARY_2_SIZE,
     .fa_size = CY_BOOT_SECONDARY_2_SIZE
 };
-#endif
+//#endif
 static struct flash_area scratch =
 {
     .fa_id = FLASH_AREA_IMAGE_SCRATCH,
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
-#if (MCUBOOT_IMAGE_NUMBER == 1) /* if single-image */
-     .fa_off = CY_FLASH_BASE +\
-                CY_BOOT_BOOTLOADER_SIZE +\
-                CY_BOOT_PRIMARY_1_SIZE +\
-                CY_BOOT_SECONDARY_1_SIZE,
-#elif (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+//#if (MCUBOOT_IMAGE_NUMBER == 1) /* if single-image */
+//     .fa_off = CY_FLASH_BASE +\
+//                CY_BOOT_BOOTLOADER_SIZE +\
+//                CY_BOOT_PRIMARY_1_SIZE +\
+//                CY_BOOT_SECONDARY_1_SIZE,
+//#elif (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     .fa_off = CY_FLASH_BASE +\
                 CY_BOOT_BOOTLOADER_SIZE +\
                 CY_BOOT_PRIMARY_1_SIZE +\
                 CY_BOOT_SECONDARY_1_SIZE +\
                 CY_BOOT_PRIMARY_2_SIZE +\
                 CY_BOOT_SECONDARY_2_SIZE,
-#endif
+//#endif
     .fa_size = CY_BOOT_SCRATCH_SIZE
 };
 #endif
@@ -174,14 +191,26 @@ struct flash_area *boot_area_descs[] =
     &bootloader,
     &primary_1,
     &secondary_1,
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     &primary_2,
     &secondary_2,
-#endif
+//#endif
     &scratch,
     NULL
 };
 #endif
+
+/*< Returns device flash start based on supported fa_id */
+int flash_device_base(uint8_t fd_id, uintptr_t *ret)
+{
+    if (fd_id != FLASH_DEVICE_INTERNAL_FLASH) {
+        BOOT_LOG_ERR("invalid flash ID %d; expected %d",
+                     fd_id, FLASH_DEVICE_INTERNAL_FLASH);
+        return -1;
+    }
+    *ret = CY_FLASH_BASE; 
+    return 0;
+}
 
 /*< Opens the area for use. id is one of the `fa_id`s */
 int flash_area_open(uint8_t id, const struct flash_area **fa)

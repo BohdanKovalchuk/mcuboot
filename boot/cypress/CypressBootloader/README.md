@@ -10,7 +10,7 @@ Features implemented:
 * Can validate image hash of 2 slots in flash memory BOOT and UPGRADE
 * Starts image located in BOOT slot after validating signature
 * Performs upgrade operation from UPGRADE slot to BOOT slot after UPGRADE image hash verification
-* Support Multi-Image processing
+* Supports Multi-Image processing
   
 **Flash map used for CypressBootloader:**
 

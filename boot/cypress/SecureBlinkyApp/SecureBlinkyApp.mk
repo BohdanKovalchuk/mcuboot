@@ -34,9 +34,6 @@ IMG_TYPE ?= BOOT
 # image type can be BOOT or UPGRADE
 IMG_TYPES = BOOT UPGRADE
 
-# BlinkyApp will be be run by CyBootloader wih multi image support
-MULTI_IMAGE ?= 1
-
 ifneq ($(COMPILER), GCC_ARM)
 $(error Only GCC ARM is supported at this moment)
 endif
@@ -54,20 +51,13 @@ else
 	DEFINES_APP := -DUPGRADE_IMG
 endif
 
-# Define start of application as it can be built for Secure Boot target
-# Also check if this image will be used with multi image CyBootloader
-ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
-	ifeq ($(MULTI_IMAGE), 0)
-		DEFINES_APP += -DUSER_APP_START=0x10000000
-        SLOT_SIZE ?= 0x50000
-	else
-		DEFINES_APP += -DUSER_APP_START=0x10020000
-        SLOT_SIZE ?= 0x10000
-	endif
-else
-	DEFINES_APP += -DUSER_APP_START=0x10010000
-    SLOT_SIZE ?= 0x10000
-endif
+# Define start of application unconditionally,
+# as it only can be built for multiimage case now
+DEFINES_APP += -DSECURE_APP_START=0x10000000
+SLOT_SIZE ?= 0x10000
+
+# BSP does not define this macro for CM0p so define it here
+DEFINES_APP += -DCY_USING_HAL
 
 # Collect Test Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)

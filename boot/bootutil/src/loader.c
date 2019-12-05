@@ -48,11 +48,15 @@ MCUBOOT_LOG_MODULE_DECLARE(mcuboot);
 
 static struct boot_loader_state boot_data;
 
-#if (BOOT_IMAGE_NUMBER > 1)
-#define IMAGES_ITER(x) for ((x) = 0; (x) < BOOT_IMAGE_NUMBER; ++(x))
-#else
-#define IMAGES_ITER(x)
-#endif
+uint8_t boot_img_number = BOOT_IMAGE_NUMBER;
+
+//#if (BOOT_IMAGE_NUMBER > 1)
+// TODO: run-time multi-image
+//#define IMAGES_ITER(x) for ((x) = 0; (x) < BOOT_IMAGE_NUMBER; ++(x))
+#define IMAGES_ITER(x) for ((x) = 0; (x) < boot_img_number; ++(x))
+//#else
+//#define IMAGES_ITER(x)
+//#endif
 
 /*
  * This macro allows some control on the allocation of local variables.
@@ -191,9 +195,10 @@ boot_status_source(struct boot_loader_state *state)
     uint8_t source;
     uint8_t image_index;
 
-#if (BOOT_IMAGE_NUMBER == 1)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1)
     (void)state;
-#endif
+//#endif
 
     image_index = BOOT_CURR_IMG(state);
     rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_PRIMARY(image_index),
@@ -217,8 +222,10 @@ boot_status_source(struct boot_loader_state *state)
              table->bst_copy_done_primary_slot == state_primary_slot.copy_done))
         {
             source = table->bst_status_source;
-
-#if (BOOT_IMAGE_NUMBER > 1)
+            // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
+        if (boot_img_number > 1)
+        {
             /* In case of multi-image boot it can happen that if boot status
              * info is found on scratch area then it does not belong to the
              * currently examined image.
@@ -227,7 +234,8 @@ boot_status_source(struct boot_loader_state *state)
                 state_scratch.image_num != BOOT_CURR_IMG(state)) {
                 source = BOOT_STATUS_SOURCE_NONE;
             }
-#endif
+//#endif
+        }
 
             BOOT_LOG_INF("Boot source: %s",
                          source == BOOT_STATUS_SOURCE_NONE ? "none" :
@@ -257,9 +265,10 @@ boot_read_image_size(struct boot_loader_state *state, int slot, uint32_t *size)
     int area_id;
     int rc;
 
-#if (BOOT_IMAGE_NUMBER == 1)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1)
     (void)state;
-#endif
+//#endif
 
     area_id = flash_area_id_from_multi_image_slot(BOOT_CURR_IMG(state), slot);
     rc = flash_area_open(area_id, &fap);
@@ -312,10 +321,10 @@ boot_read_image_header(struct boot_loader_state *state, int slot,
     const struct flash_area *fap;
     int area_id;
     int rc;
-
-#if (BOOT_IMAGE_NUMBER == 1)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1)
     (void)state;
-#endif
+//#endif
 
     area_id = flash_area_id_from_multi_image_slot(BOOT_CURR_IMG(state), slot);
     rc = flash_area_open(area_id, &fap);
@@ -784,10 +793,10 @@ boot_image_check(struct boot_loader_state *state, struct image_header *hdr,
     TARGET_STATIC uint8_t tmpbuf[BOOT_TMPBUF_SZ];
     uint8_t image_index;
     int rc;
-
-#if (BOOT_IMAGE_NUMBER == 1)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1)
     (void)state;
-#endif
+//#endif
 
     (void)bs;
     (void)rc;
@@ -1170,10 +1179,10 @@ boot_status_init(const struct boot_loader_state *state,
     struct boot_swap_state swap_state;
     uint8_t image_index;
     int rc;
-
-#if (BOOT_IMAGE_NUMBER == 1)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1)
     (void)state;
-#endif
+//#endif
 
     image_index = BOOT_CURR_IMG(state);
 
@@ -1811,7 +1820,8 @@ out:
 }
 #endif /* !MCUBOOT_OVERWRITE_ONLY */
 
-#if (BOOT_IMAGE_NUMBER > 1)
+// TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
 /**
  * Check if the version of the image is not older than required.
  *
@@ -1944,8 +1954,9 @@ boot_verify_slot_dependencies(struct boot_loader_state *state, uint32_t slot)
             rc = BOOT_EFLASH;
             goto done;
         }
-
-        if (dep.image_id >= BOOT_IMAGE_NUMBER) {
+        // TODO: run-time multi-image
+//        if (dep.image_id >= BOOT_IMAGE_NUMBER) {
+        if (dep.image_id >= boot_img_number) {
             rc = BOOT_EBADARGS;
             goto done;
         }
@@ -1974,7 +1985,9 @@ boot_verify_dependencies(struct boot_loader_state *state)
     uint8_t slot;
 
     BOOT_CURR_IMG(state) = 0;
-    while (BOOT_CURR_IMG(state) < BOOT_IMAGE_NUMBER) {
+    // TODO: run-time multi-image
+//    while (BOOT_CURR_IMG(state) < BOOT_IMAGE_NUMBER) {
+    while (BOOT_CURR_IMG(state) < boot_img_number) {
         if (BOOT_SWAP_TYPE(state) != BOOT_SWAP_TYPE_NONE &&
             BOOT_SWAP_TYPE(state) != BOOT_SWAP_TYPE_FAIL) {
             slot = BOOT_SECONDARY_SLOT;
@@ -1990,7 +2003,9 @@ boot_verify_dependencies(struct boot_loader_state *state)
             /* Cannot upgrade due to non-met dependencies, so disable all
              * image upgrades.
              */
-            for (int idx = 0; idx < BOOT_IMAGE_NUMBER; idx++) {
+            // TODO: run-time multi-image
+//            for (int idx = 0; idx < BOOT_IMAGE_NUMBER; idx++) {
+            for (int idx = 0; idx < boot_img_number; idx++) {
                 BOOT_CURR_IMG(state) = idx;
                 BOOT_SWAP_TYPE(state) = BOOT_SWAP_TYPE_NONE;
             }
@@ -2002,7 +2017,7 @@ boot_verify_dependencies(struct boot_loader_state *state)
     }
     return rc;
 }
-#endif /* (BOOT_IMAGE_NUMBER > 1) */
+//#endif /* (BOOT_IMAGE_NUMBER > 1) */
 
 /**
  * Performs a clean (not aborted) image update.
@@ -2114,7 +2129,8 @@ boot_complete_partial_swap(struct boot_loader_state *state,
 }
 #endif /* !MCUBOOT_OVERWRITE_ONLY */
 
-#if (BOOT_IMAGE_NUMBER > 1)
+// TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
 /**
  * Review the validity of previously determined swap types of other images.
  *
@@ -2169,7 +2185,7 @@ boot_review_image_swap_types(struct boot_loader_state *state,
         }
     }
 }
-#endif
+//#endif
 
 /**
  * Prepare image to be updated if required.
@@ -2227,10 +2243,13 @@ boot_prepare_image_for_update(struct boot_loader_state *state,
          * operation. If a partial swap was detected, complete it.
          */
         if (bs->idx != BOOT_STATUS_IDX_0 || bs->state != BOOT_STATUS_STATE_0) {
-
-#if (BOOT_IMAGE_NUMBER > 1)
+        // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
+        if (boot_img_number > 1)
+        {
             boot_review_image_swap_types(state, true);
-#endif
+        }
+//#endif
 
 #ifdef MCUBOOT_OVERWRITE_ONLY
             /* Should never arrive here, overwrite-only mode has
@@ -2262,9 +2281,13 @@ boot_prepare_image_for_update(struct boot_loader_state *state,
                 BOOT_SWAP_TYPE(state) = bs->swap_type;
             }
 
-#if (BOOT_IMAGE_NUMBER > 1)
+        // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
+        if (boot_img_number > 1)
+        {
             boot_review_image_swap_types(state, false);
-#endif
+        }
+//#endif
 
 #ifdef MCUBOOT_BOOTSTRAP
             if (BOOT_SWAP_TYPE(state) == BOOT_SWAP_TYPE_NONE) {
@@ -2317,23 +2340,27 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
 
     memset(state, 0, sizeof(struct boot_loader_state));
     has_upgrade = false;
-
-#if (BOOT_IMAGE_NUMBER == 1)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1)
     (void)has_upgrade;
-#endif
+//#endif
 
     /* Iterate over all the images. By the end of the loop the swap type has
      * to be determined for each image and all aborted swaps have to be
      * completed.
      */
     IMAGES_ITER(BOOT_CURR_IMG(state)) {
-
-#if defined(MCUBOOT_ENC_IMAGES) && (BOOT_IMAGE_NUMBER > 1)
-        /* The keys used for encryption may no longer be valid (could belong to
-         * another images). Therefore, mark them as invalid to force their reload
-         * by boot_enc_load().
-         */
-        boot_enc_zeroize(BOOT_CURR_ENC(state));
+        // TODO: run-time multi-image
+//#if defined(MCUBOOT_ENC_IMAGES) && (BOOT_IMAGE_NUMBER > 1)
+#if defined(MCUBOOT_ENC_IMAGES)
+        if (boot_img_number > 1)
+        {
+            /* The keys used for encryption may no longer be valid (could belong to
+             * another images). Therefore, mark them as invalid to force their reload
+             * by boot_enc_load().
+             */
+            boot_enc_zeroize(BOOT_CURR_ENC(state));
+        }
 #endif
 
         image_index = BOOT_CURR_IMG(state);
@@ -2363,45 +2390,51 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
             has_upgrade = true;
         }
     }
-
-#if (BOOT_IMAGE_NUMBER > 1)
-    if (has_upgrade) {
-        /* Iterate over all the images and verify whether the image dependencies
-         * are all satisfied and update swap type if necessary.
-         */
-        rc = boot_verify_dependencies(state);
-        if (rc == BOOT_EBADVERSION) {
-            /*
-             * It was impossible to upgrade because the expected dependency version
-             * was not available. Here we already changed the swap_type so that
-             * instead of asserting the bootloader, we continue and no upgrade is
-             * performed.
+    // TODO: run-time multi-image
+// #if (BOOT_IMAGE_NUMBER > 1)
+    if (boot_img_number > 1)
+    {
+        if (has_upgrade) {
+            /* Iterate over all the images and verify whether the image dependencies
+             * are all satisfied and update swap type if necessary.
              */
-            rc = 0;
+            rc = boot_verify_dependencies(state);
+            if (rc == BOOT_EBADVERSION) {
+                /*
+                 * It was impossible to upgrade because the expected dependency version
+                 * was not available. Here we already changed the swap_type so that
+                 * instead of asserting the bootloader, we continue and no upgrade is
+                 * performed.
+                 */
+                rc = 0;
+            }
         }
     }
-#endif
+//#endif
 
     /* Iterate over all the images. At this point there are no aborted swaps
      * and the swap types are determined for each image. By the end of the loop
      * all required update operations will have been finished.
      */
     IMAGES_ITER(BOOT_CURR_IMG(state)) {
-
-#if (BOOT_IMAGE_NUMBER > 1)
+        // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
+        if (boot_img_number > 1)
+        {
 #ifdef MCUBOOT_ENC_IMAGES
-        /* The keys used for encryption may no longer be valid (could belong to
-         * another images). Therefore, mark them as invalid to force their reload
-         * by boot_enc_load().
-         */
-        boot_enc_zeroize(BOOT_CURR_ENC(state));
+            /* The keys used for encryption may no longer be valid (could belong to
+             * another images). Therefore, mark them as invalid to force their reload
+             * by boot_enc_load().
+             */
+            boot_enc_zeroize(BOOT_CURR_ENC(state));
 #endif /* MCUBOOT_ENC_IMAGES */
 
-        /* Indicate that swap is not aborted */
-        memset(&bs, 0, sizeof bs);
-        bs.idx = BOOT_STATUS_IDX_0;
-        bs.state = BOOT_STATUS_STATE_0;
-#endif /* (BOOT_IMAGE_NUMBER > 1) */
+            /* Indicate that swap is not aborted */
+            memset(&bs, 0, sizeof bs);
+            bs.idx = BOOT_STATUS_IDX_0;
+            bs.state = BOOT_STATUS_STATE_0;
+        }
+// #endif /* (BOOT_IMAGE_NUMBER > 1) */
 
         /* Set the previously determined swap type */
         bs.swap_type = BOOT_SWAP_TYPE(state);
@@ -2485,10 +2518,12 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
 #endif
     }
 
-#if (BOOT_IMAGE_NUMBER > 1)
-    /* Always boot from the primary slot of Image 0. */
-    BOOT_CURR_IMG(state) = 0;
-#endif
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
+//    if (boot_img_number > 1)
+        /* Always boot from the primary slot of Image 0. */
+        BOOT_CURR_IMG(state) = 0;
+//#endif
 
     rsp->br_flash_dev_id = BOOT_IMG_AREA(state, BOOT_PRIMARY_SLOT)->fa_device_id;
     rsp->br_image_off = boot_img_slot_off(state, BOOT_PRIMARY_SLOT);

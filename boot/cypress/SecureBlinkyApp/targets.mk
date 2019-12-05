@@ -25,41 +25,42 @@
 
 # Target board MCUBoot is built for. CY8CPROTO-062-4343W is set as default
 # Supported:
-#   - CY8CPROTO-062-4343W
-#	- CY8CKIT_062_WIFI_BT
+#	- CY8CKIT-064S2-4343W
 #	- more to come
 
 # default TARGET
-#TARGET ?= CY8CPROTO-062-4343W-M0
-# this must be 064-series only
 TARGET ?= CY8CKIT-064S2-4343W
- 
-TARGETS := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W
+#
+SB_TARGETS := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W
+
 # For which core this application is built
 CORE := CM0P
 
 CUR_LIBS_PATH := $(CURDIR)/libs
 BSP_PATH  := $(CUR_LIBS_PATH)/bsp/TARGET_$(TARGET)
 
-ifneq ($(filter $(TARGET), $(TARGETS)),)
+ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
 include ./libs/bsp/TARGET_$(TARGET)/$(TARGET).mk
 else
 $(error Not supported target: '$(TARGET)')
 endif
-
-# Collect C source files for TARGET BSP
-SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
-SOURCES_BSP += $(wildcard $(BSP_PATH)/COMPONENT_$(CORE)/*.c)
-SOURCES_BSP += $(BSP_PATH)/cybsp.c
-SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
-SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
-
 
 # Collect dirrectories containing headers for TARGET BSP
 INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
 INCLUDE_DIRS_BSP += $(BSP_PATH)/startup
 INCLUDE_DIRS_BSP += $(BSP_PATH)
 INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/bsp/psoc6hal/include
+
+# Collect C source files for TARGET BSP
+SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
+#SOURCES_BSP += $(wildcard $(BSP_PATH)/COMPONENT_$(CORE)/*.c)
+SOURCES_BSP += $(BSP_PATH)/COMPONENT_$(CORE)/system_psoc6_cm0plus.c
+# exclude CapSense for now
+SOURCES_BSP := $(filter-out $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_capsense.c, \
+				 $(SOURCES_BSP))
+SOURCES_BSP += $(BSP_PATH)/cybsp.c
+SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
+SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
 
 # Collect Assembler files for TARGET BSP
 # TODO: need to include _01_, _02_ or _03_ depending on device family.
@@ -79,12 +80,9 @@ ifneq ($(DEFINES),)
 	DEFINES_BSP :=$(addprefix -D, $(subst -,_,$(DEFINES)))
 endif
 
-ifeq ($(COMPILER), GCC_ARM)
-LINKER_SCRIPT ?= $(BSP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_GCC_ARM/*_cm0plus.ld
-else
+ifneq ($(COMPILER), GCC_ARM)
 $(error Only GCC ARM is supported at this moment)
 endif
-
 ifeq ($(MAKEINFO) , 1)
 $(info ==============================================================================)
 $(info = BSP files =)

@@ -6,6 +6,7 @@
  */
 #ifndef MCUBOOT_CONFIG_H
 #define MCUBOOT_CONFIG_H
+
 /*
  * Template configuration file for MCUboot.
  *
@@ -20,7 +21,9 @@
  */
 /* Default maximum number of flash sectors per image slot; change
  * as desirable. */
-#define MCUBOOT_MAX_IMG_SECTORS 512 /* the sector is temporary 128 bytes now */
+#ifndef MCUBOOT_MAX_IMG_SECTORS
+#define MCUBOOT_MAX_IMG_SECTORS 14848 /* the sector is temporary 128 bytes now */
+#endif
 
 /*
  * Signature types
@@ -85,7 +88,7 @@
 
 /* Default number of separately updateable images; change in case of
  * multiple images. */
-#define MCUBOOT_IMAGE_NUMBER 1
+#define MCUBOOT_IMAGE_NUMBER 2
 
 /*
  * Logging

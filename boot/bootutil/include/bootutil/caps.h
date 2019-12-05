@@ -49,6 +49,8 @@ uint32_t bootutil_get_caps(void);
  */
 uint32_t bootutil_get_num_images(void);
 
+extern uint8_t boot_img_number;
+
 #ifdef __cplusplus
 }
 #endif

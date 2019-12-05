@@ -92,6 +92,12 @@
 
 #include "cy_jwt_policy.h"
 
+extern bnu_policy_t cy_bl_bnu_policy;
+
+/* Additional TLV tags */
+#define IMAGE_TLV_CYSB_IMAGE_ID            0x81   /* Image ID */
+#define IMAGE_TLV_CYSB_ROLLBACK_CNT        0x82   /* Rollback counter */
+
 /*
  * Compute SHA256 over the image.
  */
@@ -110,13 +116,14 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
     uint32_t blk_off;
     uint32_t tlv_off;
 
-#if (BOOT_IMAGE_NUMBER == 1) || !defined(MCUBOOT_ENC_IMAGES)
+    // TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER == 1) || !defined(MCUBOOT_ENC_IMAGES)
     (void)enc_state;
     (void)image_index;
     (void)hdr_size;
     (void)blk_off;
     (void)tlv_off;
-#endif
+//#endif
 
 #ifdef MCUBOOT_ENC_IMAGES
     /* Encrypted images only exist in the secondary slot */
@@ -242,7 +249,8 @@ bootutil_find_key(uint8_t *keyhash, uint8_t keyhash_len)
     assert(keyhash_len <= PSA_HASH_SIZE(PSA_ALG_SHA_256));
 
     if(bootutil_keys[0].key == NULL)
-    {/* skip [0] if go through PSA key storage */
+    {
+        /* skip [0] if go through PSA key storage */
     	i = 1;
     }
 
@@ -278,22 +286,121 @@ bootutil_find_key(uint8_t *keyhash, uint8_t keyhash_len)
     }
     return psa_ret;
 }
+
 #endif
 
-extern bnu_policy_t cy_bl_bnu_policy;
-static int cy_bootutil_find_key(int image_index)
+static int cy_bootutil_get_multi_idx(const struct flash_area *fap)
+{
+    int multi_idx = -1;
+
+    /* find out if it is some of multi-image */
+    if((fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(0)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(0)))
+    {
+        multi_idx = 0;
+    }
+    else
+    if((fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(1)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(1)))
+    {
+        multi_idx = 1;
+    }
+
+    return multi_idx;
+}
+
+static int cy_bootutil_get_slot_id(const struct flash_area *fap)
+{
+    int slot_id = -1;
+
+    /* find out if it is slot_0 or slot_1*/
+    if((fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(0)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_PRIMARY(1)))
+    {
+        slot_id = 0;
+    }
+    else
+    if((fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(0)) ||
+        (fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(1)))
+    {
+        slot_id = 1;
+    }
+
+    return slot_id;
+}
+
+static int cy_bootutil_find_key(const struct flash_area *fap)
 {
     int key = 0;
+    int multi_idx = -1;
+    int slot_id = -1;
 
-    if(0 == image_index)
+    /* find out if it is some of multi-image */
+    multi_idx = cy_bootutil_get_multi_idx(fap);
+
+    if (multi_idx >= 0)
     {
-        key = cy_bl_bnu_policy.bnu_img_policy.boot_auth[0];
+        /* find out if it is slot_0 or slot_1*/
+        slot_id = cy_bootutil_get_slot_id(fap);
+
+        if (slot_id >= 0)
+        {
+            if (slot_id > 0)
+            {
+                key = cy_bl_bnu_policy.bnu_img_policy[multi_idx].upgrade_auth[0];
+            }
+            else
+            {
+                key = cy_bl_bnu_policy.bnu_img_policy[multi_idx].boot_auth[0];
+            }
+        }
     }
-    else if(1 == image_index)
-    {
-        key = cy_bl_bnu_policy.bnu_img_policy.upgrade_auth[0];
-    }
+
     return key;
+}
+
+static int cy_bootutil_check_image_id(const struct flash_area *fap, uint8_t image_id)
+{
+    int rc = 1;
+    int img_idx;
+
+    img_idx = cy_bootutil_get_multi_idx(fap);
+
+    if (img_idx >= 0)
+    {
+        rc = (int)(image_id != cy_bl_bnu_policy.bnu_img_policy[img_idx].id);
+    }
+
+    return rc;
+}
+
+static int cy_bootutil_check_upgrade(const struct flash_area *fap)
+{
+    int rc = 1;
+    int img_idx, slot_id;
+
+    slot_id = cy_bootutil_get_slot_id(fap);
+
+    if (slot_id >= 0)
+    {
+        if (slot_id > 0)
+        {
+            /* This is an UPGRADE slot */
+            img_idx = cy_bootutil_get_multi_idx(fap);
+
+            if (img_idx >= 0)
+            {
+                rc = (int)(!cy_bl_bnu_policy.bnu_img_policy[img_idx].upgrade);
+            }
+        }
+        else
+        {
+            /* This is a BOOT slot, no upgrade policy checking */
+            rc = 0;
+        }
+    }
+
+    return rc;
 }
 
 /*
@@ -319,6 +426,8 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
     uint8_t hash[32];
     int rc;
 
+    uint8_t image_id = 0u;
+
     rc = bootutil_img_hash(enc_state, image_index, hdr, fap, tmp_buf,
             tmp_buf_sz, hash, seed, seed_len);
     if (rc) {
@@ -329,7 +438,8 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
         memcpy(out_hash, hash, 32);
     }
 
-    rc = bootutil_tlv_iter_begin(&it, hdr, fap, IMAGE_TLV_ANY, false);
+    /* Check for upgrade is enabled in the policy */
+    rc = cy_bootutil_check_upgrade(fap);
     if (rc) {
         return rc;
     }
@@ -338,7 +448,13 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
      * Traverse through all of the TLVs, performing any checks we know
      * and are able to do.
      */
-    while (true) {
+    rc = bootutil_tlv_iter_begin(&it, hdr, fap, IMAGE_TLV_ANY, false);
+    if (rc) {
+        return rc;
+    }
+
+    while (true)
+    {
         rc = bootutil_tlv_iter_next(&it, &off, &len, &type);
         if (rc < 0) {
             return -1;
@@ -346,62 +462,87 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
             break;
         }
 
-        if (type == IMAGE_TLV_SHA256) {
-            /*
-             * Verify the SHA256 image hash.  This must always be
-             * present.
-             */
-            if (len != sizeof(hash)) {
-                return -1;
-            }
-            rc = flash_area_read(fap, off, buf, sizeof hash);
-            if (rc) {
-                return rc;
-            }
-            if (memcmp(hash, buf, sizeof(hash))) {
-                return -1;
-            }
+        switch (type)
+        {
+            case IMAGE_TLV_CYSB_IMAGE_ID:
+                rc = flash_area_read(fap, off, &image_id, len);
+                if (rc) {
+                    return rc;
+                }
 
-            sha256_valid = 1;
-#ifdef EXPECTED_SIG_TLV
-        } else if (type == IMAGE_TLV_KEYHASH) {
-            /*
-             * Determine which key we should be checking.
-             */
-            if (len > 32) {
-                return -1;
-            }
-            rc = flash_area_read(fap, off, buf, len);
-            if (rc) {
-                return rc;
-            }
+                /* Check for image ID is equal to ID from the policy */
+                rc = cy_bootutil_check_image_id(fap, image_id);
+                if (rc) {
+                    return -1;
+                }
 
-            // key_id = bootutil_find_key(buf, len);
-            key_id = cy_bootutil_find_key(image_index);
+                break;
+            case IMAGE_TLV_SHA256:
+                {
+                    /*
+                     * Verify the SHA256 image hash.  This must always be
+                     * present.
+                     */
+                    if (len != sizeof(hash)) {
+                        return -1;
+                    }
+                    rc = flash_area_read(fap, off, buf, sizeof hash);
+                    if (rc) {
+                        return rc;
+                    }
+                    if (memcmp(hash, buf, sizeof(hash))) {
+                        return -1;
+                    }
 
-            /*
-             * The key may not be found, which is acceptable.  There
-             * can be multiple signatures, each preceded by a key.
-             */
-        } else if (type == EXPECTED_SIG_TLV) {
-            /* Ignore this signature if it is out of bounds. */
-            if (key_id <= 0 || key_id > CY_FB_MAX_KEY_COUNT) {
-                key_id = -1;
-                continue;
-            }
-            if (!EXPECTED_SIG_LEN(len) || len > sizeof(buf)) {
-                return -1;
-            }
-            rc = flash_area_read(fap, off, buf, len);
-            if (rc) {
-                return -1;
-            }
-            rc = bootutil_verify_sig(hash, sizeof(hash), buf, len, key_id);
-            if (rc == 0) {
-                valid_signature = 1;
-            }
-            key_id = 0;
-#endif /* EXPECTED_SIG_TLV */
+                    sha256_valid = 1;
+                }
+                break;
+        #ifdef EXPECTED_SIG_TLV
+            case IMAGE_TLV_KEYHASH:
+                {
+                    /*
+                     * Determine which key we should be checking.
+                     */
+                    if (len > 32) {
+                        return -1;
+                    }
+                    rc = flash_area_read(fap, off, buf, len);
+                    if (rc) {
+                        return rc;
+                    }
+
+                    key_id = cy_bootutil_find_key(fap);
+
+                    /*
+                     * The key may not be found, which is acceptable.  There
+                     * can be multiple signatures, each preceded by a key.
+                     */
+                }
+                break;
+            case EXPECTED_SIG_TLV:
+                {
+                    /* Ignore this signature if it is out of bounds. */
+                    if (key_id <= 0 || key_id > (int)CY_FB_MAX_KEY_COUNT) {
+                        key_id = -1;
+                        continue;
+                    }
+                    if (!EXPECTED_SIG_LEN(len) || len > sizeof(buf)) {
+                        return -1;
+                    }
+                    rc = flash_area_read(fap, off, buf, len);
+                    if (rc) {
+                        return -1;
+                    }
+                    rc = bootutil_verify_sig(hash, sizeof(hash), buf, len, key_id);
+                    if (rc == 0) {
+                        valid_signature = 1;
+                    }
+                    key_id = 0;
+                }
+                break;
+        #endif /* EXPECTED_SIG_TLV */
+            default:
+                break;
         }
     }
 

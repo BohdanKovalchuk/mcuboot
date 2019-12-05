@@ -140,6 +140,7 @@ struct boot_swap_state {
 
 #ifdef MCUBOOT_IMAGE_NUMBER
 #define BOOT_IMAGE_NUMBER          MCUBOOT_IMAGE_NUMBER
+extern uint8_t boot_img_number;
 #else
 #define BOOT_IMAGE_NUMBER          1
 #endif
@@ -220,9 +221,10 @@ struct boot_loader_state {
     struct enc_key_data enc[BOOT_IMAGE_NUMBER][BOOT_NUM_SLOTS];
 #endif
 
-#if (BOOT_IMAGE_NUMBER > 1)
+// TODO: runtime multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
     uint8_t curr_img_idx;
-#endif
+//#endif
 };
 
 int bootutil_verify_sig(uint8_t *hash, uint32_t hlen, uint8_t *sig,
@@ -292,11 +294,12 @@ static inline bool boot_u16_safe_add(uint16_t *dest, uint16_t a, uint16_t b)
  */
 
 /* These are macros so they can be used as lvalues. */
-#if (BOOT_IMAGE_NUMBER > 1)
+// TODO: run-time multi-image
+//#if (BOOT_IMAGE_NUMBER > 1)
 #define BOOT_CURR_IMG(state) ((state)->curr_img_idx)
-#else
-#define BOOT_CURR_IMG(state) 0
-#endif
+//#else
+//#define BOOT_CURR_IMG(state) 0
+//#endif
 #ifdef MCUBOOT_ENC_IMAGES
 #define BOOT_CURR_ENC(state) ((state)->enc[BOOT_CURR_IMG(state)])
 #else

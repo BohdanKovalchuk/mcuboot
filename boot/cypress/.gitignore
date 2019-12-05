@@ -43,3 +43,4 @@ rusty-tags.*
 cy_state_internal.json
 *.jwt
 BlinkyApp.ld
+SecureBlinkyApp.ld

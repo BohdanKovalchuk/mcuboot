@@ -49,6 +49,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+#ifdef MCUBOOT_HAVE_ASSERT_H
+#include "mcuboot_config/mcuboot_assert.h"
+#else
+#include <assert.h>
+#endif
 
 /* Cypress pdl/bsp headers */
 #include "cy_pdl.h"
@@ -70,6 +75,7 @@
 #include "cy_jwt_policy.h"
 #include "cy_jwt_bnu_policy.h"
 
+#include "cy_secure_utils.h"
 #include "cy_bootloader_hw.h"
 #include "cy_bootloader_version.h"
 #include "cy_bootloader_services.h"
@@ -95,6 +101,8 @@
 #define CY_BOOTLOADER_IMG_ID_CM4         (4UL)
 
 #define CY_BOOTLOADER_MASTER_IMG_ID      CY_BOOTLOADER_IMG_ID_CM0P
+
+#define CY_BOOTLOADER_SCRATCH_SIZE (0x1000)
 
 /* TOC3 Table */
 /* valid TOC3, section name cy_toc_part2 used for CRC calculation */
@@ -123,15 +131,19 @@ bnu_policy_t cy_bl_bnu_policy;
 /** Debug policy structure */
 debug_policy_t debug_policy;
 
+/* TODO: multi-image run-time config variable */
+extern uint8_t boot_img_number;
+
 #ifdef CY_FLASH_MAP_EXT_DESC
 /* FlashMap descriptors */
 static struct flash_area bootloader;
 static struct flash_area primary_1;
 static struct flash_area secondary_1;
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+// TODO: run-time multi-image
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
 static struct flash_area primary_2;
 static struct flash_area secondary_2;
-#endif
+//#endif
 static struct flash_area scratch;
 
 struct flash_area *boot_area_descs[] =
@@ -139,10 +151,11 @@ struct flash_area *boot_area_descs[] =
     &bootloader,
     &primary_1,
     &secondary_1,
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+    // TODO: run-time multi-image
+//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     &primary_2,
     &secondary_2,
-#endif
+//#endif
     &scratch,
     NULL
 };
@@ -151,20 +164,47 @@ struct flash_area *boot_area_descs[] =
 /* Next image runner API */
 static void do_boot(struct boot_rsp *rsp)
 {
+    uintptr_t flash_base;
+    int rc;
     uint32_t app_addr = 0;
 
+    /* The beginning of the image is the ARM vector table, containing
+     * the initial stack pointer address and the reset vector
+     * consecutively. Manually set the stack pointer and jump into the
+     * reset vector
+     */
     app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
+    BOOT_LOG_INF("Application at: 0x%08x", app_addr);
 
-    BOOT_LOG_INF("Starting User Application on CM4 (wait)...");
-    Cy_SysLib_Delay(100);
+#if 0 /* need to test this */
+    rc = Cy_BLServ_FreeHeap();
+    assert(rc == 0);
+#endif
 
-    cy_retarget_io_deinit();
-
-    Cy_SysEnableCM4(app_addr);
-
-    while (1)
+    /* hardcode image id to run CM0p first until fwsecurity-645 merged */
+    switch (cy_bl_bnu_policy.bnu_img_policy[0].id)
     {
-        __WFI() ;
+        case CY_BOOTLOADER_IMG_ID_TEE_CM0P:
+            /* Do not change protection context for CM0p SPM image with ID=1 */
+            Cy_Utils_StartAppCM0p(app_addr);
+            break;
+        case CY_BOOTLOADER_IMG_ID_CYTF_CM0P:
+        case CY_BOOTLOADER_IMG_ID_OEMTF_CM0P:
+            /* Set Protection Context 2 for CM0p trusted apps with IDs 2 and 3 */
+            Cy_Prot_SetActivePC(CPUSS_MS_ID_CM0, (uint32_t)CY_PROT_PC2);
+            Cy_Utils_StartAppCM0p(app_addr);
+            break;
+        case CY_BOOTLOADER_IMG_ID_CM4:
+            /* Set Protection Context 6 for CM4 application */
+            Cy_Prot_SetActivePC(CPUSS_MS_ID_CM4, (uint32_t)CY_PROT_PC6);
+            Cy_Utils_StartAppCM4(app_addr);
+            break;
+        default:
+            BOOT_LOG_ERR("Unable to find bootable image");
+            while (1)
+            {
+                __WFI() ;
+            };
     }
 }
 
@@ -182,8 +222,14 @@ int main(void)
 
     /* Initialize PSOC6 specific */
     Cy_InitPSoC6_HW();
-
-    BOOT_LOG_INF("TEST : CypressBootloader Started");
+    BOOT_LOG_INF(" ");
+    BOOT_LOG_INF("/******************************************************/");
+    BOOT_LOG_INF(" PSoC6 CyBootloader Application %u.%u.%u.%u ",
+                   CY_BOOTLOADER_MAJOR, CY_BOOTLOADER_MINOR,
+                   CY_BOOTLOADER_REV, CY_BOOTLOADER_BUILD);
+    BOOT_LOG_INF("/******************************************************/");
+    BOOT_LOG_INF(" ");
+    BOOT_LOG_INF("CypressBootloader Started");
 
     /* Processing of policy in JWT format */
     uint32_t jwtLen;
@@ -194,42 +240,100 @@ int main(void)
         rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
                 CY_BOOTLOADER_MASTER_IMG_ID);
     }
+
     // TODO: initialize SMIF if supported/requested
     // FWSECURITY-676
     if(0 != rc)
     {
-        BOOT_LOG_ERR("Policy parsing failed with code %i", rc);
+        BOOT_LOG_ERR("Policy parsing failed with code 0x%08x", rc);
     }
     else /*    if(0 == rc) */
     {
+#if(0) /* Debug code for run-time multi-image */
+
+        /* assume it is single- or multi-image */
+        boot_img_number = 1;
+
+        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        primary_1.fa_off = 0x10020000;
+        primary_1.fa_size = 0x10000;
+
+        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        secondary_1.fa_off = 0x10030000;
+        secondary_1.fa_size = 0x10000;
+
+        primary_2.fa_id = FLASH_AREA_IMAGE_PRIMARY(1);
+        primary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        primary_2.fa_off = 0x10040000;
+        primary_2.fa_size = 0x10000;
+
+        secondary_2.fa_id = FLASH_AREA_IMAGE_SECONDARY(1);
+        secondary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        secondary_2.fa_off = 0x10050000;
+        secondary_2.fa_size = 0x10000;
+
+        bootloader.fa_id = FLASH_AREA_BOOTLOADER;
+        bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        bootloader.fa_off = 0x101D0000;
+        bootloader.fa_size = 0x10000;
+
+        scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
+        scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        scratch.fa_off = 0x10060000;
+        scratch.fa_size = 0x1000;
+#else
+            /* assume single-image is requested by policy */
+        boot_img_number = 1;
+
         primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
         primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.boot_area.start;
-        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.boot_area.size;
+        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.start;
+        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.size;
 
         secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
         secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
 
-        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.start;
-        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy.upgrade_area.size;
+        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.start;
+        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.size;
 
-        // TODO: add primary_2 + secondary_2
-        // FWSECURITY-935
+        if((cy_bl_bnu_policy.bnu_img_policy[0].multi_image == 1) &&
+            (cy_bl_bnu_policy.bnu_img_policy[1].multi_image == 2))
+        {
+            boot_img_number = 2;
 
-        // TODO: add bootloader
+            primary_2.fa_id = FLASH_AREA_IMAGE_PRIMARY(1);
+            primary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+            primary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.start;
+            primary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.size;
+
+            secondary_2.fa_id = FLASH_AREA_IMAGE_SECONDARY(1);
+            secondary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+            secondary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.start;
+            secondary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.size;
+
+            BOOT_LOG_INF("Enabled multi-image N = %d:", boot_img_number);
+        }
+        else{
+            BOOT_LOG_INF("Single-image N = %d:", boot_img_number);
+        }
+            /* add bootloader */
         bootloader.fa_id = FLASH_AREA_BOOTLOADER;
         bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
         bootloader.fa_off = cyToc[4];
         bootloader.fa_size = cyToc[5];
-
-        // TODO: initialize scratch
+            /* initialize scratch */
         scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
         scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        scratch.fa_off = secondary_1.fa_off + secondary_1.fa_size;
-        scratch.fa_size = 0x1000;
+        scratch.fa_off = bootloader.fa_off - CY_BOOTLOADER_SCRATCH_SIZE;
+        scratch.fa_size = CY_BOOTLOADER_SCRATCH_SIZE;
 
         // TODO: apply protections if supported/requested
+#endif
     }
 
     rc = boot_go(&rsp);
@@ -240,7 +344,7 @@ int main(void)
     }
     else
     {
-        BOOT_LOG_INF("CyrpessBootloader found none of bootable images") ;
+        BOOT_LOG_INF("CypressBootloader found none of bootable images") ;
         Cy_BLServ_Assert(0 == rc);
     }
 
