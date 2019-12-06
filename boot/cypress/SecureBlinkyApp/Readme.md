@@ -81,7 +81,7 @@ When user application programmed in BOOT slot:
     [SecureBlinkyApp] GPIO initialized 
     [SecureBlinkyApp] UART initialized 
     [SecureBlinkyApp] Retarget I/O set to 115200 baudrate 
-    [SecureBlinkyApp] Red led blinks FAST for 3 sec
+    [SecureBlinkyApp] Red led blinks SLOW for 3 sec
     [SecureBlinkyApp] Then CM4 app will be started
     [SecureBlinkyApp] CM4 app address 0x10020400
     [SecureBlinkyApp] Memory regions to protect:
@@ -98,7 +98,7 @@ When user application programmed in UPRADE slot and upgrade procedure was succes
     [SecureBlinkyApp] GPIO initialized 
     [SecureBlinkyApp] UART initialized 
     [SecureBlinkyApp] Retarget I/O set to 115200 baudrate 
-    [SecureBlinkyApp] Red led blinks SLOW for 3 sec
+    [SecureBlinkyApp] Red led blinks FAST for 3 sec
     [SecureBlinkyApp] Then CM4 app will be started
     [SecureBlinkyApp] CM4 app address 0x10020400
     [SecureBlinkyApp] Memory regions to protect:
