@@ -416,7 +416,8 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
     uint32_t off;
     uint16_t len;
     uint8_t type;
-    int sha256_valid = 0;
+    int valid_sha256 = 0;
+    int valid_image_id = 0;
 #ifdef EXPECTED_SIG_TLV
     int valid_signature = 0;
     int key_id = 0;
@@ -476,6 +477,8 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
                     return -1;
                 }
 
+                valid_image_id = 1;
+
                 break;
             case IMAGE_TLV_SHA256:
                 {
@@ -494,7 +497,7 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
                         return -1;
                     }
 
-                    sha256_valid = 1;
+                    valid_sha256 = 1;
                 }
                 break;
         #ifdef EXPECTED_SIG_TLV
@@ -546,7 +549,11 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
         }
     }
 
-    if (!sha256_valid) {
+    if (!valid_sha256) {
+        return -1;
+    }
+
+    if (!valid_image_id) {
         return -1;
     }
 
