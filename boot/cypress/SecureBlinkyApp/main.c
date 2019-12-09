@@ -56,6 +56,19 @@
 #include "cybsp.h"
 #include "cy_retarget_io.h"
 
+#include "cy_ipc_drv.h"
+#include "cy_scb_uart.h"
+#include "cy_syspm.h"
+
+/** SysCall timeout value */
+#define SYSCALL_TIMEOUT                 (15000UL)
+
+/** DAPControl SysCall opcode */
+#define DAPCONTROL_SYSCALL_OPCODE       (0x3AUL << 24UL)
+
+/** PSA crypto SysCall return codes */
+#define CY_FB_SYSCALL_SUCCESS           (0xA0000000UL)
+
 #define CY_SRSS_TST_MODE_ADDR           (SRSS_BASE | 0x0100UL)
 #define TST_MODE_TEST_MODE_MASK         (0x80000000UL)
 #define TST_MODE_ENTERED_MAGIC          (0x12344321UL)
@@ -80,6 +93,21 @@
     #error "[SecureBlinkyApp] Please specify type of image: -DBOOT_IMG or -DUPGRADE_IMG\r\n"
 #endif
 
+/** DAPControl SysCall parameter: access port state */
+typedef enum
+{
+    CY_AP_DIS = 0,
+    CY_AP_EN = 1
+}cy_ap_control_t;
+
+/** DAPControl SysCall parameter: access port name */
+typedef enum
+{
+    CY_CM0_AP = 0,
+    CY_CM4_AP = 1,
+    CY_SYS_AP = 2
+}cy_ap_name_t;
+
 void check_result(int res)
 {
     if (res != CY_RSLT_SUCCESS)
@@ -89,12 +117,13 @@ void check_result(int res)
 }
 
 CY_SECTION(".cy_ramfunc") CY_NOINLINE
-static void Cy_BLServ_SRAMTestBitLoop(void)
+static void Cy_Utils_SRAMTestBitLoop(void)
 {
     while((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL);
 }
 
-static void Cy_BLServ_TurnOnCM4(void)
+/* rnok: this function is taken from cy_secure_utils until fwsecurity-880 implementation arrive */
+static void Cy_Utils_TurnOnCM4(void)
 {
     uint32_t regValue;
 
@@ -109,8 +138,61 @@ static void Cy_BLServ_TurnOnCM4(void)
     }
 }
 
-void start_cm4_app(void)
+/* rnok: this function is taken from cy_secure_utils until fwsecurity-880 implementation arrive */
+int Cy_Utils_AccessPortControl(cy_ap_name_t ap, cy_ap_control_t en)
 {
+    int rc = -1;
+    volatile uint32_t syscallCmd = 0U;
+    uint32_t timeout = 0U;
+
+    syscallCmd |= DAPCONTROL_SYSCALL_OPCODE;
+    syscallCmd |= (uint8_t)en << 16;
+    syscallCmd |= (uint8_t)ap << 8;
+    syscallCmd |= 1;
+
+    
+    /* Get IPC base register address */
+    IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL);
+
+    while((CY_IPC_DRV_SUCCESS != Cy_IPC_Drv_LockAcquire(ipcStruct)) &&
+            (timeout < SYSCALL_TIMEOUT))
+    {
+        ++timeout;
+    }
+
+    if(timeout < SYSCALL_TIMEOUT)
+    {
+        timeout = 0U;
+
+        Cy_IPC_Drv_WriteDataValue(ipcStruct, syscallCmd);
+        Cy_IPC_Drv_AcquireNotify(ipcStruct, (1<<CY_IPC_CHAN_SYSCALL));
+
+        while((Cy_IPC_Drv_IsLockAcquired(ipcStruct))&&
+                (timeout < SYSCALL_TIMEOUT))
+        {
+            ++timeout;
+        }
+
+        if(timeout < SYSCALL_TIMEOUT)
+        {
+            syscallCmd = Cy_IPC_Drv_ReadDataValue(ipcStruct);
+            if(CY_FB_SYSCALL_SUCCESS != syscallCmd)
+            {
+                rc = syscallCmd;
+            }
+            else
+            {
+                rc = 0;
+            }
+        }
+    }
+    return rc;
+}
+
+void Cy_Utils_StartAppCM4(uint32_t appAddr)
+{
+    int rc = -1;
+
     /* Stop if we are in the TEST MODE */
     if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
     {
@@ -123,19 +205,35 @@ void start_cm4_app(void)
         __disable_irq();
 
         CPUSS->CM4_VECTOR_TABLE_BASE = CY_BL_CM4_ROM_LOOP_ADDR;
-        Cy_BLServ_TurnOnCM4();
+        Cy_Utils_TurnOnCM4();
 
         Cy_SysLib_Delay(1);
 
-        CPUSS->CM4_VECTOR_TABLE_BASE = CM4_APP_START_ADDR;
-        Cy_BLServ_SRAMTestBitLoop();
+        CPUSS->CM4_VECTOR_TABLE_BASE = appAddr;
+        Cy_Utils_SRAMTestBitLoop();
         __enable_irq();
     }
-    Cy_SysEnableCM4(CM4_APP_START_ADDR);
 
-    while (1)
+    /* It is aligned to 0x400 (256 records in vector table*4bytes each) */
+    Cy_SysEnableCM4(appAddr);
+
+    while(1)
     {
-        __WFI() ;
+        Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+        // TODO: Cy_Utils_SRAMBusyLoop(); /* use this for PSVP */
+    }
+}
+
+void start_cm4_app(void)
+{
+    int rc = CY_RSLT_SUCCESS;
+
+    /* rnok: this function is taken from cy_secure_utils until fwsecurity-880 implementation arrive */
+    rc = Cy_Utils_AccessPortControl(CY_CM4_AP, CY_AP_EN);
+
+    if (rc == 0)
+    {
+        Cy_Utils_StartAppCM4(CM4_APP_START_ADDR);
     }
 }
 
