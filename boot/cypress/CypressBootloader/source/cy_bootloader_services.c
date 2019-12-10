@@ -142,6 +142,19 @@ void Cy_BLServ_FlashInit(void)
 }
 #endif  /* defined (CY_IPC_DEFAULT_CFG_DISABLE) */
 
+CY_SECTION(".cy_ramfunc") CY_NOINLINE
+// PSVP: static void Cy_BLServ_SRAMBusyLoop(void)
+void Cy_BLServ_SRAMBusyLoop(void)
+{
+    while(1)
+    {
+#if defined(CY_BOOTLOADER_DIAGNOSTIC_GPIO)
+        Cy_GPIO_Inv(LED_RED_PORT, LED_RED_PIN); /* toggle the pin */
+        Cy_SysLib_DelayCycles(100000000/1);
+#endif /* CY_BOOTLOADER_DIAGNOSTIC_GPIO */
+    }
+}
+
 void Cy_BLServ_Assert(int expr)
 {
     int rc = -1;
@@ -168,7 +181,7 @@ void Cy_BLServ_Assert(int expr)
 
         Cy_SysEnableCM4(CY_BL_CM4_ROM_LOOP_ADDR);
 
-        Cy_Utils_SRAMBusyLoop();
+        Cy_BLServ_SRAMBusyLoop();
     }
 }
 
