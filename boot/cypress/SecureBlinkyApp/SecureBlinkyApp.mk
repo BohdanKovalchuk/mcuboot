@@ -61,12 +61,28 @@ DEFINES_APP += -DCY_USING_HAL
 
 # Collect Test Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)
+SOURCES_APP_SRC += $(wildcard $(CUR_APP_PATH)/protections/*.c)
+# Cy secureboot utils
+SOURCES_SECBOOT_UTILS := $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_jwt/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_secure_utils/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_base64/base64/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson/cJSON/*.c)
 # Collect all the sources
 SOURCES_APP += $(SOURCES_APP_SRC)
+SOURCES_APP += $(SOURCES_SECBOOT_UTILS)
 
 # Collect includes for BlinkyApp
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/protections)
+
+# INCLUDES_DIRS_MCUBOOT := $(addprefix -I, $(CURDIR)/../bootutil/src)
+
+# Include secure bootloader utility dependencies
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_secure_utils)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_jwt)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson/cJSON)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_base64)
 
 # Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)

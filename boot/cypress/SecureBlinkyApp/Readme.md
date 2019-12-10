@@ -6,10 +6,13 @@ Implements simple Blinky LED `CM0p` application to demonstrate milti-image confi
 
 It is started by CypressBootloader which is also running on `CM0p`.
 
-* Blinks RED led for 10 sec with 2 different rates, depending on type of image - BOOT or UPGRADE.
+* Blinks RED led for 3 sec with 2 different rates, depending on type of image - BOOT or UPGRADE.
 * Starts next application on `CM4`
 * Prints debug info and version of itself to terminal at 115200 baud.
 * Can be built for BOOT slot or UPGRADE slot of bootloader.
+* Reads provisioning package to get policy.
+* Controls CM4 access port according to the policy
+* Applies memory and peripheral protections
 
 **Pre-build action:**
 
@@ -78,8 +81,13 @@ When user application programmed in BOOT slot:
     [SecureBlinkyApp] GPIO initialized 
     [SecureBlinkyApp] UART initialized 
     [SecureBlinkyApp] Retarget I/O set to 115200 baudrate 
-    [SecureBlinkyApp] Red led blinks FAST for 10 sec
+    [SecureBlinkyApp] Red led blinks SLOW for 3 sec
     [SecureBlinkyApp] Then CM4 app will be started
+    [SecureBlinkyApp] CM4 app address 0x10020400
+    [SecureBlinkyApp] Memory regions to protect:
+    address: 0x101d0000; size 0x00010000;
+    address: 0x080c0000; size 0x00040000;
+    address: 0x080ec000; size 0x00004000;
 
 When user application programmed in UPRADE slot and upgrade procedure was successful:
 
@@ -90,5 +98,10 @@ When user application programmed in UPRADE slot and upgrade procedure was succes
     [SecureBlinkyApp] GPIO initialized 
     [SecureBlinkyApp] UART initialized 
     [SecureBlinkyApp] Retarget I/O set to 115200 baudrate 
-    [SecureBlinkyApp] Red led blinks SLOW for 10 sec
+    [SecureBlinkyApp] Red led blinks FAST for 3 sec
     [SecureBlinkyApp] Then CM4 app will be started
+    [SecureBlinkyApp] CM4 app address 0x10020400
+    [SecureBlinkyApp] Memory regions to protect:
+    address: 0x101d0000; size 0x00010000;
+    address: 0x080c0000; size 0x00040000;
+    address: 0x080ec000; size 0x00004000;
