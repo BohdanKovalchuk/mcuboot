@@ -391,7 +391,7 @@ mac_test:
     - deactivate
     
    
-.win_build:
+win_build:
   stage: build
   tags:
     - MBED_TEST
