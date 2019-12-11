@@ -222,8 +222,14 @@ int main(void)
 
     /* Initialize PSOC6 specific */
     Cy_InitPSoC6_HW();
-
-    BOOT_LOG_INF("TEST : CypressBootloader Started");
+    BOOT_LOG_INF(" ");
+    BOOT_LOG_INF("/******************************************************/");
+    BOOT_LOG_INF(" PSoC6 CyBootloader Application %u.%u.%u.%u ",
+                   CY_BOOTLOADER_MAJOR, CY_BOOTLOADER_MINOR,
+                   CY_BOOTLOADER_REV, CY_BOOTLOADER_BUILD);
+    BOOT_LOG_INF("/******************************************************/");
+    BOOT_LOG_INF(" ");
+    BOOT_LOG_INF("CypressBootloader Started");
 
     /* Processing of policy in JWT format */
     uint32_t jwtLen;

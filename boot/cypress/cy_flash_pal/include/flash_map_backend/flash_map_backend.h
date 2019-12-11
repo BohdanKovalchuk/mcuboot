@@ -71,33 +71,6 @@
 #include <mcuboot_config/mcuboot_config.h>
 #include "cy_flash.h"
 
-#ifndef CY_BOOT_SCRATCH_SIZE
-#define CY_BOOT_SCRATCH_SIZE                (0x1000)
-#endif
-
-#ifndef CY_BOOT_BOOTLOADER_SIZE
-#define CY_BOOT_BOOTLOADER_SIZE             (0x20000)
-#endif
-
-#ifndef CY_BOOT_PRIMARY_1_SIZE
-#define CY_BOOT_PRIMARY_1_SIZE              (0x10000)
-#endif
-
-#ifndef CY_BOOT_SECONDARY_1_SIZE
-#define CY_BOOT_SECONDARY_1_SIZE            (0x10000)
-#endif
-
-// TODO: run-time multi-image
-//#if (BOOT_IMAGE_NUMBER == 2) /* if dual-image */
-#ifndef CY_BOOT_PRIMARY_2_SIZE
-#define CY_BOOT_PRIMARY_2_SIZE              (0x10000)
-#endif
-
-#ifndef CY_BOOT_SECONDARY_2_SIZE
-#define CY_BOOT_SECONDARY_2_SIZE            (0x10000)
-#endif
-//#endif
-
 /**
  *
  * Provides abstraction of flash regions for type of use.
