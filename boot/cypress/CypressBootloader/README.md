@@ -37,7 +37,7 @@ Flags by defalt:
 
 Multi-image operation considers upgrading and verification of more then one image on the device.
 
-To enable multi-image operation `MCUBOOT_IMAGE_NUMBER` should be set to number different then 1.
+To enable multi-image operation `MCUBOOT_IMAGE_NUMBER` (mcuboot_config.h file) should be set to 2 (only dual-image is supported at the moment).
 
 In multi-image operation (two images are considered for simplicity) CypressBootloader operates as following:
 
@@ -51,7 +51,7 @@ This ensures two dependent applications can be accepted by device only in case b
 
 **Default Flash map for Multi-Image operation:**
 
-`0x101D0000 - 0x101DFE00` - CypressBootloader 
+`0x101D0000 - 0x101DFE00` - CypressBootloader (PSoC-064 2M device is suggested here)
 
 `0x10000000 - 0x10010000` - Primary_1 (BOOT) slot of Bootloader
 

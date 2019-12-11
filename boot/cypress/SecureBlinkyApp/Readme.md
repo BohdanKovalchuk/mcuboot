@@ -20,6 +20,12 @@ Default values set for currently supported targets:
 
 Start of `SecureBlinkyApp` built to use with Secure Boot enabled targets corresponds to default policy settings provided with `cysecuretools` package.
 
+`SecureBlinkyApp` can be built to use in multi-image bootloader configuration. In this case there is `SecureBlinkyApp` running on `CM0p` and launches `BlinkyApp` on `CM4`.
+
+*Note:* only 2 images are supported at the moment.
+
+To build appropriate image build flag `MULTI_IMAGE=1`("Enabled") has to be passed to `make`. Default value is `MULTI_IMAGE=0`("Disabled").
+
 **Building an application:**
 
 Root directory for build is **boot/cypress.**
@@ -36,6 +42,10 @@ This have following defaults suggested:
 To build UPGRADE image use following command:
 
     make app APP_NAME=SecureBlinkyApp TARGET=CY8KIT-064S2-4343W IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000
+    
+Example command-line for dual-image:
+
+    make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W IMG_TYPE=BOOT MULTI_IMAGE=1
 
 **Post-Build:**
 

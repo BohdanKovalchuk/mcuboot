@@ -22,20 +22,20 @@ Start of `BlinkyApp` built to use with Secure Boot enabled targets corresponds t
 
 **Building Multi-Image**
 
-`BlinkyApp` can be built to use in multi-image bootloader configuration. In this case there is another application `SecureBlinkyApp` present in system, that is running on `CM0p` and starts `BlinkyApp` on `CM4`.
+`BlinkyApp` can be built to use in multi-image bootloader configuration.
 
-Note: only 2 images are supported at the moment.
+To build appropriate image build flag `MULTI_IMAGE=1`("Enabled") has to be passed to `make`. Default value is `MULTI_IMAGE=0`("Disabled").
 
-To build appropriate image build flag `MULTI_IMAGE=1` has to be passed to `make`. Default value is `MULTI_IMAGE=0`(disabled).
+*Note:* only 2 images are supported at the moment.
 
-Default `BlinkyApp` addresses for `BOOT` and `UPGRADE`:
+Default `BlinkyApp` addresses for `BOOT` and `UPGRADE` (PSoC-062 2M device is suggested):
 
 Single image scheme (default):
     
     BOOT    - 0x10000000
     UPGRADE - 0x10010000
 
-Miltiimage scheme (`MULTI_IMAGE=1`):
+Multiimage scheme, second image in a boot chain (`MULTI_IMAGE=1`):
 
     BOOT    - 0x10020000
     UPGRADE - 0x10030000
@@ -56,6 +56,14 @@ This have following defaults suggested:
 To build UPGRADE image use following command:
 
     make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000
+    
+Example command-line for single-image:
+
+    make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=BOOT MULTI_IMAGE=0
+
+Example command-line for dual-image:
+
+    make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W IMG_TYPE=BOOT MULTI_IMAGE=1
 
 **Post-Build:**
 
