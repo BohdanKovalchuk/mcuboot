@@ -6,17 +6,18 @@ Given solution demonstrates operation of MCUBoot on Cypress' PSoC6 device.
 
 There are two applications implemented:
 * MCUBootApp - PSoC6 MCUBoot-based bootloading application;
+* CypressBootloader - PSoC6 MCUBoot-based Cypress' Secure Boot application;
+* SecureBlinkyApp - simple PSoC6 blinking LED application which is a target of BOOT/UPGRADE, running on CM0p and playing a role of SPE;
 * BlinkyApp - simple PSoC6 blinking LED application which is a target of BOOT/UPGRADE;
 
-The device supported is CY8CPROTO-062-4343W board which is PSoC6 device with 2M of Flash available.
-
-The default flash map implemented is next:
+The default flash map for MCUBootApp implemented is next:
 
 * [0x10000000, 0x10010000] - MCUBootApp (bootloader) area;
 * [0x10010000, 0x10020000] - primary slot for BlinkyApp;
 * [0x10020000, 0x10030000] - secondary slot for BlinkyApp;
-* [0x10030000, 0x10040000] - secondary slot for BlinkyApp;
-* [0x10040000, 0x10041000] - scratch area;
+* [0x10030000, 0x10031000] - scratch area;
+
+The flash map is defined through sysflash.h and cy_flash_map.c.
 
 MCUBootApp checks image integrity with SHA256, image authenticity with EC256 digital signature verification and uses completely SW implementation of cryptographic functions based on mbedTLS Library.
 
@@ -52,7 +53,11 @@ Root directory for build is **boot/cypress.**
 
 **Currently supported targets:**
 
-`* CY8CPROTO-062-4343W`
+`*  CY8CPROTO-062-4343W` - for MCUBoot, BlinkyApp;
+
+`*  CY8CKIT-064S2-4343W` - for CypressBootloader, SecureBlinkyApp, BlinkyApp;
+
+`*  CY8CKIT-064B0S2-4343W` - for CypressBootloader, SecureBlinkyApp, BlinkyApp;
 
 **Build environment troubleshooting:**
 

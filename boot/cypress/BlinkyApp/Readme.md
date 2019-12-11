@@ -10,6 +10,14 @@ It is started by MCUBoot Application or CypressBootloader which is running on CM
 * Prints debug info and version of itself to terminal at 115200 baud.
 * Can be built for BOOT slot or UPGRADE slot bootloader.
 
+**Currently supported targets:**
+
+`*  CY8CPROTO-062-4343W`
+
+`*  CY8CKIT-064S2-4343W`
+
+`*  CY8CKIT-064B0S2-4343W`
+
 **Pre-build action:**
 
 Pre-build action is implemented for defining start address and size of flash dedicated to BlinkyApp. Pre-build action calls GCC preprocessor to instantiate values to `BlinkyApp_template.ld` found in `main.h` file of BlinkyApp of defined at compile time via macroses `-DUSER_APP_START` and `-DUSER_APP_SIZE`.
@@ -111,11 +119,10 @@ When user application programmed in BOOT slot:
 When user application programmed in UPRADE slot and upgrade procedure was successful:
 
     ===========================
-    [BlinkyApp] BlinkyApp v2.0 [CM4]
+    [BlinkyApp] BlinkyApp v2.0 [+]
     ===========================
 
     [BlinkyApp] GPIO initialized
     [BlinkyApp] UART initialized
     [BlinkyApp] Retarget I/O set to 115200 baudrate
-    [BlinkyApp] Red led blinks with 0.25 sec period
     [BlinkyApp] Red led blinks with 0.25 sec period
