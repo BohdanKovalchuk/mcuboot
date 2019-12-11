@@ -66,7 +66,7 @@ As an example in a makefile it should look like following:
 
 Multi-image operation considers upgrading and verification of more then one image on the device.
 
-To enable multi-image operation `MCUBOOT_IMAGE_NUMBER` should be set to number different then 1.
+To enable multi-image operation `MCUBOOT_IMAGE_NUMBER` (mcuboot_config.h file) should be set to 2 (only dual-image is supported at the moment).
 
 In multi-image operation (two images are considered for simplicity) MCUBoot Bootloader application operates as following:
 
