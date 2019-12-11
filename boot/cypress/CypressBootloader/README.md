@@ -33,6 +33,12 @@ Flags by defalt:
     BUILDCFG=Debug
     MAKEINFO=0
 
+**Currently supported targets:**
+
+`*  CY8CKIT-064S2-4343W`
+
+`*  CY8CKIT-064B0S2-4343W`
+    
 **Multi-Image Operation**
 
 Multi-image operation considers upgrading and verification of more then one image on the device.
@@ -65,6 +71,16 @@ This ensures two dependent applications can be accepted by device only in case b
 
 Size of slots `0x10000` - 64kb
 
+**Multi-image policy**
+
+To initiate CypressBootloader in multi-image mode, appropriate policy has to be used when provisioning device.
+
+Those are supplied with [cysecuretools](https://pypi.org/project/cysecuretools/).
+
+There are two firmware sections have to be present for each image and each has to contain "multi_image" : 1 or "multi_image" : 2 depending on which image is master.
+
+If it is expected to use single-image only, then there should be regular polciy used with one firmware section in JSON and NO "multi_image" field has to be present.
+
 **How to program CypressBootloader:**
 
 CypressBootloader is programmed to the target board at provisioning stage. Refer to [PSoC® 64 Secure MCU Secure Boot SDK User Guide](https://www.cypress.com/documentation/software-and-drivers/psoc-64-secure-mcu-secure-boot-sdk-user-guide)
@@ -73,8 +89,21 @@ CypressBootloader is programmed to the target board at provisioning stage. Refer
 
 When user application programmed in BOOT slot:
 
+    [INF] /******************************************************/
+    [INF]  PSoC6 CyBootloader Application 1.1.0.420 
+    [INF] /******************************************************/
+    [INF]  
     [INF] CypressBootloader Started
-
+    [INF] Single-image N = 1:
+    [INF] Swap type: none
     [INF] User Application validated successfully
+    [INF] Application at: 0x10000400
 
-    [INF] Starting User Application on CM4 (wait)…
+    ===========================
+    [BlinkyApp] BlinkyApp v1.0 [CM4]
+    ===========================
+
+    [BlinkyApp] GPIO initialized 
+    [BlinkyApp] UART initialized 
+    [BlinkyApp] Retarget I/O set to 115200 baudrate 
+    [BlinkyApp] Red led blinks with 1 sec period

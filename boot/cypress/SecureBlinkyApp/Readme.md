@@ -14,6 +14,12 @@ It is started by CypressBootloader which is also running on `CM0p`.
 * Controls CM4 access port according to the policy
 * Applies memory and peripheral protections
 
+**Currently supported targets:**
+
+`*  CY8CKIT-064S2-4343W`
+
+`*  CY8CKIT-064B0S2-4343W`
+
 **Pre-build action:**
 
 Pre-build action is implemented for defining start address and size of flash dedicated to `SecureBlinkyApp`. Pre-build action calls GCC preprocessor to instantiate values to `SecureBlinkyApp_template.ld` found in `main.h` file of BlinkyApp of defined at compile time via macroses `-DSECURE_APP_START` and `-DSECURE_APP_SIZE`.
@@ -102,7 +108,7 @@ When user application programmed in BOOT slot:
 When user application programmed in UPRADE slot and upgrade procedure was successful:
 
     =============================================
-    [SecureBlinkyApp] SecureBlinkyApp v1.0 [CM0p]
+    [SecureBlinkyApp] SecureBlinkyApp v2.0 [+]
     =============================================
 
     [SecureBlinkyApp] GPIO initialized 
