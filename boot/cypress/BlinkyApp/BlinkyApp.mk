@@ -65,7 +65,7 @@ ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
         SLOT_SIZE ?= 0x10000
 	endif
 else
-	DEFINES_APP += -DUSER_APP_START=0x10010000
+	DEFINES_APP += -DUSER_APP_START=0x10018000
     SLOT_SIZE ?= 0x10000
 endif
 

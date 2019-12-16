@@ -34,3 +34,6 @@
 [submodule "boot/cypress/SecureBlinkyApp/cy_secureboot_utils"]
 	path = boot/cypress/SecureBlinkyApp/cy_secureboot_utils
 	url = http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_secureboot_utils.git
+[submodule "boot/cypress/libs/cy-mbedtls-acceleration"]
+	path = boot/cypress/libs/cy-mbedtls-acceleration
+	url = https://github.com/cypresssemiconductorco/cy-mbedtls-acceleration.git
