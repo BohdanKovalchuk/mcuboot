@@ -60,6 +60,7 @@
                 ],
                 "id": 0,
                 "launch": 1,
+                "monotonic": 0,
                 "smif_id": 0,
                 "upgrade": false,
                 "upgrade_auth": [
@@ -87,15 +88,25 @@
                 "boot_auth": [
                     8
                 ],
+                "boot_keys": [
+                    { "kid": 8, "key": "../keys/USERAPP_CM4_KEY.json" }
+                ],
                 "id": 1,
                 "monotonic": 0,
                 "smif_id": 0,
-                "upgrade": true,
-                "encrypt": false,
-                "encrypt_key_id": 1,
                 "multi_image" : 1,
+                "upgrade": true,
+                "version": "0.1",
+                "rollback_counter": 0,
+                "encrypt": false,
+                "encrypt_key": "../keys/image-aes-128.key",
+                "encrypt_key_id": 1,
+                "encrypt_peer": "../keys/dev_pub_key.pem",
                 "upgrade_auth": [
                     8
+                ],
+                "upgrade_keys": [
+                    { "kid": 8, "key": "../keys/USERAPP_CM4_KEY.json" }
                 ],
                 "resources": [
                     {
@@ -114,15 +125,25 @@
                 "boot_auth": [
                     8
                 ],
+                "boot_keys": [
+                    { "kid": 8, "key": "../keys/USERAPP_CM4_KEY.json" }
+                ],
                 "id": 16,
                 "monotonic": 0,
                 "smif_id": 0,
-                "upgrade": true,
-                "encrypt": false,
-                "encrypt_key_id": 1,
                 "multi_image" : 2,
+                "upgrade": true,
+                "version": "0.1",
+                "rollback_counter": 0,
+                "encrypt": false,
+                "encrypt_key": "../keys/image-aes-128.key",
+                "encrypt_key_id": 1,
+                "encrypt_peer": "../keys/dev_pub_key.pem",
                 "upgrade_auth": [
                     8
+                ],
+                "upgrade_keys": [
+                    { "kid": 8, "key": "../keys/USERAPP_CM4_KEY.json" }
                 ],
                 "resources": [
                     {
@@ -138,5 +159,14 @@
                 ]
             }
         ]
+    },
+    "cy_bootloader":
+    {
+        "mode": "debug"
+    },
+    "provisioning":
+    {
+        "packet_dir": "../packet",
+        "chain_of_trust": []
     }
 }

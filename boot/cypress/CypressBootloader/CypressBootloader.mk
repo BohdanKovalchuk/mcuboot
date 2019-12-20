@@ -126,11 +126,7 @@ endif
 
 # Post build action to execute after main build job
 post_build: $(OUT_CFG)/$(APP_NAME).hex
-	$(info [POST_BUILD] - Calculating CRC of TOC3 for $(APP_NAME))
-	$(PYTHON_PATH) $(APP_NAME)/scripts/toc3_crc.py $(OUT_CFG)/$(APP_NAME).elf $(OUT_CFG)/$(APP_NAME)_CM0p.hex
-ifeq ($(GENERATE_CERT), 1)
 	$(info [POST_BUILD] - Creating image certificate for $(APP_NAME))
 	$(PYTHON_PATH) $(APP_NAME)/scripts/image_cert.py -i $(OUT_CFG)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_CFG)/$(APP_NAME)_CM0p.jwt
-endif
 
 ASM_FILES_APP :=

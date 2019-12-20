@@ -17,19 +17,30 @@ stages:
   stage: build
   tags:
     - FW_SECURITY_TEST_UBUNTU1804
-  script:
+
+  before_script:
     - env
     - export https_proxy=http://proxy.ua.cypress.com:8080
     - python3 --version
+
+  script:
+    # install cysecuretools for post build actions
+    - python3.6 -m virtualenv venv
+    - source venv/bin/activate
+    - pip install pyserial
+    - pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git
+    - pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+    - python -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w'); tools.create_keys()"
+
     - pwd
     - git submodule deinit --all -f
     - git submodule update --init --recursive
     - cd boot/cypress
-    - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
 
-    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug GENERATE_CERT=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
 
-    - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT POST_BUILD=1 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
     
         # Preparing build artifacts for a test job
     - cd ../..
@@ -53,7 +64,7 @@ stages:
     - mkdir -p deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug
     - mkdir -p develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/boot
     - mkdir -p develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/upgrade
-    - cp -r boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/BlinkyApp_signed.hex ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ 
+    - cp -r boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/BlinkyApp.hex ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/ 
 
 # Collect BlinkyApp BOOT for CY8CPROTO-062-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/boot/*.hex ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/boot/ 
@@ -65,12 +76,12 @@ stages:
 # Clean and build BlinkyApp UPGRADE    
     - cd boot/cypress
     - make clean APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W
-    - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE  TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1   
+    - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE POST_BUILD=1 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1   
     - cd ../..
     
     
 # Collect BlinkyApp UPGRADE for CY8CPROTO-062-4343W deploy
-    - cp -r boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/BlinkyApp_signed_upgrade.hex ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/
+    - cp -r boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/BlinkyApp.hex ./deploy/CY8CPROTO-062-4343W/BlinkyApp/Debug/BlinkyApp_upgrade.hex
 
 # Collect BlinkyApp UPGRADE for CY8CPROTO-062-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CPROTO-062-4343W/Debug/upgrade/*.hex ./develop/CY8CPROTO-062-4343W/BlinkyApp/Debug/upgrade/
@@ -103,7 +114,7 @@ stages:
 
     - cd boot/cypress
     - make clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
-    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 
@@ -111,7 +122,7 @@ stages:
     - mkdir -p  ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade
-    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp_signed.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ 
+    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ 
 
 # Collect MCUBoot for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.hex  ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot/
@@ -122,12 +133,12 @@ stages:
     
     - cd boot/cypress
     - make clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
-    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE POST_BUILD=1 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 
 # Collect BlinkyApp UPGRADE for CY8CKIT-064S2-4343W deploy    
-    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/BlinkyApp_signed_upgrade.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ 
+    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/BlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/BlinkyApp_upgrade.hex
 
 # Collect BlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.hex ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade/
@@ -185,9 +196,18 @@ mac_build:
   stage: build
   tags:
     - MBED_TEST_MAC1014
-  script:
-    - export https_proxy=http://proxy.ua.cypress.com:8080
+
+  before_script:
     - python3 --version
+    - export https_proxy=http://proxy.ua.cypress.com:8080
+
+  script:
+    # install cysecuretools for post build actions
+    - python3 -m pip install pyserial
+    - python3 -m pip uninstall cysecuretools -y
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+
     - pwd
     - git submodule deinit --all -f
     - git submodule update --init --recursive
@@ -199,7 +219,7 @@ mac_build:
 ########################### CyBootloader ##############################
 # Build CypressBootloader for CY8CKIT-064S2-4343W 
     - cd boot/cypress
-    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug GENERATE_CERT=0 DEFINES_USER='-DCY_BOOTLOADER_MAJOR=1 -DCY_BOOTLOADER_MINOR=1 -DCY_BOOTLOADER_REV=0 -DCY_BOOTLOADER_BUILD=424' TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug POST_BUILD=0 DEFINES_USER='-DCY_BOOTLOADER_MAJOR=1 -DCY_BOOTLOADER_MINOR=1 -DCY_BOOTLOADER_REV=0 -DCY_BOOTLOADER_BUILD=424' TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
     - cd ../..   
 
 # Collect CypressBootloader for CY8CKIT-064S2-4343W deploy
@@ -223,14 +243,14 @@ mac_build:
 # Build BlinkyApp BOOT for CY8CKIT-064S2-4343W 
     - cd boot/cypress
     - make clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
-    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 MULTI_IMAGE=0 IMG_TYPE=BOOT TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 MULTI_IMAGE=0 IMG_TYPE=BOOT POST_BUILD=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 # Collect BlinkyApp BOOT for CY8CKIT-064S2-4343W deploy
     - mkdir -p  ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade
-    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp_signed.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ 
+    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ 
 
 # Collect BlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.hex  ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/boot/
@@ -243,11 +263,11 @@ mac_build:
 ########################### BlinkyApp UPGRADE ##############################
 # Build BlinkyApp UPGRADE for CY8CKIT-064S2-4343W    
     - cd boot/cypress
-    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1  MULTI_IMAGE=0 IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1  MULTI_IMAGE=0 IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000 POST_BUILD=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 # Collect BlinkyApp UPGRADE for CY8CKIT-064S2-4343W deploy    
-    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/BlinkyApp_signed_upgrade.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/ 
+    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/BlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyApp/Debug/BlinkyApp_upgrade.hex
 
 # Collect BlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.hex ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade/
@@ -264,14 +284,14 @@ mac_build:
 # Build BlinkyApp BOOT for CY8CKIT-064S2-4343W 
     - cd boot/cypress
     - make clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
-    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT POST_BUILD=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 # Collect BlinkyApp BOOT for CY8CKIT-064S2-4343W deploy
     - mkdir -p  ./deploy/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/boot
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/upgrade
-    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp_signed.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/ 
+    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/BlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/ 
 
 # Collect BlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.hex  ./develop/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/boot/
@@ -284,11 +304,11 @@ mac_build:
 ########################### BlinkyApp UPGRADE MULTI-IMAGE ##############################
 # Build BlinkyApp UPGRADE for CY8CKIT-064S2-4343W    
     - cd boot/cypress
-    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000 POST_BUILD=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 # Collect BlinkyApp UPGRADE for CY8CKIT-064S2-4343W deploy    
-    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/BlinkyApp_signed_upgrade.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/ 
+    - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/BlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/BlinkyApp_upgrade.hex
 
 # Collect BlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.hex ./develop/CY8CKIT-064S2-4343W/BlinkyAppMulti/Debug/upgrade/
@@ -302,14 +322,14 @@ mac_build:
 # Build SecureBlinkyApp BOOT for CY8CKIT-064S2-4343W 
     - cd boot/cypress
     - make clean APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W
-    - make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W IMG_TYPE=BOOT MAKEINFO=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W IMG_TYPE=BOOT MAKEINFO=1 POST_BUILD=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 # Collect SecureBlinkyApp BOOT for CY8CKIT-064S2-4343W deploy
     - mkdir -p  ./deploy/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/boot
     - mkdir -p  ./develop/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/upgrade
-    - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/SecureBlinkyApp_signed.hex ./deploy/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/ 
+    - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/SecureBlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/ 
 
 # Collect SecureBlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/boot/*.hex  ./develop/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/boot/
@@ -322,11 +342,11 @@ mac_build:
 ########################### SecureBlinkyApp UPGRADE ############################## 
 # Build SecureBlinkyApp UPGRADE for CY8CKIT-064S2-4343W    
     - cd boot/cypress
-    - make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
+    - make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000 POST_BUILD=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
 # Collect SecureBlinkyApp UPGRADE for CY8CKIT-064S2-4343W deploy    
-    - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/SecureBlinkyApp_signed_upgrade.hex ./deploy/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/ 
+    - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/SecureBlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/SecureBlinkyApp_upgrade.hex
 
 # Collect SecureBlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.hex ./develop/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/upgrade/
@@ -396,6 +416,12 @@ win_build:
   tags:
     - MBED_TEST
   script:
+    # install cysecuretools for post build actions
+    - python -m pip install pyserial
+    - python -m pip uninstall cysecuretools -y
+    - python -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git
+    - pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+
     - "Get-ChildItem Env:" 
     - cd
     - python --version
@@ -407,13 +433,14 @@ win_build:
       "APP_NAME=MCUBootApp" 
       "TARGET=CY8CPROTO-062-4343W" 
       "BUILDCFG=Debug" 
+      "POST_BUILD=0" 
       "TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1"
     - > 
       & "make" "app" 
       "APP_NAME=CypressBootloader" 
       "TARGET=CY8CKIT-064S2-4343W" 
       "BUILDCFG=Debug" 
-      "GENERATE_CERT=0" 
+      "POST_BUILD=0" 
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
       "TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1" 
       "MAKEINFO=0"
@@ -422,7 +449,7 @@ win_build:
       "APP_NAME=CypressBootloader" 
       "TARGET=CY8CKIT-064B0S2-4343W" 
       "BUILDCFG=Debug" 
-      "GENERATE_CERT=0" 
+      "POST_BUILD=0"
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
       "TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1" 
       "MAKEINFO=0"
@@ -433,6 +460,7 @@ win_build:
       "BUILDCFG=Debug" 
       "MAKEINFO=1" 
       "IMG_TYPE=BOOT" 
+      "POST_BUILD=1" 
       "TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1"
     - > 
       & "make" "app" 
@@ -441,6 +469,7 @@ win_build:
       "BUILDCFG=Debug" 
       "MAKEINFO=1" 
       "IMG_TYPE=BOOT" 
+      "POST_BUILD=1" 
       "TOOLCHAIN_PATH=C:/Users/cydesigner/ModusToolbox/tools_2.0/gcc-7.2.1"
 
 

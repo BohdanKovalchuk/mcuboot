@@ -37,6 +37,9 @@ IMG_TYPES = BOOT UPGRADE
 # BlinkyApp will be be run by CyBootloader wih multi image support
 MULTI_IMAGE ?= 1
 
+# CypressBootloader Image ID to use for signing
+CYB_IMG_ID ?= 16
+
 ifneq ($(COMPILER), GCC_ARM)
 $(error Only GCC ARM is supported at this moment)
 endif
@@ -93,7 +96,7 @@ SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512
 
 ifeq ($(IMG_TYPE), UPGRADE)
 	SIGN_ARGS += --pad
-	UPGRADE :=_upgrade
+	UPGRADE_SUFFIX :=_upgrade
 endif
 
 # Set build directory for BOOT and UPGRADE images
@@ -103,6 +106,11 @@ else
 	OUT_CFG := $(OUT_CFG)/upgrade
 endif
 
+# Determine path to policy file if multi image is used
+ifeq ($(MULTI_IMAGE), 1)
+	MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
+endif
+
 pre_build:
 	$(info [PRE_BUILD] - Generating linker script for application $(CUR_APP_PATH)/linker/$(APP_NAME).ld)
 	@$(CC) -E -x c $(CFLAGS) $(INCLUDE_DIRS) $(CUR_APP_PATH)/linker/$(APP_NAME)_template.ld | grep -v '^#' >$(CUR_APP_PATH)/linker/$(APP_NAME).ld
@@ -110,4 +118,13 @@ pre_build:
 # Post build action to execute after main build job
 post_build: $(OUT_CFG)/$(APP_NAME).hex
 	$(info [POST_BUILD] - Executing post build script for $(APP_NAME))
-	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_signed$(UPGRADE).hex
+# determine if target is Secure Boot - use cysecuretools for signing. built in imgtool for non secure targets
+ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
+ifeq ($(MULTI_IMAGE), 1)
+	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
+else
+	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex')"
+endif
+else
+	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_signed$(UPGRADE_SUFFIX).hex
+endif
