@@ -45,6 +45,13 @@ else
 $(error Not supported target: '$(TARGET)')
 endif
 
+# Check if path to cysecuretools is set
+ifeq ($(CY_SEC_TOOLS_PATH), )
+$(error Variable CY_SEC_TOOLS_PATH - path to cysecuretools package not set. \
+		Use `python -m pip show cysecuretools` to determine intallation folder.` \
+		Then set it in Makefile to continue work.)
+endif
+
 # Collect dirrectories containing headers for TARGET BSP
 INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
 INCLUDE_DIRS_BSP += $(BSP_PATH)/startup

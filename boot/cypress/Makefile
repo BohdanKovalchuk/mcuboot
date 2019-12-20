@@ -23,6 +23,14 @@
 # limitations under the License.
 ################################################################################
 
+# minimum Python 3.7 is required
+# Python path definition
+ifeq ($(OS),Windows_NT)
+PYTHON_PATH?=python
+else
+PYTHON_PATH?=python3
+endif
+
 ################################################################################
 # Main settings
 ################################################################################
@@ -31,10 +39,15 @@
 MAKEINFO ?= 1
 # Application name by default
 APP_NAME ?= MCUBootApp
-# Jwt certificate for cyBootloader will be created by default (change to '0' if you dont need that)
-GENERATE_CERT ?= 1
+# Weather or now execure post build script after build - set to 0 for CI
+POST_BUILD ?= 1
 
 SIGN_KEY_FILE ?= cypress-test-ec-p256
+
+# set this variable to a path, where cysecuretools python package is installed
+# use command `python -m pip show cysecuretools` to find out this path
+# or rely on scripts that automates this action, bit not work for virtual envs
+CY_SEC_TOOLS_PATH ?= $(shell $(PYTHON_PATH) $(CURDIR)/scripts/find_cysectools.py)
 
 BUILDCFG ?= Debug
 
@@ -116,14 +129,6 @@ LDFLAGS=$(MY_LDFLAGS)
 # may be modified in %Application%.mk file
 OUT_FILE_NAME ?= $(OUT_APP)/$(APP_NAME)
 
-# minimum Python 3.7 is required
-# Python path definition
-ifeq ($(OS),Windows_NT)
-PYTHON_PATH?=python
-else
-PYTHON_PATH?=python3
-endif
-
 OUT_OBJ := $(OUT_CFG)/obj
 OUT_APP := $(OUT_CFG)
 
@@ -138,11 +143,17 @@ app:
 	@`mkdir -p ./$(OUT_OBJ)`
 	$(MAKE) pre_build
 	$(MAKE) build -j8
+ifeq ($(POST_BUILD), 1)
 	$(MAKE) post_build
+endif
 
 build: $(OUT_APP)/$(APP_NAME).hex
 	$(GCC_PATH)/bin/arm-none-eabi-objdump $(OUT_APP)/$(APP_NAME).hex -s > $(OUT_APP)/$(APP_NAME).lst
 	$(GCC_PATH)/bin/arm-none-eabi-size --format=SysV $(OUT_APP)/$(APP_NAME).elf
+ifeq ($(APP_NAME), CypressBootloader)
+	$(info [POST_BUILD] - Calculating CRC of TOC3 for $(APP_NAME))
+	$(PYTHON_PATH) $(APP_NAME)/scripts/toc3_crc.py $(OUT_CFG)/$(APP_NAME).elf $(OUT_CFG)/$(APP_NAME)_CM0p.hex
+endif
 
 $(OUT_APP)/$(APP_NAME).hex: $(OUT_APP)/$(APP_NAME).elf
 	$(GCC_PATH)/bin/arm-none-eabi-objcopy --change-addresses=$(HEADER_OFFSET) -O ihex $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME).hex
