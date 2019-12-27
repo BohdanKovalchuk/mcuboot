@@ -619,7 +619,12 @@ win_cpp_check:
   tags:
     - MBED_TEST
   script:
-    - bash scripts/cpp_check.sh
+    - cd boot/cypress/libs/bsp
+    - git clone http://git-ore.aus.cypress.com/repo-staging/TARGET_CY8CPROTO-062-4343W.git
+    - cd ../../../../
+    - cd boot/cypress
+    - make run_cppcheck
+    - cd ../../
   when: always
 
 .win_test:

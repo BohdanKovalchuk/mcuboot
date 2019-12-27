@@ -1,2 +1,2 @@
-boot/cypress/cy_flash_pal/cy_flash_map.c
-boot/cypress/cy_flash_pal/cy_flash_psoc6.c
+cy_flash_pal/cy_flash_map.c
+cy_flash_pal/cy_flash_psoc6.c
