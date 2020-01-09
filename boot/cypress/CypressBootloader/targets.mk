@@ -32,38 +32,41 @@
 # default TARGET
 #TARGET ?= CY8CPROTO-062-4343W-M0
 # this must be 064-series only
-TARGET ?= CY8CKIT-064S2-4343W
+TARGET ?= 064_2M
  
-TARGETS := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W
+# 
+TARGETS := 064_2M 064_1M 064_512K
+
 # For which core this application is built
 CORE := CM0P
 
 CUR_LIBS_PATH := $(CURDIR)/libs
-BSP_PATH  := $(CUR_LIBS_PATH)/bsp/TARGET_$(TARGET)
+BSP_PATH := $(CURDIR)/$(APP_NAME)/platform
 
-ifneq ($(filter $(TARGET), $(TARGETS)),)
-include ./libs/bsp/TARGET_$(TARGET)/$(TARGET).mk
-else
-$(error Not supported target: '$(TARGET)')
-endif
+# MCU device selection
+DEVICE:=CYB0644ABZI-S2D44
+
+# Additional components supported by the target
+COMPONENTS+=BSP_DESIGN_MODUS PSOC6HAL
+# Use CyHAL
+DEFINES:=CY_USING_HAL
 
 # Collect C source files for TARGET BSP
-SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
-SOURCES_BSP += $(wildcard $(BSP_PATH)/COMPONENT_$(CORE)/*.c)
-SOURCES_BSP += $(BSP_PATH)/cybsp.c
+#SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
+#SOURCES_BSP += $(wildcard $(BSP_PATH)/COMPONENT_$(CORE)/*.c)
+SOURCES_BSP += $(wildcard $(BSP_PATH)/*.c)
 SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
 SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
 
 
 # Collect dirrectories containing headers for TARGET BSP
-INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
-INCLUDE_DIRS_BSP += $(BSP_PATH)/startup
+#INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
+#INCLUDE_DIRS_BSP += $(BSP_PATH)/startup
 INCLUDE_DIRS_BSP += $(BSP_PATH)
 INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/bsp/psoc6hal/include
-
 # Collect Assembler files for TARGET BSP
 # TODO: need to include _01_, _02_ or _03_ depending on device family.
-STARTUP_FILE := $(BSP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(COMPILER)/startup_psoc6_02_cm0plus
+STARTUP_FILE := $(BSP_PATH)/$(TARGET)/$(CORE)/$(COMPILER)/startup_psoc6_02_cm0plus
 
 ifeq ($(COMPILER), GCC_ARM)
 	ASM_FILES_BSP := $(STARTUP_FILE).S
@@ -73,6 +76,7 @@ endif
 
 # Add device name from BSP makefile to defines
 DEFINES += $(DEVICE)
+DEFINES += $(COMPONENTS)
 
 # Get defines from BSP makefile and convert it to regular -DMY_NAME style 
 ifneq ($(DEFINES),)
@@ -80,7 +84,7 @@ ifneq ($(DEFINES),)
 endif
 
 ifeq ($(COMPILER), GCC_ARM)
-LINKER_SCRIPT ?= $(BSP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_GCC_ARM/*_cm0plus.ld
+LINKER_SCRIPT ?= $(BSP_PATH)/$(TARGET)/$(CORE)/$(COMPILER)/*_cm0plus.ld
 else
 $(error Only GCC ARM is supported at this moment)
 endif
