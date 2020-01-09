@@ -245,7 +245,7 @@ int main(void)
     // FWSECURITY-676
     if(0 != rc)
     {
-        BOOT_LOG_ERR("Policy parsing failed with code 0x%08x", rc);
+        BOOT_LOG_ERR("Policy parsing failed with code 0x%08x", (int)rc);
     }
     else /*    if(0 == rc) */
     {
