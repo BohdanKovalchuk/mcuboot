@@ -420,7 +420,7 @@ int flash_area_id_to_image_slot(int area_id)
 
 uint8_t flash_area_erased_val(const struct flash_area *fap)
 {
-    int ret ;
+    int ret = 0;
 
     if (fap->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
