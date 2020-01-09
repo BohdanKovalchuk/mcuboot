@@ -41,32 +41,37 @@ TARGETS := 064_2M 064_1M 064_512K
 CORE := CM0P
 
 CUR_LIBS_PATH := $(CURDIR)/libs
-BSP_PATH := $(CURDIR)/$(APP_NAME)/platform
+PLATFORM_PATH := $(CURDIR)/$(APP_NAME)/platform
 
-# MCU device selection
-DEVICE:=CYB0644ABZI-S2D44
-
+# MCU device selection, based on target device.
+# Default chips are used for supported platforms
+# This can be redefined in case of other chip usage
+ifeq ($(TARGET), 064_2M)
+DEVICE ?= CYB0644ABZI-S2D44
+PLATFORM_SUFFIX := 02
+else ifeq ($(TARGET), 064_1M)
+DEVICE ?= CYB06447BZI-BLD53
+PLATFORM_SUFFIX := 01
+else ifeq ($(TARGET), 064_512K)
+DEVICE ?= CYB06445LQI-S3D42
+PLATFORM_SUFFIX := 03
+endif
 # Additional components supported by the target
 COMPONENTS+=BSP_DESIGN_MODUS PSOC6HAL
 # Use CyHAL
 DEFINES:=CY_USING_HAL
 
 # Collect C source files for TARGET BSP
-#SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
-#SOURCES_BSP += $(wildcard $(BSP_PATH)/COMPONENT_$(CORE)/*.c)
-SOURCES_BSP += $(wildcard $(BSP_PATH)/*.c)
+SOURCES_BSP += $(wildcard $(PLATFORM_PATH)/*.c)
 SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
 SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
 
-
 # Collect dirrectories containing headers for TARGET BSP
-#INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
-#INCLUDE_DIRS_BSP += $(BSP_PATH)/startup
-INCLUDE_DIRS_BSP += $(BSP_PATH)
+INCLUDE_DIRS_BSP := $(PLATFORM_PATH)
 INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/bsp/psoc6hal/include
 # Collect Assembler files for TARGET BSP
-# TODO: need to include _01_, _02_ or _03_ depending on device family.
-STARTUP_FILE := $(BSP_PATH)/$(TARGET)/$(CORE)/$(COMPILER)/startup_psoc6_02_cm0plus
+# Include _01_, _02_ or _03_ PLATFORM_SUFFIX depending on device family.
+STARTUP_FILE := $(PLATFORM_PATH)/$(TARGET)/$(CORE)/$(COMPILER)/startup_psoc6_$(PLATFORM_SUFFIX)_cm0plus
 
 ifeq ($(COMPILER), GCC_ARM)
 	ASM_FILES_BSP := $(STARTUP_FILE).S
@@ -84,7 +89,7 @@ ifneq ($(DEFINES),)
 endif
 
 ifeq ($(COMPILER), GCC_ARM)
-LINKER_SCRIPT ?= $(BSP_PATH)/$(TARGET)/$(CORE)/$(COMPILER)/*_cm0plus.ld
+LINKER_SCRIPT ?= $(PLATFORM_PATH)/$(TARGET)/$(CORE)/$(COMPILER)/*_cm0plus.ld
 else
 $(error Only GCC ARM is supported at this moment)
 endif
