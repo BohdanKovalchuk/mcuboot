@@ -203,6 +203,10 @@ clean_upgrade:
 	@echo "Cleanup out UPGRADE directory of $(APP_NAME)..."
 	rm -rf $(OUT_TARGET)/$(BUILDCFG)/upgrade
 
+run_cppcheck:
+	@echo "Performing static code analysis with Cppcheck tool..."
+	../../scripts/cpp_check.sh ../../scripts/cpp_check.dat
+
 # TODO: update with generic solution
 load:
 ifeq ($(HOST_OS), win)

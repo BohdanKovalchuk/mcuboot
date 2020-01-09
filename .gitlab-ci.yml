@@ -9,6 +9,7 @@ variables:
     
 stages:
   - build
+  - cppcheck
   - test
   - sim
   - deploy
@@ -612,6 +613,19 @@ win_build:
       - develop
 
 
+# static code analyzer with Cppcheck tool
+win_cpp_check:
+  stage: cppcheck
+  tags:
+    - MBED_TEST
+  script:
+    - cd boot/cypress/libs/bsp
+    - git clone http://git-ore.aus.cypress.com/repo-staging/TARGET_CY8CPROTO-062-4343W.git
+    - cd ../../../../
+    - cd boot/cypress
+    - make run_cppcheck
+    - cd ../../
+  when: always
 
 .win_test:
   stage: test
