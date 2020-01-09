@@ -38,7 +38,7 @@ stages:
     - cd boot/cypress
     - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
 
-    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=CypressBootloader TARGET=064_2M BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
 
     - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT POST_BUILD=1 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
     
@@ -219,7 +219,7 @@ mac_build:
 ########################### CyBootloader ##############################
 # Build CypressBootloader for CY8CKIT-064S2-4343W 
     - cd boot/cypress
-    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug POST_BUILD=0 DEFINES_USER='-DCY_BOOTLOADER_MAJOR=1 -DCY_BOOTLOADER_MINOR=1 -DCY_BOOTLOADER_REV=0 -DCY_BOOTLOADER_BUILD=424' TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=CypressBootloader TARGET=064_2M BUILDCFG=Debug POST_BUILD=0 DEFINES_USER='-DCY_BOOTLOADER_MAJOR=1 -DCY_BOOTLOADER_MINOR=1 -DCY_BOOTLOADER_REV=0 -DCY_BOOTLOADER_BUILD=424' TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1
     - cd ../..   
 
 # Collect CypressBootloader for CY8CKIT-064S2-4343W deploy
@@ -438,7 +438,7 @@ win_build:
     - > 
       & "make" "app" 
       "APP_NAME=CypressBootloader" 
-      "TARGET=CY8CKIT-064S2-4343W" 
+      "TARGET=064_2M" 
       "BUILDCFG=Debug" 
       "POST_BUILD=0" 
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
@@ -447,7 +447,7 @@ win_build:
     - > 
       & "make" "app" 
       "APP_NAME=CypressBootloader" 
-      "TARGET=CY8CKIT-064B0S2-4343W" 
+      "TARGET=064_2M" 
       "BUILDCFG=Debug" 
       "POST_BUILD=0"
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
