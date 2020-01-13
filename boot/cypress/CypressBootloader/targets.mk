@@ -32,27 +32,27 @@
 # default TARGET
 #TARGET ?= CY8CPROTO-062-4343W-M0
 # this must be 064-series only
-TARGET ?= 064_2M
+TARGET ?= PSOC_064_2M
  
 # 
-TARGETS := 064_2M 064_1M 064_512K
+TARGETS := PSOC_064_2M PSOC_064_1M PSOC_064_512K
 
 # For which core this application is built
 CORE := CM0P
 
 CUR_LIBS_PATH := $(CURDIR)/libs
-PLATFORM_PATH := $(CURDIR)/$(APP_NAME)/platform
+PLATFORM_PATH := $(CURDIR)/platform
 
 # MCU device selection, based on target device.
 # Default chips are used for supported platforms
 # This can be redefined in case of other chip usage
-ifeq ($(TARGET), 064_2M)
+ifeq ($(TARGET), PSOC_064_2M)
 DEVICE ?= CYB0644ABZI-S2D44
 PLATFORM_SUFFIX := 02
-else ifeq ($(TARGET), 064_1M)
+else ifeq ($(TARGET), PSOC_064_1M)
 DEVICE ?= CYB06447BZI-BLD53
 PLATFORM_SUFFIX := 01
-else ifeq ($(TARGET), 064_512K)
+else ifeq ($(TARGET), PSOC_064_512K)
 DEVICE ?= CYB06445LQI-S3D42
 PLATFORM_SUFFIX := 03
 endif
