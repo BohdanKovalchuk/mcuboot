@@ -77,6 +77,8 @@
 
 #include "mcuboot_config/mcuboot_config.h"
 
+#include "bootutil/bootutil_log.h"
+
 #ifdef MCUBOOT_ENC_IMAGES
 #include "bootutil/enc_key.h"
 #endif
@@ -486,18 +488,18 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
                      * Verify the SHA256 image hash.  This must always be
                      * present.
                      */
-                    if (len != sizeof(hash)) {
-                        return -1;
-                    }
-                    rc = flash_area_read(fap, off, buf, sizeof hash);
-                    if (rc) {
-                        return rc;
-                    }
-                    if (memcmp(hash, buf, sizeof(hash))) {
-                        return -1;
-                    }
+                    if (len == sizeof(hash)) {
 
-                    valid_sha256 = 1;
+                        rc = flash_area_read(fap, off, buf, sizeof hash);
+                        if (rc) {
+                            return rc;
+                        }
+
+                        rc = memcmp(hash, buf, sizeof(hash));
+                        if (rc == 0) {
+                            valid_sha256 = 1;
+                        }
+                    }
                 }
                 break;
         #ifdef EXPECTED_SIG_TLV
@@ -550,15 +552,18 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
     }
 
     if (!valid_sha256) {
+        BOOT_LOG_INF("Invalid SHA256 digest of bootable image") ;
         return -1;
     }
 
     if (!valid_image_id) {
+        BOOT_LOG_INF("Invalid image ID of bootable image") ;
         return -1;
     }
 
 #ifdef EXPECTED_SIG_TLV
     if (!valid_signature) {
+        BOOT_LOG_INF("Invalid signature of bootable image") ;
         return -1;
     }
 #endif
