@@ -52,6 +52,18 @@ DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
+
+ifeq ($(TARGET), 064_2M)
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848
+IMAGE_CERT := image_cert
+else ifeq ($(TARGET), 064_1M)
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
+IMAGE_CERT := image_cert
+else ifeq ($(TARGET), 064_512K)
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
+IMAGE_CERT := image_cert_512k
+endif
+
 # multi-image setup ?
 # DEFINES_APP += -DBOOT_IMAGE_NUMBER=1
 
@@ -126,7 +138,7 @@ SOURCES_APP += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypt
 
 # Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)
-LINKER_SCRIPT := $(CUR_APP_PATH)/linker/$(APP_NAME).ld
+LINKER_SCRIPT := $(CUR_APP_PATH)/linker/$(APP_NAME)_$(TARGET).ld
 else
 $(error Only GCC ARM is supported at this moment)
 endif
@@ -137,7 +149,6 @@ post_build: $(OUT_CFG)/$(APP_NAME).hex
 	$(PYTHON_PATH) $(APP_NAME)/scripts/toc3_crc.py $(OUT_CFG)/$(APP_NAME).elf $(OUT_CFG)/$(APP_NAME)_CM0p.hex
 ifeq ($(POST_BUILD), 1)
 	$(info [POST_BUILD] - Creating image certificate for $(APP_NAME))
-	$(PYTHON_PATH) $(APP_NAME)/scripts/image_cert.py -i $(OUT_CFG)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_CFG)/$(APP_NAME)_CM0p.jwt
-endif
+	$(PYTHON_PATH) $(APP_NAME)/scripts/$(IMAGE_CERT).py -i $(OUT_CFG)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_CFG)/$(APP_NAME)_CM0p.jwt
 
 ASM_FILES_APP :=
