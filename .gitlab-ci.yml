@@ -361,9 +361,9 @@ mac_build:
 
     - export APP_NAME=BlinkyApp
     - export TARGET=CY8CKIT-064S2-4343W
+    - export IMG_TYPE=BOOT
     - export MULTI_IMAGE=0
     - export MAKEINFO=0
-    - export IMG_TYPE=BOOT
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -391,9 +391,9 @@ mac_build:
 
     - export APP_NAME=BlinkyApp
     - export TARGET=CY8CKIT-064S2-4343W
+    - export IMG_TYPE=BOOT
     - export MULTI_IMAGE=1
     - export MAKEINFO=0
-    - export IMG_TYPE=BOOT
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -423,8 +423,8 @@ mac_build:
 
     - export APP_NAME=SecureBlinkyApp
     - export TARGET=CY8CKIT-064S2-4343W
-    - export MAKEINFO=0
     - export IMG_TYPE=BOOT
+    - export MAKEINFO=0
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -469,9 +469,9 @@ mac_build:
 
     - export APP_NAME=BlinkyApp
     - export TARGET=CY8CPROTO-062-4343W
+    - export IMG_TYPE=BOOT
     - export MULTI_IMAGE=0
     - export MAKEINFO=0
-    - export IMG_TYPE=BOOT
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -1150,7 +1150,6 @@ win_cpp_check:
   tags:
     - devops-assets
   dependencies:
-    # - win_build
     - mac_test
   only:
     - /^develop$/
