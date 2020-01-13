@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy8c6xx5_cm0plus.ld
+* \file cy8c6xx7_cm0plus.ld
 * \version 2.50
 *
 * Linker file for the GNU C compiler.
@@ -61,12 +61,13 @@ MEMORY
      * Your changes must be aligned with the corresponding memory regions for the CM4 core in 'xx_cm4_dual.ld',
      * where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.ld'.
      */
-c   ram_heap          (rwx)   : ORIGIN = 0x08020000, LENGTH = 0x7000
+    ram_heap          (rwx)   : ORIGIN = 0x08010000, LENGTH = 0x17000
     ram               (rwx)   : ORIGIN = 0x08027000, LENGTH = 0x5000
     public_ram        (rw)    : ORIGIN = 0x0802C000, LENGTH = 0x800
-    flash             (rx)    : ORIGIN = 0x10030000, LENGTH = 0xFE00
+    flash             (rx)    : ORIGIN = 0x100D0000, LENGTH = 0xFE00
     
-    toc_3             (rx)    : ORIGIN = 0x1003FE00, LENGTH = 0x200 /* Used by Secure FlashBoot */
+    toc_3             (rx)    : ORIGIN = 0x100DFE00, LENGTH = 0x200 /* Used by Secure FlashBoot */
+ /* toc_2             (rx)    : ORIGIN = 0x16007C00, LENGTH = 0x200 */ /* For old FlashBoot */
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.
      * You can assign sections to this memory region for only one of the cores.
@@ -185,7 +186,7 @@ SECTIONS
 
     /* To copy multiple ROM to RAM sections,
      * uncomment .copy.table section and,
-     * define __STARTUP_COPY_MULTIPLE in startup_psoc6_02_cm0plus.S */
+     * define __STARTUP_COPY_MULTIPLE in startup_psoc6_01_cm0plus.S */
     .copy.table :
     {
         . = ALIGN(4);
@@ -207,7 +208,7 @@ SECTIONS
 
     /* To clear multiple BSS sections,
      * uncomment .zero.table section and,
-     * define __STARTUP_CLEAR_BSS_MULTIPLE in startup_psoc6_02_cm0plus.S */
+     * define __STARTUP_CLEAR_BSS_MULTIPLE in startup_psoc6_01_cm0plus.S */
     .zero.table :
     {
         . = ALIGN(4);
@@ -407,7 +408,7 @@ SECTIONS
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 __cy_memory_0_start    = 0x10000000;
-__cy_memory_0_length   = 0x00080000;
+__cy_memory_0_length   = 0x00100000;
 __cy_memory_0_row_size = 0x200;
 
 /* Emulated EEPROM Flash area */
