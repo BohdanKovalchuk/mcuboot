@@ -61,7 +61,8 @@ MEMORY
      * Your changes must be aligned with the corresponding memory regions for the CM4 core in 'xx_cm4_dual.ld',
      * where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.ld'.
      */
-    ram               (rwx)   : ORIGIN = 0x08020000, LENGTH = 0xC000
+    ram_heap          (rwx)   : ORIGIN = 0x08020000, LENGTH = 0x8000
+    ram               (rwx)   : ORIGIN = 0x08028000, LENGTH = 0x4000
     public_ram        (rw)    : ORIGIN = 0x0802C000, LENGTH = 0x800
     flash             (rx)    : ORIGIN = 0x10030000, LENGTH = 0xFE00
     
