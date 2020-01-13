@@ -208,7 +208,7 @@ int flash_device_base(uint8_t fd_id, uintptr_t *ret)
                      fd_id, FLASH_DEVICE_INTERNAL_FLASH);
         return -1;
     }
-    *ret = CY_FLASH_BASE; 
+    *ret = CY_FLASH_BASE;
     return 0;
 }
 
@@ -264,6 +264,10 @@ int flash_area_read(const struct flash_area *fa, uint32_t off, void *dst,
     {
         /* incorrect/non-existing flash device id */
         rc = -1;
+    }
+
+    if (rc != 0) {
+        BOOT_LOG_ERR("Flash area read error, rc = %d", (int)rc);
     }
 
     return rc;

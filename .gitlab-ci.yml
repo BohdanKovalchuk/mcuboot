@@ -13,18 +13,18 @@ variables:
     CY_BOOTLOADER_BUILD: 424
 
 .cleanup_build_params: &cleanup_build_params
-    - export APP_NAME=''
-    - export APP_SUFX=''
-    - export HEX_NAME=''
-    - export SLOT=''
-    - export TARGET=''
-    - export BUILDCFG=Debug
-    - export IMG_TYPE=''
-    - export MULTI_IMAGE=''
-    - export MAKEINFO=0
-    - export POST_BUILD=0
-    - export HEADER_OFFSET=''
-    - export DEFINES_USER=''
+    - unset APP_NAME
+    - unset APP_SUFX
+    - unset HEX_NAME
+    - unset SLOT
+    - unset TARGET
+    - unset BUILDCFG
+    - unset IMG_TYPE
+    - unset MULTI_IMAGE
+    - unset MAKEINFO
+    - unset POST_BUILD
+    - unset HEADER_OFFSET
+    - unset DEFINES_USER
 
 .make_signed_app: &make_signed_app
     # Collect CypressBootloader for ${TARGET}
@@ -114,7 +114,7 @@ variables:
     - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/*.map  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
 
     # Collect App for deploy
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/$HEX_NAME.hex ./deploy/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME$SUFX.hex
+    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/$HEX_NAME$SUFX.hex ./deploy/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME$SUFX.hex
 
 stages:
   - build
@@ -361,10 +361,9 @@ mac_build:
 
     - export APP_NAME=BlinkyApp
     - export TARGET=CY8CKIT-064S2-4343W
-    - export IMG_TYPE=BOOT
     - export MULTI_IMAGE=0
-    - export POST_BUILD=1
     - export MAKEINFO=0
+    - export IMG_TYPE=BOOT
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -392,10 +391,9 @@ mac_build:
 
     - export APP_NAME=BlinkyApp
     - export TARGET=CY8CKIT-064S2-4343W
-    - export IMG_TYPE=BOOT
     - export MULTI_IMAGE=1
-    - export POST_BUILD=1
     - export MAKEINFO=0
+    - export IMG_TYPE=BOOT
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -425,9 +423,8 @@ mac_build:
 
     - export APP_NAME=SecureBlinkyApp
     - export TARGET=CY8CKIT-064S2-4343W
-    - export IMG_TYPE=BOOT
-    - export POST_BUILD=1
     - export MAKEINFO=0
+    - export IMG_TYPE=BOOT
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -459,7 +456,6 @@ mac_build:
     - export APP_NAME=MCUBootApp
     - export TARGET=CY8CPROTO-062-4343W
     - export MULTI_IMAGE=0
-    - export POST_BUILD=0
     - export MAKEINFO=0
 
     - export BUILDCFG=Debug
@@ -473,10 +469,9 @@ mac_build:
 
     - export APP_NAME=BlinkyApp
     - export TARGET=CY8CPROTO-062-4343W
-    - export IMG_TYPE=BOOT
     - export MULTI_IMAGE=0
-    - export POST_BUILD=1
     - export MAKEINFO=0
+    - export IMG_TYPE=BOOT
 
     - export BUILDCFG=Debug
     - *make_boot_app
@@ -549,6 +544,10 @@ mac_test:
 
     - deactivate
 
+  artifacts:
+    expire_in: 1 weeks
+    paths:
+      - deploy
 
 win_build:
   stage: build
@@ -1151,7 +1150,8 @@ win_cpp_check:
   tags:
     - devops-assets
   dependencies:
-    - win_build
+    # - win_build
+    - mac_test
   only:
     - /^develop$/
     - /^cypress$/
