@@ -67,7 +67,7 @@ $(error "Not suppoted target name $(TARGET)")
 endif
 
 # multi-image setup ?
-# DEFINES_APP += -DBOOT_IMAGE_NUMBER=1
+DEFINES_APP += -DMCUBOOT_IMAGE_NUMBER=1
 
 # Use external flash map descriptors since flash map is driven by policy
 DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
