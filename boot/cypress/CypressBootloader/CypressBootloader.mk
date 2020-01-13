@@ -53,15 +53,17 @@ DEFINES_APP += -DCORE=$(CORE)
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
 
-ifeq ($(TARGET), 064_2M)
+ifeq ($(TARGET), PSOC_064_2M)
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848
 IMAGE_CERT := image_cert
-else ifeq ($(TARGET), 064_1M)
+else ifeq ($(TARGET), PSOC_064_1M)
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
 IMAGE_CERT := image_cert
-else ifeq ($(TARGET), 064_512K)
+else ifeq ($(TARGET), PSOC_064_512K)
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
 IMAGE_CERT := image_cert_512k
+else
+$(error "Not suppoted target name $(TARGET)")
 endif
 
 # multi-image setup ?
