@@ -41,7 +41,7 @@ TARGETS := PSOC_064_2M PSOC_064_1M PSOC_064_512K
 CORE := CM0P
 
 CUR_LIBS_PATH := $(CURDIR)/libs
-PLATFORM_PATH := $(CURDIR)/platform
+PLATFORM_PATH := $(CURDIR)/platforms
 
 # MCU device selection, based on target device.
 # Default chips are used for supported platforms
