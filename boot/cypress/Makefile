@@ -39,7 +39,7 @@ endif
 MAKEINFO ?= 1
 # Application name by default
 APP_NAME ?= MCUBootApp
-# Weather or now execure post build script after build - set to 0 for CI
+# Weather or now execute post build script after build - set to 0 for CI
 POST_BUILD ?= 1
 
 SIGN_KEY_FILE ?= cypress-test-ec-p256
@@ -80,7 +80,7 @@ INCLUDE_DIRS += $(INCLUDE_DIRS_LIBS)
 
 #INCLUDE_FILES := $(INCLUDE_FILES_APP)
 
-#INCLUDES := $(addprefix -include , $(INCLUDE_FILES)) 
+#INCLUDES := $(addprefix -include , $(INCLUDE_FILES))
 
 O_FILES := $(notdir $(C_FILES:.c=.o)) $(addsuffix .o, $(notdir $(basename $(ASM_FILES))))
 
@@ -99,7 +99,6 @@ $(info = Collected Defines string: =)
 $(info ==============================================================================)
 $(info $(DEFINES))
 endif
-DEFINES +=
 
 # updating CFLAGS at this point as DEFINES are completed
 CFLAGS += $(DEFINES)
@@ -143,17 +142,12 @@ app:
 	@`mkdir -p ./$(OUT_OBJ)`
 	$(MAKE) pre_build
 	$(MAKE) build -j8
-ifeq ($(POST_BUILD), 1)
 	$(MAKE) post_build
-endif
 
 build: $(OUT_APP)/$(APP_NAME).hex
 	$(GCC_PATH)/bin/arm-none-eabi-objdump $(OUT_APP)/$(APP_NAME).hex -s > $(OUT_APP)/$(APP_NAME).lst
+	$(GCC_PATH)/bin/arm-none-eabi-objdump -h $(OUT_APP)/$(APP_NAME).elf
 	$(GCC_PATH)/bin/arm-none-eabi-size --format=SysV $(OUT_APP)/$(APP_NAME).elf
-ifeq ($(APP_NAME), CypressBootloader)
-	$(info [POST_BUILD] - Calculating CRC of TOC3 for $(APP_NAME))
-	$(PYTHON_PATH) $(APP_NAME)/scripts/toc3_crc.py $(OUT_CFG)/$(APP_NAME).elf $(OUT_CFG)/$(APP_NAME)_CM0p.hex
-endif
 
 $(OUT_APP)/$(APP_NAME).hex: $(OUT_APP)/$(APP_NAME).elf
 	$(GCC_PATH)/bin/arm-none-eabi-objcopy --change-addresses=$(HEADER_OFFSET) -O ihex $(OUT_APP)/$(APP_NAME).elf $(OUT_APP)/$(APP_NAME).hex
@@ -235,7 +229,7 @@ gen_key_ecc256:
 	../../scripts/imgtool.py getpub -k keys/$(SIGN_KEY_FILE).pem > keys/$(SIGN_KEY_FILE).pub
 
 size:
-	
+
 
 ifeq ($(MAKEINFO) , 1)
 $(info ASM_FILES: $(ASM_FILES))
