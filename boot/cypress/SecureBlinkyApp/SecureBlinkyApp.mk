@@ -99,6 +99,7 @@ $(error Only GCC ARM is supported at this moment)
 endif
 
 ASM_FILES_APP :=
+ASM_FILES_APP += $(ASM_FILES_PLATFORM)
 
 IMGTOOL_PATH ?=	../../scripts/imgtool.py
 

@@ -84,14 +84,15 @@ void check_result(int res)
 
 void test_app_init_hardware(void)
 {
-    cybsp_init();
+// TODO:    cybsp_init();
 
     /* enable interrupts */
     __enable_irq();
 
     /* Initialize retarget-io to use the debug UART port */
-    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
-                                     CY_RETARGET_IO_BAUDRATE));
+// TODO:
+//    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
+//                                     CY_RETARGET_IO_BAUDRATE));
 
     printf("======================================\r\n");
     printf(GREETING_MESSAGE_VER);
