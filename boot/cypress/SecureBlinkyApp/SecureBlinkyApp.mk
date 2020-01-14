@@ -81,7 +81,7 @@ SOURCES_APP += $(SOURCES_PLATFORM)
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/protections)
-INCLUDE_DIRS_APP += $(INCLUDE_DIRS_PLATFORM)
+INCLUDE_DIRS_APP += $(addprefix -I, $(INCLUDE_DIRS_PLATFORM))
 
 # INCLUDES_DIRS_MCUBOOT := $(addprefix -I, $(CURDIR)/../bootutil/src)
 
