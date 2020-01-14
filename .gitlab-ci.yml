@@ -18,6 +18,7 @@ variables:
     - unset HEX_NAME
     - unset SLOT
     - unset TARGET
+    - unset PLATFORM
     - unset BUILDCFG
     - unset IMG_TYPE
     - unset MULTI_IMAGE
@@ -55,10 +56,10 @@ variables:
     - cp -r ./signed/*.jwt ./develop/$TARGET/$APP_NAME/$BUILDCFG/
 
 .make_cybootloader_app: &make_cybootloader_app
-    # Collect CypressBootloader for ${TARGET}
+    # Collect CypressBootloader for ${PLATFORM}
     - echo '================================================================================================='
     - echo '=== Build CypressBootloader application'
-    - echo '=== Target = $TARGET, BUILDCFG = $BUILDCFG, MAKEINFO = $MAKEINFO'
+    - echo '=== PLATFORM = $PLATFORM, BUILDCFG = $BUILDCFG, MAKEINFO = $MAKEINFO'
     - echo '================================================================================================='
     - export APP_NAME=CypressBootloader
     - export HEX_NAME=CypressBootloader_CM0p
@@ -67,25 +68,25 @@ variables:
     # - *make_signed_app
     - cd boot/cypress
     - make clean APP_NAME=$APP_NAME
-    - make app APP_NAME=$APP_NAME TARGET=$TARGET BUILDCFG=$BUILDCFG MAKEINFO=$MAKEINFO POST_BUILD=0
+    - make app APP_NAME=$APP_NAME PLATFORM=$PLATFORM BUILDCFG=$BUILDCFG MAKEINFO=$MAKEINFO POST_BUILD=0
     - cd ../..
-    - mkdir -p ./deploy/$TARGET/$APP_NAME/$BUILDCFG
-    - mkdir -p ./develop/$TARGET/$APP_NAME/$BUILDCFG
+    - mkdir -p ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG
+    - mkdir -p ./develop/$PLATFORM/$APP_NAME/$BUILDCFG
     #
-    # - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$HEX_NAME.hex ./deploy/$TARGET/$APP_NAME/$BUILDCFG/
-    # - sh cysign_bootloader -f ./deploy/$TARGET/$APP_NAME/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
-    - sh cysign_bootloader -f boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
+    # - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$HEX_NAME.hex ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/
+    # - sh cysign_bootloader -f ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
+    - sh cysign_bootloader -f boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
 
-    # Collect CypressBootloader for ${TARGET} develop
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.hex ./develop/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.lst ./develop/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.elf ./develop/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.map ./develop/$TARGET/$APP_NAME/$BUILDCFG/
+    # Collect CypressBootloader for ${PLATFORM} develop
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.hex ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.lst ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.elf ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.map ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
 
-    # Collect Signed application for ${TARGET} deploy
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$HEX_NAME.hex ./deploy/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r ./signed/*.jwt ./deploy/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r ./signed/*.jwt ./develop/$TARGET/$APP_NAME/$BUILDCFG/
+    # Collect Signed application for ${PLATFORM} deploy
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$HEX_NAME.hex ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r ./signed/*.jwt ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r ./signed/*.jwt ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
 
 .make_boot_app: &make_boot_app
     # Build boot application
@@ -148,8 +149,11 @@ stages:
     - cd boot/cypress
     - make app APP_NAME=MCUBootApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
 
-    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
-    - make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W BUILDCFG=Release POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=CypressBootloader PLATFORM=PSOC_064_2M BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=CypressBootloader PLATFORM=PSOC_064_2M BUILDCFG=Release POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+
+    - make app APP_NAME=CypressBootloader PLATFORM=PSOC_064_512K BUILDCFG=Debug POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
+    - make app APP_NAME=CypressBootloader PLATFORM=PSOC_064_512K BUILDCFG=Release POST_BUILD=0 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
 
     - make app APP_NAME=BlinkyApp TARGET=CY8CPROTO-062-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=BOOT POST_BUILD=1 TOOLCHAIN_PATH=/home/fw-security/ModusToolbox/tools_2.0/gcc-7.2.1
 
@@ -209,19 +213,33 @@ stages:
 
 ############################################################# CY8CKIT-064S2-4343W ############################################################################
 
-# Collect CypressBootloader for CY8CKIT-064S2-4343W deploy
-    - mkdir -p ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug
-    - mkdir -p ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug
-    - cp -r boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/CypressBootloader_CM0p.hex ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/
-    - cysign_bootloader -f ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    - cp -r ./signed/*.jwt ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/
-    - cp -r ./signed/*.jwt ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/
+# Collect CypressBootloader for PSOC_064_2M deploy
+    - mkdir -p ./deploy/PSOC_064_2M/CypressBootloader/Debug
+    - mkdir -p ./develop/PSOC_064_2M/CypressBootloader/Debug
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/CypressBootloader_CM0p.hex ./deploy/PSOC_064_2M/CypressBootloader/Debug/
+    - cysign_bootloader -f ./deploy/PSOC_064_2M/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    - cp -r ./signed/*.jwt ./deploy/PSOC_064_2M/CypressBootloader/Debug/
+    - cp -r ./signed/*.jwt ./develop/PSOC_064_2M/CypressBootloader/Debug/
 
-# Collect CypressBootloader for CY8CKIT-064S2-4343W develop
-    - cp -r boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.hex ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/
-    - cp -r boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.lst ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/
-    - cp -r boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.elf ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/
-    - cp -r boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.map ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/
+# Collect CypressBootloader for PSOC_064_2M develop
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.hex ./develop/PSOC_064_2M/CypressBootloader/Debug/
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.lst ./develop/PSOC_064_2M/CypressBootloader/Debug/
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.elf ./develop/PSOC_064_2M/CypressBootloader/Debug/
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.map ./develop/PSOC_064_2M/CypressBootloader/Debug/
+
+# Collect CypressBootloader for PSOC_064_512K deploy
+    - mkdir -p ./deploy/PSOC_064_512K/CypressBootloader/Debug
+    - mkdir -p ./develop/PSOC_064_512K/CypressBootloader/Debug
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/CypressBootloader_CM0p.hex ./deploy/PSOC_064_512K/CypressBootloader/Debug/
+    - cysign_bootloader -f ./deploy/PSOC_064_512K/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    - cp -r ./signed/*.jwt ./deploy/PSOC_064_512K/CypressBootloader/Debug/
+    - cp -r ./signed/*.jwt ./develop/PSOC_064_512K/CypressBootloader/Debug/
+
+# Collect CypressBootloader for PSOC_064_512K develop
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.hex ./develop/PSOC_064_512K/CypressBootloader/Debug/
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.lst ./develop/PSOC_064_512K/CypressBootloader/Debug/
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.elf ./develop/PSOC_064_512K/CypressBootloader/Debug/
+    - cp -r boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.map ./develop/PSOC_064_512K/CypressBootloader/Debug/
 
     - cd boot/cypress
     - make clean APP_NAME=BlinkyApp TARGET=CY8CKIT-064S2-4343W
@@ -327,26 +345,26 @@ mac_build:
     - git submodule update --init --recursive
 
     ########################### CyBootloader ##############################
-    # Build CypressBootloader for CY8CKIT-064S2-4343W
+    # Build CypressBootloader for PSOC_064_2M family
     - *cleanup_build_params
 
-    - export TARGET=CY8CKIT-064S2-4343W
+    - export PLATFORM=PSOC_064_2M
     - export BUILDCFG=Debug
     - export MAKEINFO=1
     - *make_cybootloader_app
 
-    - export TARGET=CY8CKIT-064S2-4343W
+    - export PLATFORM=PSOC_064_2M
     - export BUILDCFG=Release
     - export MAKEINFO=0
     - *make_cybootloader_app
 
-    # Build CypressBootloader for CY8CKIT-064B0S2-4343W
-    - export TARGET=CY8CKIT-064B0S2-4343W
+    # Build CypressBootloader for PSOC_064_512K family
+    - export PLATFORM=PSOC_064_512K
     - export BUILDCFG=Debug
     - export MAKEINFO=1
     - *make_cybootloader_app
 
-    - export TARGET=CY8CKIT-064B0S2-4343W
+    - export PLATFORM=PSOC_064_512K
     - export BUILDCFG=Release
     - export MAKEINFO=0
     - *make_cybootloader_app
@@ -583,7 +601,7 @@ win_build:
     - >
       & "make" "app"
       "APP_NAME=CypressBootloader"
-      "TARGET=CY8CKIT-064S2-4343W"
+      "PLATFORM=PSOC_064_2M"
       "BUILDCFG=Debug"
       "POST_BUILD=0"
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
@@ -592,7 +610,7 @@ win_build:
     - >
       & "make" "app"
       "APP_NAME=CypressBootloader"
-      "TARGET=CY8CKIT-064S2-4343W"
+      "PLATFORM=PSOC_064_2M"
       "BUILDCFG=Release"
       "POST_BUILD=0"
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
@@ -601,7 +619,7 @@ win_build:
     - >
       & "make" "app"
       "APP_NAME=CypressBootloader"
-      "TARGET=CY8CKIT-064B0S2-4343W"
+      "PLATFORM=PSOC_064_512K"
       "BUILDCFG=Debug"
       "POST_BUILD=0"
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
@@ -610,7 +628,7 @@ win_build:
     - >
       & "make" "app"
       "APP_NAME=CypressBootloader"
-      "TARGET=CY8CKIT-064B0S2-4343W"
+      "PLATFORM=PSOC_064_512K"
       "BUILDCFG=Release"
       "POST_BUILD=0"
       "DEFINES_USER=`"-DCY_BOOTLOADER_MAJOR=$Env:MAJOR_VERSION -DCY_BOOTLOADER_MINOR=$Env:MINOR_VERSION -DCY_BOOTLOADER_REV=$Env:PATCH_VERSION -DCY_BOOTLOADER_BUILD=$Env:BUILD_NUMBER`""
