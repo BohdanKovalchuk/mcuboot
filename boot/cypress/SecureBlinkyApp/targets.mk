@@ -53,21 +53,21 @@ $(error Variable CY_SEC_TOOLS_PATH - path to cysecuretools package not set. \
 endif
 
 # Collect dirrectories containing headers for TARGET BSP
-INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
-INCLUDE_DIRS_BSP += $(BSP_PATH)/startup
-INCLUDE_DIRS_BSP += $(BSP_PATH)
-INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/bsp/psoc6hal/include
+#INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
+#INCLUDE_DIRS_BSP += $(BSP_PATH)/startup
+#INCLUDE_DIRS_BSP += $(BSP_PATH)
+#INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/bsp/psoc6hal/include
 
 # Collect C source files for TARGET BSP
-SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
+#SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
 #SOURCES_BSP += $(wildcard $(BSP_PATH)/COMPONENT_$(CORE)/*.c)
-SOURCES_BSP += $(BSP_PATH)/COMPONENT_$(CORE)/system_psoc6_cm0plus.c
+#SOURCES_BSP += $(BSP_PATH)/COMPONENT_$(CORE)/system_psoc6_cm0plus.c
 # exclude CapSense for now
-SOURCES_BSP := $(filter-out $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_capsense.c, \
+SOURCES_BSP := $(filter-out #$(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_capsense.c, \
 				 $(SOURCES_BSP))
-SOURCES_BSP += $(BSP_PATH)/cybsp.c
-SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
-SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
+#SOURCES_BSP += $(BSP_PATH)/cybsp.c
+#SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
+#SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
 
 # Collect Assembler files for TARGET BSP
 # TODO: need to include _01_, _02_ or _03_ depending on device family.

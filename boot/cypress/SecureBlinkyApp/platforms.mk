@@ -42,7 +42,7 @@ CORE := CM0P
 
 # Set paths for related folders
 CUR_LIBS_PATH := $(CURDIR)/libs
-PLATFORM_PATH := $(CURDIR)/platforms
+PLATFORM_PATH := $(CURDIR)/platforms/$(PLATFORM)
 
 # MCU device selection, based on target device.
 # Default chips are used for supported platforms
@@ -65,11 +65,13 @@ endif
 DEFINES:=CY_USING_HAL
 
 # Collect C source files for PLATFORM BSP
+SOURCES_PLATFORM += $(wildcard $(PLATFORM_PATH)/*.c)
 # SOURCES_BSP += $(wildcard $(PLATFORM_PATH)/*.c)
 # SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
 # SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
 
 # Collect dirrectories containing headers for PLATFORM BSP
+INCLUDE_DIRS_PLATFORM := $(PLATFORM_PATH)
 # INCLUDE_DIRS_BSP := $(PLATFORM_PATH)
 # INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/bsp/psoc6hal/include
 # Collect Assembler files for PLATFORM BSP
@@ -83,13 +85,13 @@ STARTUP_FILE := $(PLATFORM_PATH)/$(PLATFORM)/$(CORE)/$(COMPILER)/startup_psoc6_$
 # endif
 
 # Add device name from BSP makefile to defines
-DEFINES += $(DEVICE)
-DEFINES += $(COMPONENTS)
+DEFINES_PLATFORM += $(DEVICE)
+#DEFINES += $(COMPONENTS)
 
-# Get defines from BSP makefile and convert it to regular -DMY_NAME style 
-# ifneq ($(DEFINES),)
-	# DEFINES_BSP :=$(addprefix -D, $(subst -,_,$(DEFINES)))
-# endif
+# Get defines from platform makefile and convert it to regular -DMY_NAME style 
+#ifneq ($(DEFINES),)
+#	 :=$(addprefix -D, $(subst -,_,$(DEFINES)))
+#endif
 
 ifeq ($(COMPILER), GCC_ARM)
 LINKER_SCRIPT ?= $(PLATFORM_PATH)/$(PLATFORM)/$(CORE)/$(COMPILER)/*_cm0plus.ld
@@ -101,6 +103,6 @@ ifeq ($(MAKEINFO) , 1)
 $(info ==============================================================================)
 #$(info = BSP files =)
 $(info ==============================================================================)
-$(info $(SOURCES_BSP))
-$(info $(ASM_FILES_BSP))
+#$(info $(SOURCES_BSP))
+#$(info $(ASM_FILES_BSP))
 endif

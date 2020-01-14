@@ -75,11 +75,13 @@ SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson
 # Collect all the sources
 SOURCES_APP += $(SOURCES_APP_SRC)
 SOURCES_APP += $(SOURCES_SECBOOT_UTILS)
+SOURCES_APP += $(SOURCES_PLATFORM)
 
 # Collect includes for BlinkyApp
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/protections)
+INCLUDE_DIRS_APP += $(INCLUDE_DIRS_PLATFORM)
 
 # INCLUDES_DIRS_MCUBOOT := $(addprefix -I, $(CURDIR)/../bootutil/src)
 
