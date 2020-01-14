@@ -48,12 +48,12 @@ INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
 
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
-SOURCES_LIBS += $(SOURCES_BSP)
+SOURCES_LIBS += $(SOURCES_PLATFORM)
 SOURCES_LIBS += $(SOURCES_RETARGET_IO)
 
 # Collected include directories for libraries
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
-INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_BSP))
+INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_PLATFORM))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
 
 ################################################################################
@@ -81,10 +81,10 @@ $(error Only GCC ARM is supported at this moment)
 endif
 
 ASM_FILES_LIBS := $(ASM_FILES_PDL)
-ASM_FILES_LIBS += $(ASM_FILES_BSP)
+ASM_FILES_LIBS += $(ASM_FILES_PLATFORM)
 
 # Add define for PDL version
 DEFINES_PDL += -DPDL_VERSION=$(PDL_VERSION)
 
-DEFINES_LIBS := $(DEFINES_BSP)
+DEFINES_LIBS := $(DEFINES_PLATFORM)
 DEFINES_LIBS += $(DEFINES_PDL)

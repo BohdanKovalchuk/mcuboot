@@ -43,8 +43,6 @@ include $(CUR_APP_PATH)/toolchains.mk
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
-# BSP does not define this macro for CM0p so define it here
-DEFINES_APP += -DCY_USING_HAL
 
 # add start address for each target device, since flash size is different
 # define maximum image sectors and choose script name for certificate generation
@@ -136,7 +134,7 @@ INCLUDE_FILES_APP := $(addprefix $(CURDIR)/../bootutil/src/, $(INCLUDE_FILES_MCU
 # Collect Utils sources
 SOURCES_APP += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypto/*.c)
 
-# Overwite path to linker script if custom is required, otherwise default from BSP is used
+# Overwite path to linker script if custom is required, otherwise platform default is used
 ifeq ($(COMPILER), GCC_ARM)
 LINKER_SCRIPT := $(CUR_APP_PATH)/linker/$(APP_NAME)_$(PLATFORM).ld
 else
