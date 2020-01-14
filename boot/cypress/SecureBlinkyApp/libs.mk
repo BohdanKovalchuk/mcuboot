@@ -3,7 +3,7 @@
 # \version 1.0
 #
 # \brief
-# Makefile to describe libraries needed for Cypress MCUBoot based applications.
+# Makefile to describe libraries needed for Cypress MCUBoot-based applications.
 #
 ################################################################################
 # \copyright
@@ -41,7 +41,7 @@ INCLUDE_DIRS_PDL := $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/include
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/devices/include/ip
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/devices/include
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/cmsis/include
-INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/bsp/core-lib/include
+#INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/bsp/core-lib/include
 
 # Retarget-io related include directories
 INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
@@ -51,12 +51,12 @@ INCLUDE_DIRS_MBEDTLS := $(CUR_LIBS_PATH)/mbedtls/crypto/include
 
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
-SOURCES_LIBS += $(SOURCES_BSP)
+# SOURCES_LIBS += $(SOURCES_BSP)
 SOURCES_LIBS += $(SOURCES_RETARGET_IO)
 
 # Collected include directories for libraries
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
-INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_BSP))
+# INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_BSP))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_MBEDTLS))
 
@@ -68,10 +68,10 @@ $(error Only GCC ARM is supported at this moment)
 endif
 
 ASM_FILES_LIBS := $(ASM_FILES_PDL)
-ASM_FILES_LIBS += $(ASM_FILES_BSP)
+#ASM_FILES_LIBS += $(ASM_FILES_BSP)
 
 # Add define for PDL version
 DEFINES_PDL += -DPDL_VERSION=$(PDL_VERSION)
 
-DEFINES_LIBS := $(DEFINES_BSP)
+#DEFINES_LIBS := $(DEFINES_BSP)
 DEFINES_LIBS += $(DEFINES_PDL)

@@ -1,5 +1,5 @@
 ################################################################################
-# \file targets.mk
+# \file SecureBlinkyApp.mk
 # \version 1.0
 #
 # \brief
@@ -43,7 +43,8 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
-include $(CUR_APP_PATH)/targets.mk
+#include $(CUR_APP_PATH)/targets.mk
+include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
 
@@ -59,6 +60,7 @@ endif
 DEFINES_APP += -DSECURE_APP_START=0x10000000
 SLOT_SIZE ?= 0x10000
 
+# TODO: remove it?
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
 
@@ -87,8 +89,8 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_jwt)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson/cJSON)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_base64)
 
-# Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)
+# TODO: do we need platform-dependent linker?
 LINKER_SCRIPT := $(subst /cygdrive/c,c:,$(CUR_APP_PATH)/linker/$(APP_NAME).ld)
 else
 $(error Only GCC ARM is supported at this moment)
@@ -108,9 +110,9 @@ endif
 # Output folder
 OUT := $(APP_NAME)/out
 # Output folder to contain build artifacts
-OUT_TARGET := $(OUT)/$(TARGET)
+OUT_PLATFORM := $(OUT)/$(PLATFORM)
 
-OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
+OUT_CFG := $(OUT_PLATFORM)/$(BUILDCFG)
 
 # Set build directory for BOOT and UPGRADE images
 ifeq ($(IMG_TYPE), BOOT)
@@ -120,6 +122,7 @@ else
 endif
 
 # Determine path to policy file if multi image is used
+# TODO:
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
 
 pre_build:
@@ -127,6 +130,7 @@ pre_build:
 	@$(CC) -E -x c $(CFLAGS) $(INCLUDE_DIRS) $(CUR_APP_PATH)/linker/$(APP_NAME)_template.ld | grep -v '^#' >$(CUR_APP_PATH)/linker/$(APP_NAME).ld
 
 # Post build action to execute after main build job
+# TODO: how to deal w/ device_name in cysecuretools?
 post_build: $(OUT_CFG)/$(APP_NAME).hex
 	$(info [POST_BUILD] - Executing post build script for $(APP_NAME))
 	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
