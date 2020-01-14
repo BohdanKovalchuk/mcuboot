@@ -157,5 +157,5 @@ post_build: $(OUT_CFG)/$(APP_NAME).hex
 ifeq ($(POST_BUILD), 1)
 	$(info [POST_BUILD] - Creating image certificate for $(APP_NAME))
 	$(PYTHON_PATH) $(APP_NAME)/scripts/$(IMAGE_CERT).py -i $(OUT_CFG)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_CFG)/$(APP_NAME)_CM0p.jwt
-
+endif
 ASM_FILES_APP :=

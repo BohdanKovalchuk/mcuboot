@@ -94,11 +94,6 @@ IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
 SIGN_ARGS := sign --header-size 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
-# Set build directory for BOOT and UPGRADE images
-ifeq ($(IMG_TYPE), UPGRADE)
-	SIGN_ARGS += --pad
-	UPGRADE_SUFFIX :=_upgrade
-
 # Output folder
 OUT := $(APP_NAME)/out
 # Output folder to contain build artifacts
@@ -107,9 +102,9 @@ OUT_TARGET := $(OUT)/$(TARGET)
 OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 
 # Set build directory for BOOT and UPGRADE images
-ifeq ($(IMG_TYPE), BOOT)
-	OUT_CFG := $(OUT_CFG)/boot
-else
+ifeq ($(IMG_TYPE), UPGRADE)
+	SIGN_ARGS += --pad
+	UPGRADE_SUFFIX :=_upgrade
 	OUT_CFG := $(OUT_CFG)/upgrade
 else
 	OUT_CFG := $(OUT_CFG)/boot
