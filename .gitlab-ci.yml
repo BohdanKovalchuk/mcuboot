@@ -533,8 +533,8 @@ mac_test:
     - rm -rf ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8cproto_064s2_sb/prebuilt/CyBootloader_Release
     - rm ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8cproto_064s2_sb/prebuilt/CyBootloader_WithLogs/CypressBootloader_CM0p.jwt
     - rm ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8cproto_064s2_sb/prebuilt/CyBootloader_WithLogs/CypressBootloader_CM0p.hex
-    - cp -r ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/*.hex ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8cproto_064s2_sb/prebuilt/CyBootloader_WithLogs/
-    - cp -r ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/*.jwt ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8cproto_064s2_sb/prebuilt/CyBootloader_WithLogs/
+    - cp -r ./develop/PSOC_064_2M/CypressBootloader/Debug/*.hex ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8cproto_064s2_sb/prebuilt/CyBootloader_WithLogs/
+    - cp -r ./develop/PSOC_064_2M/CypressBootloader/Debug/*.jwt ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8cproto_064s2_sb/prebuilt/CyBootloader_WithLogs/
 
     - echo "[INFO] Start tests"
 
@@ -805,24 +805,24 @@ win_build:
 
 
 
-############################################################# CY8CKIT-064S2-4343W (Debug) ############################################################################
+############################################################# PSOC_064_2M (Debug) ############################################################################
 
-# Collect CypressBootloader for CY8CKIT-064S2-4343W deploy
+# Collect CypressBootloader for PSOC_064_2M deploy
     # deploy is disabled
-    # - New-Item -ItemType Directory -Path ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug
-    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug
+    # - New-Item -ItemType Directory -Path ./deploy/PSOC_064_2M/CypressBootloader/Debug
+    - New-Item -ItemType Directory -Path ./develop/PSOC_064_2M/CypressBootloader/Debug
     # deploy is disabled
-    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/CypressBootloader_CM0p.hex  -Destination ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
-    # - sh cysign_bootloader -f ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
-    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/CypressBootloader_CM0p.hex  -Destination ./deploy/PSOC_064_2M/CypressBootloader/Debug/ -Recurse
+    # - sh cysign_bootloader -f ./deploy/PSOC_064_2M/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/PSOC_064_2M/CypressBootloader/Debug/ -Recurse
+    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/PSOC_064_2M/CypressBootloader/Debug/ -Recurse
 
-# Collect CypressBootloader for CY8CKIT-064S2-4343W develop
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Debug/*.map -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Debug/ -Recurse
+# Collect CypressBootloader for PSOC_064_2M develop
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.hex -Destination ./develop/PSOC_064_2M/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.lst -Destination ./develop/PSOC_064_2M/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.elf -Destination ./develop/PSOC_064_2M/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Debug/*.map -Destination ./develop/PSOC_064_2M/CypressBootloader/Debug/ -Recurse
 
     - cd boot/cypress
     - >
@@ -877,24 +877,24 @@ win_build:
     - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Debug/upgrade/ -Recurse
 
 
-############################################################# CY8CKIT-064S2-4343W (Release) ############################################################################
+############################################################# PSOC_064_2M (Release) ############################################################################
 
-# Collect CypressBootloader for CY8CKIT-064S2-4343W deploy
+# Collect CypressBootloader for PSOC_064_2M deploy
     # deploy is disabled
-    # - New-Item -ItemType Directory -Path ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Release
-    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Release
+    # - New-Item -ItemType Directory -Path ./deploy/PSOC_064_2M/CypressBootloader/Release
+    - New-Item -ItemType Directory -Path ./develop/PSOC_064_2M/CypressBootloader/Release
     # deploy is disabled
-    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Release/CypressBootloader_CM0p.hex  -Destination ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Release/ -Recurse
-    # - sh cysign_bootloader -f ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/CY8CKIT-064S2-4343W/CypressBootloader/Release/ -Recurse
-    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Release/ -Recurse
+    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Release/CypressBootloader_CM0p.hex  -Destination ./deploy/PSOC_064_2M/CypressBootloader/Release/ -Recurse
+    # - sh cysign_bootloader -f ./deploy/PSOC_064_2M/CypressBootloader/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/PSOC_064_2M/CypressBootloader/Release/ -Recurse
+    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/PSOC_064_2M/CypressBootloader/Release/ -Recurse
 
-# Collect CypressBootloader for CY8CKIT-064S2-4343W develop
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Release/*.hex -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Release/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Release/*.lst -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Release/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Release/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Release/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064S2-4343W/Release/*.map -Destination ./develop/CY8CKIT-064S2-4343W/CypressBootloader/Release/ -Recurse
+# Collect CypressBootloader for PSOC_064_2M develop
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Release/*.hex -Destination ./develop/PSOC_064_2M/CypressBootloader/Release/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Release/*.lst -Destination ./develop/PSOC_064_2M/CypressBootloader/Release/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Release/*.elf -Destination ./develop/PSOC_064_2M/CypressBootloader/Release/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_2M/Release/*.map -Destination ./develop/PSOC_064_2M/CypressBootloader/Release/ -Recurse
 
     - cd boot/cypress
     - >
@@ -948,24 +948,24 @@ win_build:
     - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Release/upgrade/*.elf -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Release/upgrade/ -Recurse
     - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064S2-4343W/Release/upgrade/*.map -Destination ./develop/CY8CKIT-064S2-4343W/BlinkyApp/Release/upgrade/ -Recurse
 
-############################################################# CY8CKIT-064B0S2-4343W (Debug) ############################################################################
+############################################################# PSOC_064_512K (Debug) ############################################################################
 
-# Collect CypressBootloader for CY8CKIT-064B0S2-4343W deploy
+# Collect CypressBootloader for PSOC_064_512K deploy
     # deploy is disabled
-    # - New-Item -ItemType Directory -Path ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug
-    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug
+    # - New-Item -ItemType Directory -Path ./deploy/PSOC_064_512K/CypressBootloader/Debug
+    - New-Item -ItemType Directory -Path ./develop/PSOC_064_512K/CypressBootloader/Debug
     # deploy is disabled
-    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Debug/CypressBootloader_CM0p.hex  -Destination ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/ -Recurse
-    # - sh cysign_bootloader -f ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/ -Recurse
-    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/ -Recurse
+    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/CypressBootloader_CM0p.hex  -Destination ./deploy/PSOC_064_512K/CypressBootloader/Debug/ -Recurse
+    # - sh cysign_bootloader -f ./deploy/PSOC_064_512K/CypressBootloader/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/PSOC_064_512K/CypressBootloader/Debug/ -Recurse
+    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/PSOC_064_512K/CypressBootloader/Debug/ -Recurse
 
-# Collect CypressBootloader for CY8CKIT-064B0S2-4343W develop
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Debug/*.hex -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Debug/*.lst -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Debug/*.elf -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Debug/*.map -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Debug/ -Recurse
+# Collect CypressBootloader for PSOC_064_512K develop
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.hex -Destination ./develop/PSOC_064_512K/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.lst -Destination ./develop/PSOC_064_512K/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.elf -Destination ./develop/PSOC_064_512K/CypressBootloader/Debug/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Debug/*.map -Destination ./develop/PSOC_064_512K/CypressBootloader/Debug/ -Recurse
 
     - cd boot/cypress
     - >
@@ -1020,24 +1020,24 @@ win_build:
     - Copy-Item -Path ./boot/cypress/BlinkyApp/out/CY8CKIT-064B0S2-4343W/Debug/upgrade/*.map -Destination ./develop/CY8CKIT-064B0S2-4343W/BlinkyApp/Debug/upgrade/ -Recurse
 
 
-############################################################# CY8CKIT-064B0S2-4343W (Release) ############################################################################
+############################################################# PSOC_064_512K (Release) ############################################################################
 
-# Collect CypressBootloader for CY8CKIT-064B0S2-4343W deploy
+# Collect CypressBootloader for PSOC_064_512K deploy
     # deploy is disabled
-    # - New-Item -ItemType Directory -Path ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Release
-    - New-Item -ItemType Directory -Path ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Release
+    # - New-Item -ItemType Directory -Path ./deploy/PSOC_064_512K/CypressBootloader/Release
+    - New-Item -ItemType Directory -Path ./develop/PSOC_064_512K/CypressBootloader/Release
     # deploy is disabled
-    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Release/CypressBootloader_CM0p.hex  -Destination ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/ -Recurse
-    # - sh cysign_bootloader -f ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/ -Recurse
-    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
-    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/ -Recurse
+    # - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Release/CypressBootloader_CM0p.hex  -Destination ./deploy/PSOC_064_512K/CypressBootloader/Release/ -Recurse
+    # - sh cysign_bootloader -f ./deploy/PSOC_064_512K/CypressBootloader/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    # - Copy-Item -Path  ./signed/*.jwt  -Destination ./deploy/PSOC_064_512K/CypressBootloader/Release/ -Recurse
+    - sh cysign_bootloader -f ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Release/CypressBootloader_CM0p.hex -n PSOC6A_2M
+    - Copy-Item -Path  ./signed/*.jwt  -Destination ./develop/PSOC_064_512K/CypressBootloader/Release/ -Recurse
 
-# Collect CypressBootloader for CY8CKIT-064B0S2-4343W develop
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Release/*.hex -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Release/*.lst -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Release/*.elf -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/ -Recurse
-    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/CY8CKIT-064B0S2-4343W/Release/*.map -Destination ./develop/CY8CKIT-064B0S2-4343W/CypressBootloader/Release/ -Recurse
+# Collect CypressBootloader for PSOC_064_512K develop
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Release/*.hex -Destination ./develop/PSOC_064_512K/CypressBootloader/Release/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Release/*.lst -Destination ./develop/PSOC_064_512K/CypressBootloader/Release/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Release/*.elf -Destination ./develop/PSOC_064_512K/CypressBootloader/Release/ -Recurse
+    - Copy-Item -Path ./boot/cypress/CypressBootloader/out/PSOC_064_512K/Release/*.map -Destination ./develop/PSOC_064_512K/CypressBootloader/Release/ -Recurse
 
     - cd boot/cypress
     - >
