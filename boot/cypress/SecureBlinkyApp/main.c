@@ -99,8 +99,8 @@ void test_app_init_hardware(void)
     printf("======================================\r\n");
 
     /* Initialize the User LED */
-    check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
-                                 CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF));
+//    check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
+//                                 CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF));
 
     printf("\r[SecureBlinkyApp] GPIO initialized \r\n");
     printf("[SecureBlinkyApp] UART initialized \r\n");
@@ -155,7 +155,7 @@ int main(void)
         Cy_SysLib_Delay(blinky_period/2);
 
         /* Invert the USER LED state */
-        cyhal_gpio_toggle((cyhal_gpio_t) CYBSP_USER_LED1);
+//        cyhal_gpio_toggle((cyhal_gpio_t) CYBSP_USER_LED1);
     }
 
     Cy_Utils_StartAppCM4(app_addr);
