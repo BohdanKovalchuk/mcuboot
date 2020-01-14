@@ -35,16 +35,9 @@ CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
 KEY=$(APP_NAME)/scripts/cy_state_internal.json
 
-include $(CUR_APP_PATH)/targets.mk
+include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
-
-# add start address for each target device, since flash size is different
-ifneq ($(filter $(TARGET), $(TARGETS)),)
-CY_BOOTLOADER_APP_START ?= 0x101D0000 # PSoC6-2M
-else
-$(error $(APP_NAME) start address is not defined)
-endif
 
 # Application-specific DEFINES
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
@@ -53,17 +46,22 @@ DEFINES_APP += -DCORE=$(CORE)
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
 
-ifeq ($(TARGET), PSOC_064_2M)
+# add start address for each target device, since flash size is different
+# define maximum image sectors and choose script name for certificate generation
+ifeq ($(PLATFORM), PSOC_064_2M)
+CY_BOOTLOADER_APP_START ?= 0x101D0000
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848
 IMAGE_CERT := image_cert_2M
-else ifeq ($(TARGET), PSOC_064_1M)
+else ifeq ($(PLATFORM), PSOC_064_1M)
+CY_BOOTLOADER_APP_START ?= 0x100D0000
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
-IMAGE_CERT := image_cert_1M
-else ifeq ($(TARGET), PSOC_064_512K)
+IMAGE_CERT := image_cert_2M
+else ifeq ($(PLATFORM), PSOC_064_512K)
+CY_BOOTLOADER_APP_START ?= 0x10030000
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
 IMAGE_CERT := image_cert_512k
 else
-$(error "Not suppoted target name $(TARGET)")
+$(error "Not suppoted target name $(PLATFORM)")
 endif
 
 # multi-image setup ?
@@ -133,10 +131,17 @@ SOURCES_APP += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypt
 
 # Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)
-LINKER_SCRIPT := $(CUR_APP_PATH)/linker/$(APP_NAME)_$(TARGET).ld
+LINKER_SCRIPT := $(CUR_APP_PATH)/linker/$(APP_NAME)_$(PLATFORM).ld
 else
 $(error Only GCC ARM is supported at this moment)
 endif
+
+# Output folder
+OUT := $(APP_NAME)/out
+# Output folder to contain build artifacts
+OUT_PLATFORM := $(OUT)/$(PLATFORM)
+
+OUT_CFG := $(OUT_PLATFORM)/$(BUILDCFG)
 
 # Post build action to execute after main build job
 post_build: $(OUT_CFG)/$(APP_NAME).hex

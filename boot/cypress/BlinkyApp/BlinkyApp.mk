@@ -99,6 +99,13 @@ ifeq ($(IMG_TYPE), UPGRADE)
 	UPGRADE_SUFFIX :=_upgrade
 endif
 
+# Output folder
+OUT := $(APP_NAME)/out
+# Output folder to contain build artifacts
+OUT_TARGET := $(OUT)/$(TARGET)
+
+OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
+
 # Set build directory for BOOT and UPGRADE images
 ifeq ($(IMG_TYPE), BOOT)
 	OUT_CFG := $(OUT_CFG)/boot
