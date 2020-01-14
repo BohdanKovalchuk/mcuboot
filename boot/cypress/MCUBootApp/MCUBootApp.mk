@@ -77,6 +77,13 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/os)
 
 ASM_FILES_APP :=
 
+# Output folder
+OUT := $(APP_NAME)/out
+# Output folder to contain build artifacts
+OUT_PLATFORM := $(OUT)/$(PLATFORM)
+
+OUT_CFG := $(OUT_PLATFORM)/$(BUILDCFG)
+
 # Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)
 LINKER_SCRIPT := $(subst /cygdrive/c,c:,$(CUR_APP_PATH)/$(APP_NAME).ld)
