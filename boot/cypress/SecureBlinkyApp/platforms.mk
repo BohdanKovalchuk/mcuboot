@@ -93,13 +93,13 @@ $(error Only GCC ARM is supported at this moment)
 endif
 
 # Add device name from BSP makefile to defines
-DEFINES_PLATFORM += $(DEVICE)
+DEFINES += $(DEVICE)
 #DEFINES += $(COMPONENTS)
 
 # Get defines from platform makefile and convert it to regular -DMY_NAME style 
-#ifneq ($(DEFINES),)
-#	 :=$(addprefix -D, $(subst -,_,$(DEFINES)))
-#endif
+ifneq ($(DEFINES),)
+	DEFINES_PLATFORM :=$(addprefix -D, $(subst -,_,$(DEFINES)))
+endif
 
 ifeq ($(COMPILER), GCC_ARM)
 LINKER_SCRIPT ?= $(PLATFORM_PATH)/$(CORE)/$(COMPILER)/*_cm0plus.ld

@@ -62,7 +62,8 @@ SLOT_SIZE ?= 0x10000
 
 # TODO: remove it?
 # BSP does not define this macro for CM0p so define it here
-DEFINES_APP += -DCY_USING_HAL
+#DEFINES_APP += -DCY_USING_HAL
+DEFINES_APP += $(DEFINES_PLATFORM)
 
 # Collect Test Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)
