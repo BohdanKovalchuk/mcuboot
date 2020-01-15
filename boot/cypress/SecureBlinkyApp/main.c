@@ -27,11 +27,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-//#include "system_psoc6.h"
+#include "system_psoc6.h"
 
 #include "cy_pdl.h"
-//#include "cyhal.h"
-//#include "cybsp.h"
+#include "cyhal.h"
+#include "cybsp.h"
 #include "cy_retarget_io.h"
 
 #include "cy_secure_utils.h"
@@ -49,6 +49,11 @@
 #define CM4_APP_HEADER_SIZE             (0x400UL)
 
 #define MASTER_IMG_ID                   (1)
+
+/** Pin: UART RX */
+#define CY_DEBUG_UART_RX         (P5_0)
+/** Pin: UART TX */
+#define CY_DEBUG_UART_TX         (P5_1)
 
 #define GREETING_MESSAGE          "[SecureBlinkyApp]"
 #ifdef BOOT_IMG
@@ -84,15 +89,26 @@ void check_result(int res)
 
 void test_app_init_hardware(void)
 {
-// TODO:    cybsp_init();
+//    cybsp_init();
 
     /* enable interrupts */
     __enable_irq();
 
+    Cy_PDL_Init(CY_DEVICE_CFG);
+
+    SystemCoreClockUpdate();
+
+    /* Disabling watchdog so it will not interrupt normal flow later */
+#if defined(CY_LED_GPIO)
+    Cy_GPIO_Pin_Init(LED_PORT, LED_PIN, &LED_config);
+#endif
+//    /* Initialize retarget-io to use the debug UART port */
+//    cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+
     /* Initialize retarget-io to use the debug UART port */
 // TODO:
-//    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
-//                                     CY_RETARGET_IO_BAUDRATE));
+    check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
+                                     CY_RETARGET_IO_BAUDRATE));
 
     printf("======================================\r\n");
     printf(GREETING_MESSAGE_VER);
