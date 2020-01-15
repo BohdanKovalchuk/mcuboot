@@ -101,6 +101,8 @@ ifneq ($(DEFINES),)
 	DEFINES_PLATFORM :=$(addprefix -D, $(subst -,_,$(DEFINES)))
 endif
 
+DEFINES_PLATFORM := $(addprefix -D, $(PLATFORM))
+
 ifeq ($(COMPILER), GCC_ARM)
 LINKER_SCRIPT ?= $(PLATFORM_PATH)/$(CORE)/$(COMPILER)/*_cm0plus.ld
 else
