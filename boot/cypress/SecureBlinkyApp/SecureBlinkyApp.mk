@@ -100,16 +100,20 @@ IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
 SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
+# Output folder
+OUT := $(APP_NAME)/out
+# Output folder to contain build artifacts
+OUT_TARGET := $(OUT)/$(TARGET)
+
+OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
+
+# Set build directory for BOOT and UPGRADE images
 ifeq ($(IMG_TYPE), UPGRADE)
 	SIGN_ARGS += --pad
 	UPGRADE_SUFFIX :=_upgrade
-endif
-
-# Set build directory for BOOT and UPGRADE images
-ifeq ($(IMG_TYPE), BOOT)
-	OUT_CFG := $(OUT_CFG)/boot
-else
 	OUT_CFG := $(OUT_CFG)/upgrade
+else
+	OUT_CFG := $(OUT_CFG)/boot
 endif
 
 # Determine path to policy file if multi image is used

@@ -53,12 +53,6 @@ BUILDCFG ?= Debug
 
 # Set of supported applications
 APPS := MCUBootApp BlinkyApp CypressBootloader SecureBlinkyApp
-# Output folder
-OUT := $(APP_NAME)/out
-# Output folder to contain build artifacts
-OUT_TARGET := $(OUT)/$(TARGET)
-
-OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 
 HEADER_OFFSET ?= 0
 
