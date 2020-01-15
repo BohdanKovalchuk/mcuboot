@@ -50,10 +50,44 @@
 
 #define MASTER_IMG_ID                   (1)
 
-/** Pin: UART RX */
-#define CY_DEBUG_UART_RX         (P5_0)
-/** Pin: UART TX */
-#define CY_DEBUG_UART_TX         (P5_1)
+#if defined(DEBUG)
+
+#if defined(PSOC_064_1M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT13
+#define LED_PIN 7U
+#elif defined(PSOC_064_2M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT1
+#define LED_PIN 5U
+#elif defined(PSOC_064_512K)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT2
+#define LED_PIN 7U
+#endif
+
+#define LED_NUM 5U
+#define LED_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
+#define LED_INIT_DRIVESTATE 1
+
+const cy_stc_gpio_pin_config_t LED_config =
+{
+    .outVal = 1,
+    .driveMode = CY_GPIO_DM_STRONG_IN_OFF,
+    .hsiom = HSIOM_SEL_GPIO,
+    .intEdge = CY_GPIO_INTR_DISABLE,
+    .intMask = 0UL,
+    .vtrip = CY_GPIO_VTRIP_CMOS,
+    .slewRate = CY_GPIO_SLEW_FAST,
+    .driveSel = CY_GPIO_DRIVE_FULL,
+    .vregEn = 0UL,
+    .ibufMode = 0UL,
+    .vtripSel = 0UL,
+    .vrefSel = 0UL,
+    .vohSel = 0UL,
+};
+
+#endif
 
 #define GREETING_MESSAGE          "[SecureBlinkyApp]"
 #ifdef BOOT_IMG
@@ -99,22 +133,18 @@ void test_app_init_hardware(void)
     SystemCoreClockUpdate();
 
     /* Disabling watchdog so it will not interrupt normal flow later */
-#if defined(CY_LED_GPIO)
+#if defined(DEBUG)
     Cy_GPIO_Pin_Init(LED_PORT, LED_PIN, &LED_config);
-#endif
-//    /* Initialize retarget-io to use the debug UART port */
-//    cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
-
     /* Initialize retarget-io to use the debug UART port */
-// TODO:
-    check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
+    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
                                      CY_RETARGET_IO_BAUDRATE));
+#endif
 
     printf("======================================\r\n");
     printf(GREETING_MESSAGE_VER);
     printf("======================================\r\n");
 
-    /* Initialize the User LED */
+//    /* Initialize the User LED */
 //    check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
 //                                 CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF));
 
@@ -171,7 +201,9 @@ int main(void)
         Cy_SysLib_Delay(blinky_period/2);
 
         /* Invert the USER LED state */
+#if defined(DEBUG)
 //        cyhal_gpio_toggle((cyhal_gpio_t) CYBSP_USER_LED1);
+#endif
     }
 
     Cy_Utils_StartAppCM4(app_addr);

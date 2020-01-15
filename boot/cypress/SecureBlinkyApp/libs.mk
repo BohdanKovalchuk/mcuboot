@@ -38,6 +38,7 @@ SOURCES_RETARGET_IO := $(wildcard $(CUR_LIBS_PATH)/retarget-io/*.c)
 
 # Collect source files for HAL
 SOURCES_HAL := $(wildcard $(CUR_LIBS_PATH)/psoc6hal/src/*.c)
+SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/src/pin_packages/*.c)
 
 # PDL related include directories
 INCLUDE_DIRS_PDL := $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/include
@@ -56,6 +57,7 @@ INCLUDE_DIRS_CORE_LIB := $(CUR_LIBS_PATH)/core-lib/include
 
 # core-libs related include directories
 INCLUDE_DIRS_HAL := $(CUR_LIBS_PATH)/psoc6hal/include
+INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/include/pin_packages
 
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
