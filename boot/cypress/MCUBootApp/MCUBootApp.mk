@@ -80,9 +80,9 @@ ASM_FILES_APP :=
 # Output folder
 OUT := $(APP_NAME)/out
 # Output folder to contain build artifacts
-OUT_PLATFORM := $(OUT)/$(PLATFORM)
+OUT_TARGET := $(OUT)/$(TARGET)
 
-OUT_CFG := $(OUT_PLATFORM)/$(BUILDCFG)
+OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 
 # Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)
