@@ -92,12 +92,7 @@ ASM_FILES_APP :=
 
 IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
-SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
-
-ifeq ($(IMG_TYPE), UPGRADE)
-	SIGN_ARGS += --pad
-	UPGRADE_SUFFIX :=_upgrade
-endif
+SIGN_ARGS := sign --header-size 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
 # Output folder
 OUT := $(APP_NAME)/out
@@ -107,10 +102,12 @@ OUT_TARGET := $(OUT)/$(TARGET)
 OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 
 # Set build directory for BOOT and UPGRADE images
-ifeq ($(IMG_TYPE), BOOT)
-	OUT_CFG := $(OUT_CFG)/boot
-else
+ifeq ($(IMG_TYPE), UPGRADE)
+	SIGN_ARGS += --pad
+	UPGRADE_SUFFIX :=_upgrade
 	OUT_CFG := $(OUT_CFG)/upgrade
+else
+	OUT_CFG := $(OUT_CFG)/boot
 endif
 
 # Determine path to policy file if multi image is used
@@ -133,5 +130,6 @@ else
 	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex')"
 endif
 else
-	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_signed$(UPGRADE_SUFFIX).hex
+	mv -f $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_unsigned.hex
+	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME)_unsigned.hex $(OUT_CFG)/$(APP_NAME)$(UPGRADE_SUFFIX).hex
 endif

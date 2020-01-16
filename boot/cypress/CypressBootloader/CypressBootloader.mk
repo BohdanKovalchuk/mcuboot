@@ -33,7 +33,7 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
-KEY=$(APP_NAME)/scripts/cy_state_internal.json
+KEY ?= $(APP_NAME)/scripts/cy_state_internal.json
 
 include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
@@ -43,8 +43,25 @@ include $(CUR_APP_PATH)/toolchains.mk
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
-# BSP does not define this macro for CM0p so define it here
-DEFINES_APP += -DCY_USING_HAL
+
+# add start address for each target device, since flash size is different
+# define maximum image sectors and choose script name for certificate generation
+ifeq ($(PLATFORM), PSOC_064_2M)
+CY_BOOTLOADER_APP_START ?= 0x101D0000
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848
+IMAGE_CERT := image_cert_2M
+else ifeq ($(PLATFORM), PSOC_064_1M)
+CY_BOOTLOADER_APP_START ?= 0x100D0000
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
+IMAGE_CERT := image_cert_2M
+else ifeq ($(PLATFORM), PSOC_064_512K)
+CY_BOOTLOADER_APP_START ?= 0x10030000
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
+IMAGE_CERT := image_cert_512k
+else
+$(error "Not suppoted target name $(PLATFORM)")
+endif
+
 
 # add start address for each target device, since flash size is different
 # define maximum image sectors and choose script name for certificate generation
@@ -65,7 +82,7 @@ $(error "Not suppoted target name $(PLATFORM)")
 endif
 
 # multi-image setup ?
-DEFINES_APP += -DMCUBOOT_IMAGE_NUMBER=1
+DEFINES_APP += -DMCUBOOT_IMAGE_NUMBER=2
 
 # Use external flash map descriptors since flash map is driven by policy
 DEFINES_APP += -DCY_FLASH_MAP_EXT_DESC
@@ -75,6 +92,13 @@ DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_APP_START)
 DEFINES_APP += -D__NO_SYSTEM_INIT
 DEFINES_APP += -DCY_BOOTLOADER_DIAGNOSTIC_GPIO
 DEFINES_APP += $(DEFINES_USER)
+
+ifeq ($(BUILDCFG), Debug)
+DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_INFO
+DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
+else
+DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
+endif
 
 # TODO: MCUBoot library
 # Collect MCUBoot sourses
@@ -129,7 +153,7 @@ INCLUDE_FILES_APP := $(addprefix $(CURDIR)/../bootutil/src/, $(INCLUDE_FILES_MCU
 # Collect Utils sources
 SOURCES_APP += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/flashboot_psacrypto/*.c)
 
-# Overwite path to linker script if custom is required, otherwise default from BSP is used
+# Overwite path to linker script if custom is required, otherwise platform default is used
 ifeq ($(COMPILER), GCC_ARM)
 LINKER_SCRIPT := $(CUR_APP_PATH)/linker/$(APP_NAME)_$(PLATFORM).ld
 else
@@ -145,7 +169,10 @@ OUT_CFG := $(OUT_PLATFORM)/$(BUILDCFG)
 
 # Post build action to execute after main build job
 post_build: $(OUT_CFG)/$(APP_NAME).hex
+	$(info [POST_BUILD] - Calculating CRC of TOC3 for $(APP_NAME))
+	$(PYTHON_PATH) $(APP_NAME)/scripts/toc3_crc.py $(OUT_CFG)/$(APP_NAME).elf $(OUT_CFG)/$(APP_NAME)_CM0p.hex
+ifeq ($(POST_BUILD), 1)
 	$(info [POST_BUILD] - Creating image certificate for $(APP_NAME))
 	$(PYTHON_PATH) $(APP_NAME)/scripts/$(IMAGE_CERT).py -i $(OUT_CFG)/$(APP_NAME)_CM0p.hex -k $(KEY) -o $(OUT_CFG)/$(APP_NAME)_CM0p.jwt
-
+endif
 ASM_FILES_APP :=
