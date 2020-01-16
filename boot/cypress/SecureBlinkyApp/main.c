@@ -185,7 +185,7 @@ int main(void)
         }
     }
 
-//    apply_protections();
+    apply_protections();
 
     for (i = 0; i < CM0_TIMEOUT ; i++)
     {
