@@ -61,13 +61,11 @@ INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/include/pin_packages
 
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
-# SOURCES_LIBS += $(SOURCES_BSP)
 SOURCES_LIBS += $(SOURCES_RETARGET_IO)
 SOURCES_LIBS += $(SOURCES_HAL)
 
 # Collected include directories for libraries
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
-# INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_BSP))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_MBEDTLS))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_CORE_LIB))
@@ -81,7 +79,6 @@ $(error Only GCC ARM is supported at this moment)
 endif
 
 ASM_FILES_LIBS := $(ASM_FILES_PDL)
-#ASM_FILES_LIBS += $(ASM_FILES_BSP)
 
 # Add define for PDL version
 DEFINES_PDL += -DPDL_VERSION=$(PDL_VERSION)

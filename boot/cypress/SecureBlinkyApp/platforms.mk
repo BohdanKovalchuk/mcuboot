@@ -90,7 +90,7 @@ endif
 
 # Add device name from BSP makefile to defines
 DEFINES += $(DEVICE)
-#DEFINES += $(COMPONENTS)
+
 
 # Get defines from platform makefile and convert it to regular -DMY_NAME style 
 ifneq ($(DEFINES),)
@@ -107,8 +107,8 @@ endif
 
 ifeq ($(MAKEINFO) , 1)
 $(info ==============================================================================)
-#$(info = BSP files =)
+$(info = Platform files =)
 $(info ==============================================================================)
-#$(info $(SOURCES_BSP))
-#$(info $(ASM_FILES_BSP))
+$(info $(SOURCES_PLATFORM))
+$(info $(ASM_FILES_PLATFORM))
 endif

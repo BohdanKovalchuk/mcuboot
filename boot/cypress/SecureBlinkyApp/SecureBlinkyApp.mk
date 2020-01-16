@@ -43,7 +43,6 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
-#include $(CUR_APP_PATH)/targets.mk
 include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
@@ -60,7 +59,6 @@ endif
 DEFINES_APP += -DSECURE_APP_START=0x10000000
 SLOT_SIZE ?= 0x10000
 
-# TODO: remove it?
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
 DEFINES_APP += $(DEFINES_PLATFORM)
