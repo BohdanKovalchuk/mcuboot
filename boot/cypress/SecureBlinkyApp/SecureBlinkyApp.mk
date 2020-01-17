@@ -60,19 +60,19 @@ DEFINES_APP += -DSECURE_APP_START=0x10000000
 SLOT_SIZE ?= 0x10000
 
 # Define RAM regions for targets, since they differ
-ifneq ($(PLATFORM), PSOC_064_2M)
+ifeq ($(PLATFORM), PSOC_064_2M)
 DEFINES_APP += -DSECURE_RAM_START=0x08040000
 DEFINES_APP += -DSECURE_RAM_SIZE=0x20000
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
 CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
-else ifeq ($(PLATFORM), $(PSOC_064_1M)),)
+else ifeq ($(PLATFORM), PSOC_064_1M)
 DEFINES_APP += -DSECURE_RAM_START=
 DEFINES_APP += -DSECURE_RAM_SIZE=
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := 
 CY_SEC_TOOLS_TARGET := 
-else ifeq ($(PLATFORM), $(PSOC_064_512K)
+else ifeq ($(PLATFORM), PSOC_064_512K)
 DEFINES_APP += -DSECURE_RAM_START=0x08000000
 DEFINES_APP += -DSECURE_RAM_SIZE=0x10000
 # Determine path to multi image policy file
@@ -126,11 +126,11 @@ IMGTOOL_PATH ?=	../../scripts/imgtool.py
 SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
 # Output folder
-OUT := $(APP_NAME)/out
+#OUT := $(APP_NAME)/out
 # Output folder to contain build artifacts
-OUT_TARGET := $(OUT)/$(TARGET)
+#OUT_TARGET := $(OUT)/$(TARGET)
 
-OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
+#OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 
 # Set build directory for BOOT and UPGRADE images
 ifeq ($(IMG_TYPE), UPGRADE)
