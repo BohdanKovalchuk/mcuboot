@@ -59,6 +59,27 @@ endif
 DEFINES_APP += -DSECURE_APP_START=0x10000000
 SLOT_SIZE ?= 0x10000
 
+# Define RAM regions for targets, since they differ
+ifneq ($(filter $(TARGET), $(PLATFORM_064_2M)),)
+DEFINES_APP += -DSECURE_RAM_START=0x08040000
+DEFINES_APP += -DSECURE_RAM_SIZE=0x20000
+# Determine path to multi image policy file
+MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
+CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
+else ifneq ($(filter $(TARGET), $(PLATFORM_064_1M)),)
+DEFINES_APP += -DSECURE_RAM_START=
+DEFINES_APP += -DSECURE_RAM_SIZE=
+# Determine path to multi image policy file
+MULTI_IMAGE_POLICY := 
+CY_SEC_TOOLS_TARGET := 
+else ifneq ($(filter $(TARGET), $(PLATFORM_064_512K)),)
+DEFINES_APP += -DSECURE_RAM_START=0x08000000
+DEFINES_APP += -DSECURE_RAM_SIZE=0x10000
+# Determine path to multi image policy file
+MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8c6245lqi_s3d72/policy/policy_multi_CM0_CM4.json
+CY_SEC_TOOLS_TARGET := cy8c6245lqi-s3d72
+endif
+
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
 DEFINES_APP += $(DEFINES_PLATFORM)
@@ -131,10 +152,6 @@ else
 	OUT_CFG := $(OUT_CFG)/upgrade
 endif
 
-# Determine path to policy file if multi image is used
-# TODO:
-MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
-
 pre_build:
 	$(info [PRE_BUILD] - Generating linker script for application $(CUR_APP_PATH)/linker/$(APP_NAME).ld)
 	@$(CC) -E -x c $(CFLAGS) $(INCLUDE_DIRS) $(CUR_APP_PATH)/linker/$(APP_NAME)_template.ld | grep -v '^#' >$(CUR_APP_PATH)/linker/$(APP_NAME).ld
@@ -143,4 +160,4 @@ pre_build:
 # TODO: how to deal w/ device_name in cysecuretools?
 post_build: $(OUT_CFG)/$(APP_NAME).hex
 	$(info [POST_BUILD] - Executing post build script for $(APP_NAME))
-	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
+	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"

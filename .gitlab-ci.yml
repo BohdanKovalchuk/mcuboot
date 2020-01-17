@@ -345,8 +345,41 @@ mac_build:
     - make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W BUILDCFG=Debug MAKEINFO=1 IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000 POST_BUILD=1 TOOLCHAIN_PATH=/Applications/ModusToolbox/tools_2.0/gcc-7.2.1  
     - cd ../..
 
-# Collect SecureBlinkyApp UPGRADE for CY8CKIT-064S2-4343W deploy    
-    - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/SecureBlinkyApp.hex ./deploy/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/SecureBlinkyApp_upgrade.hex
+    ########################### SecureBlinkyApp BOOT ##############################
+    # Build SecureBlinkyApp BOOT for CY8CPROTO-064B0S3
+    - *cleanup_build_params
+
+    - export APP_NAME=SecureBlinkyApp
+    - export TARGET=CY8CPROTO-064B0S3
+    - export IMG_TYPE=BOOT
+    - export MAKEINFO=0
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+
+    ########################### SecureBlinkyApp UPGRADE ##############################
+    # Build SecureBlinkyApp UPGRADE for CY8CPROTO-064B0S3
+
+    - export HEADER_OFFSET='0x10000'
+    - export IMG_TYPE=UPGRADE
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+    - cd boot/cypress
+    - make clean APP_NAME=SecureBlinkyApp
+    - cd ../..
+
+    ########################### CY8CPROTO-062-4343W ##############################
+    # MCUBootApp
+    - *cleanup_build_params
 
 # Collect SecureBlinkyApp for CY8CKIT-064S2-4343W develop
     - cp -r boot/cypress/SecureBlinkyApp/out/CY8CKIT-064S2-4343W/Debug/upgrade/*.hex ./develop/CY8CKIT-064S2-4343W/SecureBlinkyApp/Debug/upgrade/
