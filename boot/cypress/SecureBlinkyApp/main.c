@@ -48,7 +48,7 @@
 
 #define CM4_APP_HEADER_SIZE             (0x400UL)
 
-#define MASTER_IMG_ID                   (1)
+#define MASTER_IMG_ID                   (0)
 
 #if defined(DEBUG)
 
@@ -163,7 +163,7 @@ int main(void)
     rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
     if(0 == rc)
     {
-        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy, 0);
+        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy, MASTER_IMG_ID);
     }
 
     if(0 != rc)
@@ -196,8 +196,6 @@ int main(void)
         Cy_GPIO_Inv(LED_PORT, LED_PIN);
 #endif
     }
-
-//    Cy_Utils_StartAppCM4(0x10040400);
     Cy_Utils_StartAppCM4(app_addr);
 
     return 0;
