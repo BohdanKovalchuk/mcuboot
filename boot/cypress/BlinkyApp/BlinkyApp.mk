@@ -60,13 +60,39 @@ endif
 # Define start of application as it can be built for Secure Boot target
 # Also check if this image will be used with multi image CyBootloader
 ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
+#2M devices case TODO: use platforms.mk of family.mk
+ifneq ($(filter $(TARGET), $(PLATFORM_064_2M)),)
+	# Set RAM start and size
+	DEFINES_APP += -DSECURE_RAM_START=0x08008000
+	DEFINES_APP += -DSECURE_RAM_SIZE=0x3000
+	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x50000
 	else
+		# Determine path to multi image policy file
+		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
+		CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
 		DEFINES_APP += -DUSER_APP_START=0x10020000
         SLOT_SIZE ?= 0x10000
 	endif
+endif
+ifneq ($(filter $(TARGET), $(PLATFORM_064_512K)),)
+	# Set RAM start and size
+	DEFINES_APP += -DSECURE_RAM_START=0x08010000
+	DEFINES_APP += -DSECURE_RAM_SIZE=0x5000
+	# Set flash start and size
+	ifeq ($(MULTI_IMAGE), 0)
+		DEFINES_APP += -DUSER_APP_START=0x10040000
+        SLOT_SIZE ?= 0x30000
+	else
+		# Determine path to multi image policy file
+		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8c6245lqi_s3d72/policy/policy_multi_CM0_CM4.json
+		CY_SEC_TOOLS_TARGET := cy8c6245lqi-s3d72
+		DEFINES_APP += -DUSER_APP_START=0x10040000
+        SLOT_SIZE ?= 0x10000
+	endif
+endif
 else
 	DEFINES_APP += -DUSER_APP_START=0x10018000
     SLOT_SIZE ?= 0x10000
@@ -89,10 +115,6 @@ $(error Only GCC ARM is supported at this moment)
 endif
 
 ASM_FILES_APP :=
-
-IMGTOOL_PATH ?=	../../scripts/imgtool.py
-
-SIGN_ARGS := sign --header-size 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
 
 # Output folder
 OUT := $(APP_NAME)/out
@@ -125,9 +147,9 @@ post_build: $(OUT_CFG)/$(APP_NAME).hex
 # determine if target is Secure Boot - use cysecuretools for signing. built in imgtool for non secure targets
 ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
 ifeq ($(MULTI_IMAGE), 1)
-	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
+	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
 else
-	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('cy8ckit-064b0s2-4343w'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex')"
+	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex')"
 endif
 else
 	mv -f $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_unsigned.hex

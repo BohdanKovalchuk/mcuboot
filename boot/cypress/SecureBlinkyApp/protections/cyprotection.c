@@ -52,6 +52,8 @@
     #include "cyprotection_periph_config_2M.h"
 #elif defined(CYB06447BZI_D54) || defined(CYB06447BZI_BLD53)
     #include "cyprotection_periph_config.h"
+#elif defined(CYB06445LQI_S3D42)
+    #include "cyprotection_periph_config_512K.h"
 #else
     #error "Unsupported device declared."
 #endif

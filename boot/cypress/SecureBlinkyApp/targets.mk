@@ -31,8 +31,10 @@
 # default TARGET
 TARGET ?= CY8CKIT-064S2-4343W
 #
-SB_TARGETS := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W
-
+SB_TARGETS    := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W CY8CPROTO-064B0S3
+PSOC_064_2M   := CY8CKIT-064B0S2-4343W CY8CKIT-064S2-4343W
+PSOC_064_1M   := CY8CPROTO-064B0S1-BLE CY8CPROTO-064-SB
+PSOC_064_512K := CY8CPROTO-064B0S3
 # For which core this application is built
 CORE := CM0P
 
@@ -43,6 +45,15 @@ ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
 include ./libs/bsp/TARGET_$(TARGET)/$(TARGET).mk
 else
 $(error Not supported target: '$(TARGET)')
+endif
+
+# Target dependent definitions
+ifneq ($(filter $(TARGET), $(PSOC_064_2M)),)
+PLATFORM_SUFFIX := 02
+else ifneq ($(filter $(TARGET), $(PSOC_064_1M)),)
+PLATFORM_SUFFIX := 01
+else ifneq ($(filter $(TARGET), $(PSOC_064_512K)),)
+PLATFORM_SUFFIX := 03
 endif
 
 # Check if path to cysecuretools is set
@@ -71,7 +82,7 @@ SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
 
 # Collect Assembler files for TARGET BSP
 # TODO: need to include _01_, _02_ or _03_ depending on device family.
-STARTUP_FILE := $(BSP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(COMPILER)/startup_psoc6_02_cm0plus
+STARTUP_FILE := $(BSP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(COMPILER)/startup_psoc6_$(PLATFORM_SUFFIX)_cm0plus
 
 ifeq ($(COMPILER), GCC_ARM)
 	ASM_FILES_BSP := $(STARTUP_FILE).S
