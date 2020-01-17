@@ -64,12 +64,15 @@ DEFINES:=CY_USING_HAL
 
 # Collect C source files for PLATFORM BSP
 SOURCES_PLATFORM += $(wildcard $(PLATFORM_PATH)/*.c)
-SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/*.c)
-SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/bsp/psoc6hal/src/pin_packages/*.c)
+SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.c)
+SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
+SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
 
 # Collect dirrectories containing headers for PLATFORM BSP
 INCLUDE_DIRS_PLATFORM := $(PLATFORM_PATH)
-INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/bsp/psoc6hal/include
+INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/include
+INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
+INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages
 # Collect Assembler files for PLATFORM BSP
 # Include _01_, _02_ or _03_ PLATFORM_SUFFIX depending on device family.
 STARTUP_FILE := $(PLATFORM_PATH)/$(PLATFORM)/$(CORE)/$(COMPILER)/startup_psoc6_$(PLATFORM_SUFFIX)_cm0plus
