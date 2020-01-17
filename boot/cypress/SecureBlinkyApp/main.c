@@ -163,8 +163,7 @@ int main(void)
     rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
     if(0 == rc)
     {
-        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
-                MASTER_IMG_ID);
+        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy, 0);
     }
 
     if(0 != rc)
@@ -198,6 +197,7 @@ int main(void)
 #endif
     }
 
+//    Cy_Utils_StartAppCM4(0x10040400);
     Cy_Utils_StartAppCM4(app_addr);
 
     return 0;
