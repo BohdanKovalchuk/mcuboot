@@ -116,6 +116,36 @@ variables:
 
     # Collect App for deploy
     - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/$HEX_NAME$SUFX.hex ./deploy/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME$SUFX.hex
+    
+    
+.make_platform_boot_app: &make_platform_boot_app
+    # Build boot application
+    - export APP_BUILD_OPTIONS=''
+    - echo '================================================================================================='
+    - echo '=== Build ${APP_NAME} application'
+    - echo '=== Platform = ${PLATFORM}, BUILDCFG = ${BUILDCFG}, IMG_TYPE=${IMG_TYPE}, MAKEINFO = ${MAKEINFO}, POST_BUILD=${POST_BUILD}'
+    - echo '================================================================================================='
+    - export SLOT=`echo $IMG_TYPE | awk '{print tolower($0)}'`
+    - if [ $SLOT == 'upgrade' ]; then export SUFX=_$SLOT; else export SUFX=''; fi
+    - if [ ! -z $MULTI_IMAGE ]; then if [ $MULTI_IMAGE -eq 0 ]; then export APP_SUFX=''; export APP_BUILD_OPTIONS+='MULTI_IMAGE=0 '; fi; fi
+    - if [ ! -z $HEADER_OFFSET ]; then export APP_BUILD_OPTIONS+=HEADER_OFFSET=$HEADER_OFFSET; fi
+    - if [ -z $HEX_NAME ]; then export HEX_NAME=$APP_NAME; fi
+    - export APP_BUILD_OPTIONS+=$BUILD_OPTIONS
+    - mkdir -p  ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG
+    - mkdir -p  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT
+    - cd boot/cypress
+    - make clean APP_NAME=$APP_NAME
+    - make app APP_NAME=$APP_NAME PLATFORM=$PLATFORM BUILDCFG=$BUILDCFG MAKEINFO=$MAKEINFO IMG_TYPE=$IMG_TYPE $APP_BUILD_OPTIONS POST_BUILD=$POST_BUILD
+    - cd ../..
+
+    # Collect App for develop
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.hex  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.lst  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.elf  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.map  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+
+    # Collect App for deploy
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/$HEX_NAME$SUFX.hex ./deploy/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME$SUFX.hex
 
 stages:
   - build
@@ -445,10 +475,10 @@ mac_build:
     - export MAKEINFO=0
 
     - export BUILDCFG=Debug
-    - *make_boot_app
+    - *make_platform_boot_app
 
     - export BUILDCFG=Release
-    - *make_boot_app
+    - *make_platform_boot_app
 
 
     ########################### SecureBlinkyApp UPGRADE ##############################
@@ -458,10 +488,10 @@ mac_build:
     - export IMG_TYPE=UPGRADE
 
     - export BUILDCFG=Debug
-    - *make_boot_app
+    - *make_platform_boot_app
 
     - export BUILDCFG=Release
-    - *make_boot_app
+    - *make_platform_boot_app
 
     - cd boot/cypress
     - make clean APP_NAME=SecureBlinkyApp
@@ -477,10 +507,10 @@ mac_build:
     - export MAKEINFO=0
 
     - export BUILDCFG=Debug
-    - *make_boot_app
+    - *make_platform_boot_app
 
     - export BUILDCFG=Release
-    - *make_boot_app
+    - *make_platform_boot_app
 
 
     ########################### SecureBlinkyApp UPGRADE ##############################
@@ -490,10 +520,10 @@ mac_build:
     - export IMG_TYPE=UPGRADE
 
     - export BUILDCFG=Debug
-    - *make_boot_app
+    - *make_platform_boot_app
 
     - export BUILDCFG=Release
-    - *make_boot_app
+    - *make_platform_boot_app
 
     - cd boot/cypress
     - make clean APP_NAME=SecureBlinkyApp
