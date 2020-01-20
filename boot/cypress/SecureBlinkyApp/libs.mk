@@ -3,7 +3,7 @@
 # \version 1.0
 #
 # \brief
-# Makefile to describe libraries needed for Cypress MCUBoot based applications.
+# Makefile to describe libraries needed for Cypress MCUBoot-based applications.
 #
 ################################################################################
 # \copyright
@@ -36,12 +36,16 @@ SOURCES_PDL := $(wildcard $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/source/*.c)
 # Collect source files for Retarget-io
 SOURCES_RETARGET_IO := $(wildcard $(CUR_LIBS_PATH)/retarget-io/*.c)
 
+# Collect source files for HAL
+SOURCES_HAL := $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.c)
+SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
+SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
+
 # PDL related include directories
 INCLUDE_DIRS_PDL := $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/include
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/devices/include/ip
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/devices/include
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/cmsis/include
-INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/bsp/core-lib/include
 
 # Retarget-io related include directories
 INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
@@ -49,16 +53,26 @@ INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
 # Collect source files for MbedTLS
 INCLUDE_DIRS_MBEDTLS := $(CUR_LIBS_PATH)/mbedtls/crypto/include
 
+# core-libs related include directories
+INCLUDE_DIRS_CORE_LIB := $(CUR_LIBS_PATH)/core-lib/include
+
+# core-libs related include directories
+INCLUDE_DIRS_HAL := $(CUR_LIBS_PATH)/psoc6hal/include
+INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
+INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages
+INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/triggers
+
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
-SOURCES_LIBS += $(SOURCES_BSP)
 SOURCES_LIBS += $(SOURCES_RETARGET_IO)
+SOURCES_LIBS += $(SOURCES_HAL)
 
 # Collected include directories for libraries
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
-INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_BSP))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_MBEDTLS))
+INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_CORE_LIB))
+INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_HAL))
 
 ASM_FILES_PDL :=
 ifeq ($(COMPILER), GCC_ARM)
@@ -68,10 +82,9 @@ $(error Only GCC ARM is supported at this moment)
 endif
 
 ASM_FILES_LIBS := $(ASM_FILES_PDL)
-ASM_FILES_LIBS += $(ASM_FILES_BSP)
 
 # Add define for PDL version
 DEFINES_PDL += -DPDL_VERSION=$(PDL_VERSION)
 
-DEFINES_LIBS := $(DEFINES_BSP)
+#DEFINES_LIBS := $(DEFINES_BSP)
 DEFINES_LIBS += $(DEFINES_PDL)

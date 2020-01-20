@@ -58,8 +58,6 @@
 /* Cypress pdl/bsp headers */
 #include "cy_pdl.h"
 #include "cyhal.h"
-#include "cybsp.h"
-#include "cybsp_types.h"
 #include "cy_retarget_io.h"
 #include "cy_result.h"
 

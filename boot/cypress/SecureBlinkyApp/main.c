@@ -3,33 +3,11 @@
 * \version 1.0
 *
 * \brief
-* Demonstrates blinking an LED under firmware control. The Cortex-M4 toggles
+* Demonstrates blinking an LED under firmware control. The Cortex-CM0+ toggles
 * the Red LED. The Cortex-M0+ starts the Cortex-M4 and enters sleep.
 *
 * Compatible Kits:
-*    CY8CPROTO-062-4343W
 *    CY8CKIT-064S2-4343W
-* Migration to CY8CPROTO-062-4343W kit (ModusToolbox IDE):
-*   1. Create this project targeting the CY8CPROTO-062-4343W kit.
-*   2. Open design.modus file and replicate P0[3] configuration on P13[7]. Give
-*      this pin the alias "LED_RED". Disable P0[3].
-*   3. Build and Program
-*
-* Migration to CY8CPROTO-062-4343W kit (command line make):
-*   1. Launch the Device Configurator tool from
-*      ModusToolbox_1.0\tools\device-configurator-1.0\
-*   2. In Device Configurator, open design.modus file
-*      (ModusToolbox_1.0\libraries\psoc6sw-1.0\examples\BlinkyLED\design.modus)
-*      and replicate P0[3] configuration on P13[7].
-*      Give this pin the alias "LED_RED". Disable P0[3].
-*   3. Perform "make clean"
-*   4. Build and Program the device with "make DEVICE=CY8C624ABZI-D44 program"
-*      Note that depending on the method used to program the device, you may
-*      need to manually reset it by pressing the SW1 RESET button on the kit.
-*   4. Observe the red blinking LED.
-*   5. To switch back to CY8CKIT-062-BLE or CY8CKIT-062-WIFI-BT,
-*      perform steps 1 through 3 to reconfigure the "LED_RED" to P0[3].
-*      Then use "make program".
 *
 ********************************************************************************
 * \copyright
@@ -53,7 +31,6 @@
 
 #include "cy_pdl.h"
 #include "cyhal.h"
-#include "cybsp.h"
 #include "cy_retarget_io.h"
 
 #include "cy_secure_utils.h"
@@ -70,7 +47,49 @@
 
 #define CM4_APP_HEADER_SIZE             (0x400UL)
 
-#define MASTER_IMG_ID                   (1)
+#define MASTER_IMG_ID                   (0)
+
+#if defined(DEBUG)
+
+#define CY_DEBUG_UART_TX (P5_1)
+#define CY_DEBUG_UART_RX (P5_0)
+
+#if defined(PSOC_064_1M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT13
+#define LED_PIN 7U
+#elif defined(PSOC_064_2M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT1
+#define LED_PIN 5U
+#elif defined(PSOC_064_512K)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT2
+#define LED_PIN 7U
+#endif
+
+#define LED_NUM 5U
+#define LED_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
+#define LED_INIT_DRIVESTATE 1
+
+const cy_stc_gpio_pin_config_t LED_config =
+{
+    .outVal = 1,
+    .driveMode = CY_GPIO_DM_STRONG_IN_OFF,
+    .hsiom = HSIOM_SEL_GPIO,
+    .intEdge = CY_GPIO_INTR_DISABLE,
+    .intMask = 0UL,
+    .vtrip = CY_GPIO_VTRIP_CMOS,
+    .slewRate = CY_GPIO_SLEW_FAST,
+    .driveSel = CY_GPIO_DRIVE_FULL,
+    .vregEn = 0UL,
+    .ibufMode = 0UL,
+    .vtripSel = 0UL,
+    .vrefSel = 0UL,
+    .vohSel = 0UL,
+};
+
+#endif
 
 #define GREETING_MESSAGE          "[SecureBlinkyApp]"
 #ifdef BOOT_IMG
@@ -106,27 +125,27 @@ void check_result(int res)
 
 void test_app_init_hardware(void)
 {
-    cybsp_init();
-
     /* enable interrupts */
     __enable_irq();
 
-    /* Initialize retarget-io to use the debug UART port */
-    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
-                                     CY_RETARGET_IO_BAUDRATE));
+    Cy_PDL_Init(CY_DEVICE_CFG);
 
-    printf("======================================\r\n");
+    SystemCoreClockUpdate();
+
+    /* Disabling watchdog so it will not interrupt normal flow later */
+#if defined(DEBUG)
+    Cy_GPIO_Pin_Init(LED_PORT, LED_PIN, &LED_config);
+    /* Initialize retarget-io to use the debug UART port */
+    check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
+                                     CY_RETARGET_IO_BAUDRATE));
+#endif
+
+    printf("\n======================================\r\n");
     printf(GREETING_MESSAGE_VER);
     printf("======================================\r\n");
-
-    /* Initialize the User LED */
-    check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
-                                 CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF));
-
     printf("\r[SecureBlinkyApp] GPIO initialized \r\n");
     printf("[SecureBlinkyApp] UART initialized \r\n");
     printf("[SecureBlinkyApp] Retarget I/O set to 115200 baudrate \r\n");
-
 }
 
 int main(void)
@@ -146,8 +165,7 @@ int main(void)
     rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
     if(0 == rc)
     {
-        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
-                MASTER_IMG_ID);
+        rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy, MASTER_IMG_ID);
     }
 
     if(0 != rc)
@@ -176,9 +194,10 @@ int main(void)
         Cy_SysLib_Delay(blinky_period/2);
 
         /* Invert the USER LED state */
-        cyhal_gpio_toggle((cyhal_gpio_t) CYBSP_USER_LED1);
+#if defined(DEBUG)
+        Cy_GPIO_Inv(LED_PORT, LED_PIN);
+#endif
     }
-
     Cy_Utils_StartAppCM4(app_addr);
 
     return 0;
