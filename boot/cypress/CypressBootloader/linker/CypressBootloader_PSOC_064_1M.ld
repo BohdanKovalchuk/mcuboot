@@ -65,7 +65,7 @@ MEMORY
     ram               (rwx)   : ORIGIN = 0x08017000, LENGTH = 0x15000
     public_ram        (rw)    : ORIGIN = 0x0802C000, LENGTH = 0x800
     flash             (rx)    : ORIGIN = 0x100D0000, LENGTH = 0xFE00
-    
+
     toc_3             (rx)    : ORIGIN = 0x100DFE00, LENGTH = 0x200 /* Used by Secure FlashBoot */
  /* toc_2             (rx)    : ORIGIN = 0x16007C00, LENGTH = 0x200 */ /* For old FlashBoot */
 
@@ -236,7 +236,10 @@ SECTIONS
         __data_start__ = .;
 
         *(vtable)
+
+        __sdata_start__ = .;
         *(.data*)
+        __sdata_end__ = .;
 
         . = ALIGN(4);
         /* preinit data */
@@ -374,7 +377,7 @@ SECTIONS
         KEEP(*(.cy_toc_part2))
     } > toc_3
 
-    
+
     /* Supervisory Flash: Table of Content # 2 Copy */
     .cy_rtoc_part2 :
     {

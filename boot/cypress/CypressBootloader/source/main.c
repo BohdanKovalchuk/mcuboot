@@ -174,11 +174,6 @@ static void do_boot(struct boot_rsp *rsp)
     app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
     BOOT_LOG_INF("Application at: 0x%08x", app_addr);
 
-#if 0 /* need to test this */
-    rc = Cy_BLServ_FreeHeap();
-    assert(rc == 0);
-#endif
-
     /* hardcode image id to run CM0p first until fwsecurity-645 merged */
     switch (cy_bl_bnu_policy.bnu_img_policy[0].id)
     {
