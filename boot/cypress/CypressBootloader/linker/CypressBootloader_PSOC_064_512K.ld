@@ -65,7 +65,7 @@ MEMORY
     ram               (rwx)   : ORIGIN = 0x08017000, LENGTH = 0x15000
     public_ram        (rw)    : ORIGIN = 0x0802C000, LENGTH = 0x800
     flash             (rx)    : ORIGIN = 0x10030000, LENGTH = 0xFE00
-    
+
     toc_3             (rx)    : ORIGIN = 0x1003FE00, LENGTH = 0x200 /* Used by Secure FlashBoot */
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.
@@ -235,7 +235,10 @@ SECTIONS
         __data_start__ = .;
 
         *(vtable)
+
+        __sdata_start__ = .;
         *(.data*)
+        __sdata_end__ = .;
 
         . = ALIGN(4);
         /* preinit data */
@@ -373,7 +376,7 @@ SECTIONS
         KEEP(*(.cy_toc_part2))
     } > toc_3
 
-    
+
     /* Supervisory Flash: Table of Content # 2 Copy */
     .cy_rtoc_part2 :
     {
