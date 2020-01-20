@@ -14,8 +14,6 @@
 *******************************************************************************/
 #include "cy_pdl.h"
 #include "cyhal.h"
-#include "cybsp.h"
-#include "cybsp_types.h"
 #include "cy_retarget_io.h"
 #include "cy_result.h"
 #include "cy_device_headers.h"
@@ -185,6 +183,6 @@ void Cy_InitPSoC6_HW(void)
     Cy_GPIO_Pin_Init(LED_RED_PORT, LED_RED_PIN, &LED_RED_config);
 #endif
     /* Initialize retarget-io to use the debug UART port */
-    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+    cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
 #endif
 }
