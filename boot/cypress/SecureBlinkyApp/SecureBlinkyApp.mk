@@ -1,5 +1,5 @@
 ################################################################################
-# \file targets.mk
+# \file SecureBlinkyApp.mk
 # \version 1.0
 #
 # \brief
@@ -43,7 +43,7 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
-include $(CUR_APP_PATH)/targets.mk
+include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
 
@@ -60,19 +60,19 @@ DEFINES_APP += -DSECURE_APP_START=0x10000000
 SLOT_SIZE ?= 0x10000
 
 # Define RAM regions for targets, since they differ
-ifneq ($(filter $(TARGET), $(PLATFORM_064_2M)),)
+ifeq ($(PLATFORM), PSOC_064_2M)
 DEFINES_APP += -DSECURE_RAM_START=0x08040000
 DEFINES_APP += -DSECURE_RAM_SIZE=0x20000
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
 CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
-else ifneq ($(filter $(TARGET), $(PLATFORM_064_1M)),)
+else ifeq ($(PLATFORM), PSOC_064_1M)
 DEFINES_APP += -DSECURE_RAM_START=
 DEFINES_APP += -DSECURE_RAM_SIZE=
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := 
 CY_SEC_TOOLS_TARGET := 
-else ifneq ($(filter $(TARGET), $(PLATFORM_064_512K)),)
+else ifeq ($(PLATFORM), PSOC_064_512K)
 DEFINES_APP += -DSECURE_RAM_START=0x08000000
 DEFINES_APP += -DSECURE_RAM_SIZE=0x10000
 # Determine path to multi image policy file
@@ -82,6 +82,7 @@ endif
 
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
+DEFINES_APP += $(DEFINES_PLATFORM)
 
 # Collect Test Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)
@@ -94,11 +95,13 @@ SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson
 # Collect all the sources
 SOURCES_APP += $(SOURCES_APP_SRC)
 SOURCES_APP += $(SOURCES_SECBOOT_UTILS)
+SOURCES_APP += $(SOURCES_PLATFORM)
 
 # Collect includes for BlinkyApp
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/protections)
+INCLUDE_DIRS_APP += $(addprefix -I, $(INCLUDE_DIRS_PLATFORM))
 
 # INCLUDES_DIRS_MCUBOOT := $(addprefix -I, $(CURDIR)/../bootutil/src)
 
@@ -108,14 +111,15 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_jwt)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_cjson/cJSON)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/cy_secureboot_utils/cy_base64)
 
-# Overwite path to linker script if custom is required, otherwise default from BSP is used
 ifeq ($(COMPILER), GCC_ARM)
+# TODO: do we need platform-dependent linker?
 LINKER_SCRIPT := $(subst /cygdrive/c,c:,$(CUR_APP_PATH)/linker/$(APP_NAME).ld)
 else
 $(error Only GCC ARM is supported at this moment)
 endif
 
 ASM_FILES_APP :=
+ASM_FILES_APP += $(ASM_FILES_PLATFORM)
 
 IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
@@ -124,7 +128,7 @@ SIGN_ARGS := sign -H 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512
 # Output folder
 OUT := $(APP_NAME)/out
 # Output folder to contain build artifacts
-OUT_TARGET := $(OUT)/$(TARGET)
+OUT_TARGET := $(OUT)/$(PLATFORM)
 
 OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 
@@ -132,9 +136,20 @@ OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 ifeq ($(IMG_TYPE), UPGRADE)
 	SIGN_ARGS += --pad
 	UPGRADE_SUFFIX :=_upgrade
-	OUT_CFG := $(OUT_CFG)/upgrade
-else
+endif
+
+# Output folder
+OUT := $(APP_NAME)/out
+# Output folder to contain build artifacts
+OUT_PLATFORM := $(OUT)/$(PLATFORM)
+
+OUT_CFG := $(OUT_PLATFORM)/$(BUILDCFG)
+
+# Set build directory for BOOT and UPGRADE images
+ifeq ($(IMG_TYPE), BOOT)
 	OUT_CFG := $(OUT_CFG)/boot
+else
+	OUT_CFG := $(OUT_CFG)/upgrade
 endif
 
 pre_build:
@@ -142,6 +157,7 @@ pre_build:
 	@$(CC) -E -x c $(CFLAGS) $(INCLUDE_DIRS) $(CUR_APP_PATH)/linker/$(APP_NAME)_template.ld | grep -v '^#' >$(CUR_APP_PATH)/linker/$(APP_NAME).ld
 
 # Post build action to execute after main build job
+# TODO: how to deal w/ device_name in cysecuretools?
 post_build: $(OUT_CFG)/$(APP_NAME).hex
 	$(info [POST_BUILD] - Executing post build script for $(APP_NAME))
 	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"

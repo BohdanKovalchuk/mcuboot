@@ -90,6 +90,7 @@ ifeq ($(COMPILER), GCC_ARM)
 	CFLAGS_COMMON := -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -fno-stack-protector -ffunction-sections -fdata-sections -ffat-lto-objects -fstrict-aliasing -g -Wall -Wextra
 	ifeq ($(BUILDCFG), Debug)
 		CFLAGS_COMMON += -Og -g3
+		CFLAGS_COMMON += -DDEBUG
 	else ifeq ($(BUILDCFG), Release)
 		CFLAGS_COMMON += -Os -g
 	else
