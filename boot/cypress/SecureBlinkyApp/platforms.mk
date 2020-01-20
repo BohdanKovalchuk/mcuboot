@@ -73,6 +73,8 @@ DEFINES:=CY_USING_HAL
 # Collect C source files for PLATFORM BSP
 SOURCES_PLATFORM += $(wildcard $(PLATFORMS_PATH)/*.c)
 SOURCES_PLATFORM += $(wildcard $(PLATFORM_PATH)/$(CORE)/*.c)
+# Exclude system file for cm4
+SOURCES_PLATFORM := $(filter-out %/system_psoc6_cm4.c, $(SOURCES_PLATFORM))
 
 # Collect dirrectories containing headers for PLATFORM BSP
 INCLUDE_DIRS_PLATFORM := $(PLATFORMS_PATH)
@@ -98,12 +100,6 @@ ifneq ($(DEFINES),)
 endif
 
 DEFINES_PLATFORM += $(addprefix -D, $(PLATFORM))
-
-ifeq ($(COMPILER), GCC_ARM)
-LINKER_SCRIPT ?= $(PLATFORM_PATH)/$(CORE)/$(COMPILER)/*_cm0plus.ld
-else
-$(error Only GCC ARM is supported at this moment)
-endif
 
 ifeq ($(MAKEINFO) , 1)
 $(info ==============================================================================)

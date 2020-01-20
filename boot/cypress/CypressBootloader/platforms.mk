@@ -68,6 +68,8 @@ SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/sour
 SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
 SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
 
+SOURCES_PLATFORM := $(filter-out %/system_psoc6_cm4.c, $(SOURCES_PLATFORM))
+
 # Collect dirrectories containing headers for PLATFORM BSP
 INCLUDE_DIRS_PLATFORM := $(PLATFORM_PATH)
 INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/include
@@ -103,7 +105,7 @@ $(info =========================================================================
 $(info = BSP files =)
 $(info ==============================================================================)
 $(info $(SOURCES_PLATFORM))
-$(info $(ASM_FILES_PLATFROM))
+$(info $(ASM_FILES_PLATFORM))
 endif
 
 # TODO: include appropriate BSP linker(s)
