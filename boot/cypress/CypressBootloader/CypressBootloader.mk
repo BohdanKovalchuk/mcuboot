@@ -48,34 +48,15 @@ DEFINES_APP += -DCORE=$(CORE)
 # define maximum image sectors and choose script name for certificate generation
 ifeq ($(PLATFORM), PSOC_064_2M)
 CY_BOOTLOADER_APP_START ?= 0x101D0000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848 # 0x30B600 slot size
 IMAGE_CERT := image_cert_2M
 else ifeq ($(PLATFORM), PSOC_064_1M)
 CY_BOOTLOADER_APP_START ?= 0x100D0000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=640 # 0x50000 slot size
 IMAGE_CERT := image_cert_2M
 else ifeq ($(PLATFORM), PSOC_064_512K)
 CY_BOOTLOADER_APP_START ?= 0x10030000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
-IMAGE_CERT := image_cert_512k
-else
-$(error "Not suppoted target name $(PLATFORM)")
-endif
-
-
-# add start address for each target device, since flash size is different
-# define maximum image sectors and choose script name for certificate generation
-ifeq ($(PLATFORM), PSOC_064_2M)
-CY_BOOTLOADER_APP_START ?= 0x101D0000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848
-IMAGE_CERT := image_cert_2M
-else ifeq ($(PLATFORM), PSOC_064_1M)
-CY_BOOTLOADER_APP_START ?= 0x100D0000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
-IMAGE_CERT := image_cert_2M
-else ifeq ($(PLATFORM), PSOC_064_512K)
-CY_BOOTLOADER_APP_START ?= 0x10030000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384 # 0x30000 slot size
 IMAGE_CERT := image_cert_512k
 else
 $(error "Not suppoted target name $(PLATFORM)")
