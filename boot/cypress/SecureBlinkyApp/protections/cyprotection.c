@@ -48,15 +48,11 @@
 
 #include "cyprotection_mem_config.h"
 
-// TODO: fix it to family, not to device
-#if defined(CYB0644ABZI_S2D44)
-//#if defined(PSOC_064_2M)
+#if defined(CYB0644ABZI_S2D44) || defined(PSOC_064_2M)
     #include "cyprotection_periph_config_2M.h"
-#elif defined(CYB06447BZI_D54) || defined(CYB06447BZI_BLD53)
-//#elif defined(PSOC_064_1M)
+#elif defined(CYB06447BZI_D54) || defined(CYB06447BZI_BLD53) || defined(PSOC_064_1M)
     #include "cyprotection_periph_config.h"
-#elif defined(CYB06445LQI_S3D42)
-//#elif defined(PSOC_064_512K)
+#elif defined(CYB06445LQI_S3D42) || defined(PSOC_064_512K)
     #include "cyprotection_periph_config_512k.h"
 #else
     #error "Unsupported device declared."

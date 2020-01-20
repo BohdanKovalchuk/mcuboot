@@ -31,7 +31,6 @@
 
 #include "cy_pdl.h"
 #include "cyhal.h"
-#include "cybsp.h"
 #include "cy_retarget_io.h"
 
 #include "cy_secure_utils.h"
@@ -51,6 +50,9 @@
 #define MASTER_IMG_ID                   (0)
 
 #if defined(DEBUG)
+
+#define CY_DEBUG_UART_TX (P5_1)
+#define CY_DEBUG_UART_RX (P5_0)
 
 #if defined(PSOC_064_1M)
 #warning "Check if User LED is correct for your target board."
@@ -134,11 +136,11 @@ void test_app_init_hardware(void)
 #if defined(DEBUG)
     Cy_GPIO_Pin_Init(LED_PORT, LED_PIN, &LED_config);
     /* Initialize retarget-io to use the debug UART port */
-    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
+    check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
                                      CY_RETARGET_IO_BAUDRATE));
 #endif
 
-    printf("======================================\r\n");
+    printf("\n======================================\r\n");
     printf(GREETING_MESSAGE_VER);
     printf("======================================\r\n");
     printf("\r[SecureBlinkyApp] GPIO initialized \r\n");
