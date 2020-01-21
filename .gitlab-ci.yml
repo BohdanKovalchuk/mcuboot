@@ -350,7 +350,7 @@ mac_test_512K:
     - source venv/bin/activate
     - python3 -m pip install pyserial
     - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/512k-cybootloader
-    - pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+#    - pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
     - pwd
     - rm -rf ./venv/lib/python3.7/site-packages/cysecuretools/targets/cyb06xx5/prebuilt/CyBootloader_Release
     - rm ./venv/lib/python3.7/site-packages/cysecuretools/targets/cyb06xx5/prebuilt/CyBootloader_WithLogs/CypressBootloader_CM0p.jwt
