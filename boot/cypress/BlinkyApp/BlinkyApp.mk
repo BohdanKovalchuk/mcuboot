@@ -78,6 +78,23 @@ ifeq ($(PLATFORM), PSOC_064_2M)
         SLOT_SIZE ?= 0x10000
 	endif
 endif
+ifeq ($(PLATFORM), PSOC_064_1M)
+	# Set RAM start and size
+	DEFINES_APP += -DSECURE_RAM_START=0x08010000
+	DEFINES_APP += -DSECURE_RAM_SIZE=0x5000
+	CY_SEC_TOOLS_TARGET := cy8cproto-064b0s1-ble
+	# Set flash start and size
+	ifeq ($(MULTI_IMAGE), 0)
+		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_single_stage_CM4.json
+		DEFINES_APP += -DUSER_APP_START=0x10000000
+        SLOT_SIZE ?= 0x50000
+	else
+		# Determine path to multi image policy file
+		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
+		DEFINES_APP += -DUSER_APP_START=0x10020000
+        SLOT_SIZE ?= 0x10000
+	endif
+endif
 ifeq ($(PLATFORM), PSOC_064_512K)
 	# Set RAM start and size
 	DEFINES_APP += -DSECURE_RAM_START=0x08010000
