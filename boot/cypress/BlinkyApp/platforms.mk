@@ -76,7 +76,6 @@ INCLUDE_DIRS_PLATFORM := $(PLATFORMS_PATH)
 INCLUDE_DIRS_PLATFORM += $(PLATFORM_PATH)/$(CORE)
 
 # Collect Assembler files for PLATFORM
-# TODO: need to include _01_, _02_ or _03_ depending on device family.
 STARTUP_FILE := $(PLATFORM_PATH)/$(CORE)/$(COMPILER)/startup_psoc6_$(PLATFORM_SUFFIX)_cm4
 
 ifeq ($(COMPILER), GCC_ARM)

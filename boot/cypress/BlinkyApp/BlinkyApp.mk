@@ -46,7 +46,7 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
-include $(CUR_APP_PATH)/targets.mk
+include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
 include $(CUR_APP_PATH)/toolchains.mk
 
