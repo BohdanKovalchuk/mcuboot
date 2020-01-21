@@ -171,7 +171,7 @@ pre_build:
 post_build: $(OUT_CFG)/$(APP_NAME).hex
 	$(info [POST_BUILD] - Executing post build script for $(APP_NAME))
 # determine if target is Secure Boot - use cysecuretools for signing. built in imgtool for non secure targets
-ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
+ifneq ($(filter $(PLATFORM), $(SB_PLATFORMS)),)
 ifeq ($(MULTI_IMAGE), 1)
 	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
 else
