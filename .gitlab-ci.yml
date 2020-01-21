@@ -61,7 +61,7 @@ variables:
     - cp -r ./signed/*.jwt ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
 
     
-.make_boot_app: &make_platform_boot_app
+.make_boot_app: &make_boot_app
     # Build boot application
     - export APP_BUILD_OPTIONS=''
     - echo '================================================================================================='
@@ -340,7 +340,7 @@ mac_test_512K:
     - MBED_TEST_MAC1014
   dependencies:
     - mac_build_512K_bootloader
-    - mac_build_512K_BlinkyApp_Multi
+    - mac_build_512K_Multi_BlinkyApp
     - mac_build_512K_SecureBlinkyApp
     - mac_build_512K_BlinkyApp
   script:
@@ -427,7 +427,7 @@ deploy_asset:
   tags:
     - devops-assets
   dependencies:
-    - mac_test
+    - mac_test_512K
   only:
     - /^develop$/
     - /^cypress$/
