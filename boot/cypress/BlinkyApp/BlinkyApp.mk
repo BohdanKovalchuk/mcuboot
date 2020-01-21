@@ -37,7 +37,7 @@ IMG_TYPES = BOOT UPGRADE
 # BlinkyApp will be be run by CyBootloader wih multi image support
 MULTI_IMAGE ?= 1
 
-# CypressBootloader Image ID to use for signing
+# CypressBootloader Image ID to use for signing, defualt is ID for multi image
 CYB_IMG_ID ?= 16
 
 ifneq ($(COMPILER), GCC_ARM)
@@ -68,7 +68,8 @@ ifeq ($(PLATFORM), PSOC_064_2M)
 	CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4.json
+		CYB_IMG_ID := 4
+		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x50000
 	else
@@ -85,7 +86,8 @@ ifeq ($(PLATFORM), PSOC_064_1M)
 	CY_SEC_TOOLS_TARGET := cy8cproto-064b0s1-ble
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_single_stage_CM4.json
+		CYB_IMG_ID := 4
+		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x50000
 	else
@@ -102,8 +104,9 @@ ifeq ($(PLATFORM), PSOC_064_512K)
 	CY_SEC_TOOLS_TARGET := cy8c6245lqi-s3d72
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8c6245lqi_s3d72/policy/policy_single_stage_CM4.json
-		DEFINES_APP += -DUSER_APP_START=0x10040000
+		CYB_IMG_ID := 4
+		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8c6245lqi_s3d72/policy/policy_single_stage_CM4.json
+		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x30000
 	else
 		# Determine path to multi image policy file
@@ -175,7 +178,7 @@ ifneq ($(filter $(PLATFORM), $(SB_PLATFORMS)),)
 ifeq ($(MULTI_IMAGE), 1)
 	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)', '$(MULTI_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
 else
-	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex')"
+	$(PYTHON_PATH) -c "from cysecuretools import CySecureTools; tools = CySecureTools('$(CY_SEC_TOOLS_TARGET)', '$(SINGLE_IMAGE_POLICY)'); tools.sign_image('$(OUT_CFG)/$(APP_NAME).hex', $(CYB_IMG_ID))"
 endif
 else
 	mv -f $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_unsigned.hex
