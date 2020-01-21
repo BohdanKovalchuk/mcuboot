@@ -432,6 +432,7 @@ deploy_asset:
     - /^develop$/
     - /^cypress$/
     - /^integration/cy_bootloader$/
+    - /^feature/kosx-CI-1028$/
   script:
     - git clone git@git-ore.aus.cypress.com:devops/devops_scripts.git
     - bash devops_scripts/job_deploy_to_assets.sh
