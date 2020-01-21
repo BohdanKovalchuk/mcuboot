@@ -54,6 +54,28 @@
 #include "cybsp.h"
 #include "cy_retarget_io.h"
 
+/* Define pins for UART debug output */
+#define CY_DEBUG_UART_TX (P5_1)
+#define CY_DEBUG_UART_RX (P5_0)
+
+/* Define states for pin */
+#define CY_LED_STATE_OFF 0
+#define CY_LED_STATE_ON  1
+
+#if defined(PSOC_064_1M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT13
+#define LED_PIN 7U
+#elif defined(PSOC_064_2M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT1
+#define LED_PIN 5U
+#elif defined(PSOC_064_512K)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT2
+#define LED_PIN 7U
+#endif
+
 #ifdef BOOT_IMG
     #define BLINK_PERIOD          (1000u)
     #define GREETING_MESSAGE_VER  "[BlinkyApp] BlinkyApp v1.0 [CM4]\r\n"
@@ -82,7 +104,7 @@ void test_app_init_hardware(void)
     __enable_irq();
 
     /* Initialize retarget-io to use the debug UART port */
-    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
+    check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
                                      CY_RETARGET_IO_BAUDRATE));
 
     printf("\n===========================\r\n");
@@ -90,8 +112,8 @@ void test_app_init_hardware(void)
     printf("===========================\r\n");
 
     /* Initialize the User LED */
-    check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
-                                 CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF));
+    check_result(cyhal_gpio_init((cyhal_gpio_t) LED_PIN, CYHAL_GPIO_DIR_OUTPUT,
+                                 CYHAL_GPIO_DRIVE_STRONG, CY_LED_STATE_OFF));
 
     printf("[BlinkyApp] GPIO initialized \r\n");
     printf("[BlinkyApp] UART initialized \r\n");
@@ -113,6 +135,6 @@ int main(void)
         Cy_SysLib_Delay(blinky_period/2);
 
         /* Invert the USER LED state */
-        cyhal_gpio_toggle((cyhal_gpio_t) CYBSP_USER_LED1);
+        cyhal_gpio_toggle((cyhal_gpio_t) LED_PIN);
     }
 }

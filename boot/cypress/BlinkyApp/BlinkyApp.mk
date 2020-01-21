@@ -59,9 +59,9 @@ endif
 
 # Define start of application as it can be built for Secure Boot target
 # Also check if this image will be used with multi image CyBootloader
-ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
-#2M devices case TODO: use platforms.mk of family.mk
-ifneq ($(filter $(TARGET), $(PLATFORM_064_2M)),)
+ifneq ($(filter $(PLATFORM), $(SB_PLATFORMS)),)
+#2M devices case
+ifeq ($(PLATFORM), PSOC_064_2M)
 	# Set RAM start and size
 	DEFINES_APP += -DSECURE_RAM_START=0x08008000
 	DEFINES_APP += -DSECURE_RAM_SIZE=0x3000
@@ -78,7 +78,7 @@ ifneq ($(filter $(TARGET), $(PLATFORM_064_2M)),)
         SLOT_SIZE ?= 0x10000
 	endif
 endif
-ifneq ($(filter $(TARGET), $(PLATFORM_064_512K)),)
+ifeq ($(PLATFORM), PSOC_064_512K)
 	# Set RAM start and size
 	DEFINES_APP += -DSECURE_RAM_START=0x08010000
 	DEFINES_APP += -DSECURE_RAM_SIZE=0x5000
@@ -95,7 +95,7 @@ ifneq ($(filter $(TARGET), $(PLATFORM_064_512K)),)
         SLOT_SIZE ?= 0x10000
 	endif
 endif
-else
+ifeq ($(PLATFORM), PSOC_062_2M)
 	DEFINES_APP += -DSECURE_RAM_START=0x08000000
 	DEFINES_APP += -DSECURE_RAM_SIZE=0x20000
 	DEFINES_APP += -DUSER_APP_START=0x10018000
@@ -128,7 +128,7 @@ SIGN_ARGS := sign --header-size 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_S
 # Output folder
 OUT := $(APP_NAME)/out
 # Output folder to contain build artifacts
-OUT_TARGET := $(OUT)/$(TARGET)
+OUT_TARGET := $(OUT)/$(PLATFORM)
 
 OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 
@@ -141,10 +141,10 @@ else
 	OUT_CFG := $(OUT_CFG)/boot
 endif
 
-# Determine path to policy file if multi image is used
-ifeq ($(MULTI_IMAGE), 1)
-	MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
-endif
+# # Determine path to policy file if multi image is used
+# ifeq ($(MULTI_IMAGE), 1)
+# 	MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
+# endif
 
 pre_build:
 	$(info [PRE_BUILD] - Generating linker script for application $(CUR_APP_PATH)/linker/$(APP_NAME).ld)
@@ -163,4 +163,5 @@ endif
 else
 	mv -f $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_unsigned.hex
 	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME)_unsigned.hex $(OUT_CFG)/$(APP_NAME)$(UPGRADE_SUFFIX).hex
+endif
 endif

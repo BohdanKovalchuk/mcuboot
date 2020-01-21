@@ -23,43 +23,41 @@
 # limitations under the License.
 ################################################################################
 
-# Target board MCUBoot is built for. CY8CPROTO-062-4343W is set as default
+# Target PLATFORM BlinkyApp is built for. PSOC_064_2M is set as default
 # Supported:
-#   - CY8CPROTO-062-4343W
-#	- CY8CKIT-064S2-4343W
-#	- more to come
+#   - PSOC_064_2M
+#	- PSOC_064_1M
+#	- PSOC_064_512K
+#	- PSOC_062_2M
 
 # default TARGET
-TARGET ?= CY8CPROTO-062-4343W
+PLATFORM ?= PSOC_064_2M
 #
-SB_TARGETS := CY8CKIT-064S2-4343W CY8CKIT-064B0S2-4343W CY8CPROTO-064B0S3
-TARGETS := CY8CPROTO-062-4343W $(SB_TARGETS)
-PLATFORM_064_2M   := CY8CKIT-064B0S2-4343W CY8CKIT-064S2-4343W CY8CPROTO-062-4343W
-PLATFORM_064_1M   := CY8CPROTO-064B0S1-BLE CY8CPROTO-064-SB
-PLATFORM_064_512K := CY8CPROTO-064B0S3
+SB_PLATFORMS := PSOC_064_2M PSOC_064_1M PSOC_064_512K
+PLATFORMS := PSOC_062_2M $(SB_PLATFORMS)
+
 # For which core this application is built
 CORE := CM4
 
+# Set paths for related folders
 CUR_LIBS_PATH := $(CURDIR)/libs
-BSP_PATH  := $(CUR_LIBS_PATH)/bsp/TARGET_$(TARGET)
-
-ifneq ($(filter $(TARGET), $(TARGETS)),)
-include ./libs/bsp/TARGET_$(TARGET)/$(TARGET).mk
-else
-$(error Not supported target: '$(TARGET)')
-endif
+PLATFORMS_PATH := $(CURDIR)/platforms
+PLATFORM_PATH := $(PLATFORMS_PATH)/$(PLATFORM)
 
 # Target dependent definitions
-ifneq ($(filter $(TARGET), $(PLATFORM_064_2M)),)
+ifeq ($(PLATFORM), PSOC_064_2M)
+DEVICE ?= CYB0644ABZI-S2D44
 PLATFORM_SUFFIX := 02
-else ifneq ($(filter $(TARGET), $(PLATFORM_064_1M)),)
+else ifeq ($(PLATFORM), PSOC_064_1M)
+DEVICE ?= CYB06447BZI-BLD53
 PLATFORM_SUFFIX := 01
-else ifneq ($(filter $(TARGET), $(PLATFORM_064_512K)),)
+else ifeq ($(PLATFORM), PSOC_064_512K)
+DEVICE ?= CYB06445LQI-S3D42
 PLATFORM_SUFFIX := 03
 endif
 
 # Check if path to cysecuretools is set in case Secure Boot target
-ifneq ($(filter $(TARGET), $(SB_TARGETS)),)
+ifneq ($(filter $(PLATFORM), $(SB_PLATFORMS)),)
 ifeq ($(CY_SEC_TOOLS_PATH), )
 $(error Variable CY_SEC_TOOLS_PATH - path to cysecuretools package not set. \
 		Use `python -m pip show cysecuretools` to determine intallation folder.` \
@@ -67,56 +65,43 @@ $(error Variable CY_SEC_TOOLS_PATH - path to cysecuretools package not set. \
 endif
 endif
 
-# Collect C source files for TARGET BSP
-SOURCES_BSP := $(wildcard $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/*.c)
-SOURCES_BSP += $(wildcard $(BSP_PATH)/COMPONENT_$(CORE)/*.c)
-# exclude CapSense for now
-SOURCES_BSP := $(filter-out $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/cycfg_capsense.c, \
-				 $(SOURCES_BSP))
-SOURCES_BSP += $(BSP_PATH)/cybsp.c
-SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.c)
-SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
-SOURCES_BSP += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
+# Collect C source files for PLATFORM
+SOURCES_PLATFORM += $(wildcard $(PLATFORMS_PATH)/*.c)
+SOURCES_PLATFORM += $(wildcard $(PLATFORM_PATH)/$(CORE)/*.c)
+# Exclude system file for cm4
+SOURCES_PLATFORM := $(filter-out %/system_psoc6_cm0plus.c, $(SOURCES_PLATFORM))
 
+# Collect dirrectories containing headers for PLATFORM
+INCLUDE_DIRS_PLATFORM := $(PLATFORMS_PATH)
+INCLUDE_DIRS_PLATFORM += $(PLATFORM_PATH)/$(CORE)
 
-# Collect dirrectories containing headers for TARGET BSP
-INCLUDE_DIRS_BSP := $(BSP_PATH)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource/
-INCLUDE_DIRS_BSP += $(BSP_PATH)/startup
-INCLUDE_DIRS_BSP += $(BSP_PATH)
-INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/psoc6hal/include
-INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
-INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages
-INCLUDE_DIRS_BSP += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/triggers
-
-# Collect Assembler files for TARGET BSP
+# Collect Assembler files for PLATFORM
 # TODO: need to include _01_, _02_ or _03_ depending on device family.
-STARTUP_FILE := $(BSP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(COMPILER)/startup_psoc6_$(PLATFORM_SUFFIX)_cm4
+STARTUP_FILE := $(PLATFORM_PATH)/$(CORE)/$(COMPILER)/startup_psoc6_$(PLATFORM_SUFFIX)_cm4
 
 ifeq ($(COMPILER), GCC_ARM)
-	ASM_FILES_BSP := $(STARTUP_FILE).S
+	ASM_FILES_PLATFORM := $(STARTUP_FILE).S
 else
 $(error Only GCC ARM is supported at this moment)
 endif
 
-# Add device name from BSP makefile to defines
+# Add device name from PLATFORM makefile to defines
 DEFINES += $(DEVICE)
 
-# Get defines from BSP makefile and convert it to regular -DMY_NAME style 
+# Get defines from PLATFORM makefile and convert it to regular -DMY_NAME style 
 ifneq ($(DEFINES),)
-	DEFINES_BSP :=$(addprefix -D, $(subst -,_,$(DEFINES)))
+	DEFINES_PLATFORM :=$(addprefix -D, $(subst -,_,$(DEFINES)))
 endif
+
+DEFINES_PLATFORM += $(addprefix -D, $(PLATFORM))
 
 ifneq ($(COMPILER), GCC_ARM)
 $(error Only GCC ARM is supported at this moment)
 endif
 ifeq ($(MAKEINFO) , 1)
 $(info ==============================================================================)
-$(info = BSP files =)
+$(info = PLATFORM files =)
 $(info ==============================================================================)
-$(info $(SOURCES_BSP))
-$(info $(ASM_FILES_BSP))
+$(info $(SOURCES_PLATFORM))
+$(info $(ASM_FILES_PLATFORM))
 endif
-
-# TODO: include appropriate BSP linker(s)
-# TODO: include appropriate BSP precompiled
-
