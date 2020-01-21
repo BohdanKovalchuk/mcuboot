@@ -696,20 +696,20 @@ mac_build:
     - make clean APP_NAME=SecureBlinkyApp
     - cd ../..
 
-    ########################### CY8CPROTO-062-4343W ##############################
-    # MCUBootApp
-    - *cleanup_build_params
+    # ########################### CY8CPROTO-062-4343W ##############################
+    # # MCUBootApp
+    # - *cleanup_build_params
 
-    - export APP_NAME=MCUBootApp
-    - export TARGET=CY8CPROTO-062-4343W
-    - export MULTI_IMAGE=0
-    - export MAKEINFO=0
+    # - export APP_NAME=MCUBootApp
+    # - export TARGET=CY8CPROTO-062-4343W
+    # - export MULTI_IMAGE=0
+    # - export MAKEINFO=0
 
-    - export BUILDCFG=Debug
-    - *make_boot_app
+    # - export BUILDCFG=Debug
+    # - *make_boot_app
 
-    - export BUILDCFG=Release
-    - *make_boot_app
+    # - export BUILDCFG=Release
+    # - *make_boot_app
 
     # # BlinkyApp
     # - *cleanup_build_params
