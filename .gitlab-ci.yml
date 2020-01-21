@@ -31,29 +31,29 @@ variables:
     # Collect CypressBootloader for ${TARGET}
     - echo '================================================================================================='
     - echo '=== Build Signed application $APP_NAME'
-    - echo '=== Target = $TARGET, BUILDCFG = $BUILDCFG, MAKEINFO = $MAKEINFO'
+    - echo '=== Target = $PLATFORM, BUILDCFG = $BUILDCFG, MAKEINFO = $MAKEINFO'
     - echo '================================================================================================='
     - cd boot/cypress
     - make clean APP_NAME=$APP_NAME
-    - make app APP_NAME=$APP_NAME TARGET=$TARGET BUILDCFG=$BUILDCFG MAKEINFO=$MAKEINFO POST_BUILD=0
+    - make app APP_NAME=$APP_NAME TARGET=$PLATFORM BUILDCFG=$BUILDCFG MAKEINFO=$MAKEINFO POST_BUILD=0
     - cd ../..
-    - mkdir -p ./deploy/$TARGET/$APP_NAME/$BUILDCFG
-    - mkdir -p ./develop/$TARGET/$APP_NAME/$BUILDCFG
+    - mkdir -p ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG
+    - mkdir -p ./develop/$PLATFORM/$APP_NAME/$BUILDCFG
     #
-    # - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$HEX_NAME.hex ./deploy/$TARGET/$APP_NAME/$BUILDCFG/
-    # - sh cysign_bootloader -f ./deploy/$TARGET/$APP_NAME/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
-    - sh cysign_bootloader -f boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
+    # - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$HEX_NAME.hex ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/
+    # - sh cysign_bootloader -f ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
+    - sh cysign_bootloader -f boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$HEX_NAME.hex -n PSOC6A_2M
 
     # Collect CypressBootloader for ${TARGET} develop
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.hex ./develop/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.lst ./develop/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.elf ./develop/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/*.map ./develop/$TARGET/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.hex ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.lst ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.elf ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/*.map ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
 
     # Collect Signed application for ${TARGET} deploy
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$HEX_NAME.hex ./deploy/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r ./signed/*.jwt ./deploy/$TARGET/$APP_NAME/$BUILDCFG/
-    - cp -r ./signed/*.jwt ./develop/$TARGET/$APP_NAME/$BUILDCFG/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$HEX_NAME.hex ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r ./signed/*.jwt ./deploy/$PLATFORM/$APP_NAME/$BUILDCFG/
+    - cp -r ./signed/*.jwt ./develop/$PLATFORM/$APP_NAME/$BUILDCFG/
 
 .make_cybootloader_app: &make_cybootloader_app
     # Collect CypressBootloader for ${PLATFORM}
@@ -101,21 +101,21 @@ variables:
     - if [ ! -z $HEADER_OFFSET ]; then export APP_BUILD_OPTIONS+=HEADER_OFFSET=$HEADER_OFFSET; fi
     - if [ -z $HEX_NAME ]; then export HEX_NAME=$APP_NAME; fi
     - export APP_BUILD_OPTIONS+=$BUILD_OPTIONS
-    - mkdir -p  ./deploy/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG
-    - mkdir -p  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT
+    - mkdir -p  ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG
+    - mkdir -p  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT
     - cd boot/cypress
     - make clean APP_NAME=$APP_NAME
-    - make app APP_NAME=$APP_NAME TARGET=$TARGET BUILDCFG=$BUILDCFG MAKEINFO=$MAKEINFO IMG_TYPE=$IMG_TYPE $APP_BUILD_OPTIONS POST_BUILD=$POST_BUILD
+    - make app APP_NAME=$APP_NAME TARGET=$PLATFORM BUILDCFG=$BUILDCFG MAKEINFO=$MAKEINFO IMG_TYPE=$IMG_TYPE $APP_BUILD_OPTIONS POST_BUILD=$POST_BUILD
     - cd ../..
 
     # Collect App for develop
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/*.hex  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/*.lst  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/*.elf  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/*.map  ./develop/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.hex  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.lst  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.elf  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.map  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
 
     # Collect App for deploy
-    - cp -r boot/cypress/$APP_NAME/out/$TARGET/$BUILDCFG/$SLOT/$HEX_NAME$SUFX.hex ./deploy/$TARGET/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME$SUFX.hex
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/$HEX_NAME$SUFX.hex ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME$SUFX.hex
     
     
 .make_platform_boot_app: &make_platform_boot_app
