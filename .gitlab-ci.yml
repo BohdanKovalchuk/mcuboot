@@ -1225,7 +1225,7 @@ win_cpp_check:
 
 
 # Upload build artifacts to http://iot-webserver.aus.cypress.com/projects/iot_release/ASSETS/repo/mcuboot/
-.deploy_asset:
+deploy_asset:
   stage: deploy
   tags:
     - devops-assets
