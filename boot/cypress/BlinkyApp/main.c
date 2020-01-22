@@ -124,13 +124,10 @@ void test_app_init_hardware(void)
     SystemCoreClockUpdate();
 
     /* Disabling watchdog so it will not interrupt normal flow later */
-//#if defined(DEBUG)
     Cy_GPIO_Pin_Init(LED_PORT, LED_PIN, &LED_config);
     /* Initialize retarget-io to use the debug UART port */
     check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
                                      CY_RETARGET_IO_BAUDRATE));
-//#endif
-
 
     printf("\n===========================\r\n");
     printf(GREETING_MESSAGE_VER);
@@ -156,9 +153,7 @@ int main(void)
         Cy_SysLib_Delay(blinky_period/2);
 
         /* Invert the USER LED state */
-//#if defined(DEBUG)
         Cy_GPIO_Inv(LED_PORT, LED_PIN);
-//#endif
     }
     return 0;
 }
