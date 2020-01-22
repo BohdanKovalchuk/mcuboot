@@ -10,7 +10,7 @@ variables:
     CY_BOOTLOADER_MAJOR: 1
     CY_BOOTLOADER_MINOR: 1
     CY_BOOTLOADER_REV: 0
-    CY_BOOTLOADER_BUILD: 424
+    CY_BOOTLOADER_BUILD: $CI_PIPELINE_IID
 
 .cleanup_build_params: &cleanup_build_params
     - unset APP_NAME
