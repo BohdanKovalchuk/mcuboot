@@ -74,7 +74,7 @@ ifeq ($(PLATFORM), PSOC_064_2M)
         SLOT_SIZE ?= 0x50000
 	else
 		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
+		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10020000
         SLOT_SIZE ?= 0x10000
 	endif
@@ -101,16 +101,16 @@ ifeq ($(PLATFORM), PSOC_064_512K)
 	# Set RAM start and size
 	DEFINES_APP += -DSECURE_RAM_START=0x08010000
 	DEFINES_APP += -DSECURE_RAM_SIZE=0x5000
-	CY_SEC_TOOLS_TARGET := cy8c6245lqi-s3d72
+	CY_SEC_TOOLS_TARGET := cyb06445lqi-s3d42
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
 		CYB_IMG_ID := 4
-		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8c6245lqi_s3d72/policy/policy_single_stage_CM4.json
+		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x30000
 	else
 		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8c6245lqi_s3d72/policy/policy_multi_CM0_CM4.json
+		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10040000
         SLOT_SIZE ?= 0x10000
 	endif
@@ -160,11 +160,6 @@ ifeq ($(IMG_TYPE), UPGRADE)
 else
 	OUT_CFG := $(OUT_CFG)/boot
 endif
-
-# # Determine path to policy file if multi image is used
-# ifeq ($(MULTI_IMAGE), 1)
-# 	MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_multi_img_CM0p_CM4_debug.json
-# endif
 
 pre_build:
 	$(info [PRE_BUILD] - Generating linker script for application $(CUR_APP_PATH)/linker/$(APP_NAME).ld)
