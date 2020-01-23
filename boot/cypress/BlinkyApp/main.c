@@ -59,7 +59,7 @@
 #define CY_DEBUG_UART_TX (P5_1)
 #define CY_DEBUG_UART_RX (P5_0)
 
-#if defined(PSOC_064_1M)
+#if defined(PSOC_064_1M) || defined(PSOC_062_2M)
 #warning "Check if User LED is correct for your target board."
 #define LED_PORT GPIO_PRT13
 #define LED_PIN 7U
