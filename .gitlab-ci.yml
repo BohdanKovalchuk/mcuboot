@@ -367,7 +367,7 @@ mac_test_512K:
     - pwd
 
     - echo "[INFO] Test provisioning using single stage policy (CM4), CyBootloader WithLogs"
-    - python3 -m unittest test_provisioning.TestProvisioning.test_provision_device_release_single_image
+    - python3 -m unittest test_provisioning.TestProvisioning.test_provision_512k_release_single_image
 
     - cd ..
     - rm -rf tests
@@ -378,7 +378,7 @@ mac_test_512K:
     - pwd
 
     - echo "[INFO] Test provisioning multi image, CyBootloader WithLogs"
-    - python3 -m unittest test_provisioning.TestProvisioning.test_provision_device_release_muilti_image
+    - python3 -m unittest test_provisioning.TestProvisioning.test_provision_512k_release_muilti_image
 
     - cd ..
     - rm -rf tests
