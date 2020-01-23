@@ -62,6 +62,7 @@ variables:
 
     
 .make_boot_app: &make_boot_app
+    - set -vx
     # Build boot application
     - export APP_BUILD_OPTIONS=''
     - echo '================================================================================================='
