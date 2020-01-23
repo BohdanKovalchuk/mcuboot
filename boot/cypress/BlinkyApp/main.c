@@ -49,10 +49,50 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "system_psoc6.h"
 #include "cy_pdl.h"
 #include "cyhal.h"
-#include "cybsp.h"
 #include "cy_retarget_io.h"
+
+/* Define pins for UART debug output */
+
+#define CY_DEBUG_UART_TX (P5_1)
+#define CY_DEBUG_UART_RX (P5_0)
+
+#if defined(PSOC_064_1M) || defined(PSOC_062_2M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT13
+#define LED_PIN 7U
+#elif defined(PSOC_064_2M)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT1
+#define LED_PIN 5U
+#elif defined(PSOC_064_512K)
+#warning "Check if User LED is correct for your target board."
+#define LED_PORT GPIO_PRT2
+#define LED_PIN 7U
+#endif
+
+#define LED_NUM 5U
+#define LED_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
+#define LED_INIT_DRIVESTATE 1
+
+const cy_stc_gpio_pin_config_t LED_config =
+{
+    .outVal = 1,
+    .driveMode = CY_GPIO_DM_STRONG_IN_OFF,
+    .hsiom = HSIOM_SEL_GPIO,
+    .intEdge = CY_GPIO_INTR_DISABLE,
+    .intMask = 0UL,
+    .vtrip = CY_GPIO_VTRIP_CMOS,
+    .slewRate = CY_GPIO_SLEW_FAST,
+    .driveSel = CY_GPIO_DRIVE_FULL,
+    .vregEn = 0UL,
+    .ibufMode = 0UL,
+    .vtripSel = 0UL,
+    .vrefSel = 0UL,
+    .vohSel = 0UL,
+};
 
 #ifdef BOOT_IMG
     #define BLINK_PERIOD          (1000u)
@@ -76,22 +116,18 @@ void check_result(int res)
 
 void test_app_init_hardware(void)
 {
-    cybsp_init();
-
     /* enable interrupts */
     __enable_irq();
 
+    /* Disabling watchdog so it will not interrupt normal flow later */
+    Cy_GPIO_Pin_Init(LED_PORT, LED_PIN, &LED_config);
     /* Initialize retarget-io to use the debug UART port */
-    check_result(cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
+    check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
                                      CY_RETARGET_IO_BAUDRATE));
 
     printf("\n===========================\r\n");
     printf(GREETING_MESSAGE_VER);
     printf("===========================\r\n");
-
-    /* Initialize the User LED */
-    check_result(cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT,
-                                 CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF));
 
     printf("[BlinkyApp] GPIO initialized \r\n");
     printf("[BlinkyApp] UART initialized \r\n");
@@ -109,10 +145,11 @@ int main(void)
 
     for (;;)
     {
-		/* Toggle the user LED periodically */
+        /* Toggle the user LED periodically */
         Cy_SysLib_Delay(blinky_period/2);
 
         /* Invert the USER LED state */
-        cyhal_gpio_toggle((cyhal_gpio_t) CYBSP_USER_LED1);
+        Cy_GPIO_Inv(LED_PORT, LED_PIN);
     }
+    return 0;
 }

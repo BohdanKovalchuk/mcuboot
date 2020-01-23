@@ -23,17 +23,9 @@
 
 #include "mcuboot_config/mcuboot_logging.h"
 
-#define ioss_0_port_5_pin_1_IRQ ioss_interrupts_gpio_5_IRQn
-#define ioss_0_port_5_pin_1_HSIOM P5_1_SCB5_UART_TX
-
-#define ioss_0_port_5_pin_1_PORT GPIO_PRT5
-#define ioss_0_port_5_pin_1_PIN 1U
-#define ioss_0_port_5_pin_1_NUM 1U
-#define ioss_0_port_5_pin_1_DRIVEMODE CY_GPIO_DM_ANALOG
-#define ioss_0_port_5_pin_1_INIT_DRIVESTATE 1U
-#ifndef ioss_0_port_5_pin_1_HSIOM
-    #define ioss_0_port_5_pin_1_HSIOM HSIOM_SEL_GPIO
-#endif
+/* Define pins for DEBUG uart port */
+#define CY_DEBUG_UART_TX (P5_1)
+#define CY_DEBUG_UART_RX (P5_0)
 
 #if defined(CY_BOOTLOADER_DIAGNOSTIC_GPIO)
 #define LED_RED_NUM 5U

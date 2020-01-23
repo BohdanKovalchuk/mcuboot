@@ -453,7 +453,7 @@ cy_en_prot_status_t apply_protections(void)
             rc = dap_ram_protect((cy_smpu_region_config_t*)&smpu_config[0]);
         }
     }
-#elif defined(CYB06445LQI_S3D42) /* || defined(P64-512K) */
+#elif defined(CYB06445LQI_S3D42) || defined(PSOC_064_512K)
     rc = ppu_fixed_protect_v2((cy_ppu_fixed_v2_cfg_t*)fixed_ppu_v2_config, NELEMS(fixed_ppu_v2_config));
 #endif
 

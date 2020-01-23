@@ -128,10 +128,6 @@ void test_app_init_hardware(void)
     /* enable interrupts */
     __enable_irq();
 
-    Cy_PDL_Init(CY_DEVICE_CFG);
-
-    SystemCoreClockUpdate();
-
     /* Disabling watchdog so it will not interrupt normal flow later */
 #if defined(DEBUG)
     Cy_GPIO_Pin_Init(LED_PORT, LED_PIN, &LED_config);
