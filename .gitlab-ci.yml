@@ -89,7 +89,7 @@ variables:
     - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/*.map  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/
 
     # Collect App for deploy
-    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/$HEX_NAME$SUFX_unsigned.hex ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME$SUFX_unsigned.hex
+    - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/$HEX_NAME${SUFX}_unsigned.hex ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$HEX_NAME${SUFX}_unsigned.hex
 
 stages:
   - build_mac
