@@ -54,6 +54,9 @@ PLATFORM_SUFFIX := 01
 else ifeq ($(PLATFORM), PSOC_064_512K)
 DEVICE ?= CYB06445LQI-S3D42
 PLATFORM_SUFFIX := 03
+else ifeq ($(PLATFORM), PSOC_062_2M)
+DEVICE ?= CY8C624ABZI-D44
+PLATFORM_SUFFIX := 02
 endif
 
 # Check if path to cysecuretools is set in case Secure Boot target

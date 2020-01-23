@@ -61,20 +61,20 @@ SLOT_SIZE ?= 0x10000
 
 # Define RAM regions for targets, since they differ
 ifeq ($(PLATFORM), PSOC_064_2M)
-DEFINES_APP += -DSECURE_RAM_START=0x08040000
-DEFINES_APP += -DSECURE_RAM_SIZE=0x20000
+DEFINES_APP += -DRAM_START=0x08040000
+DEFINES_APP += -DRAM_SIZE=0x20000
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
 CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
 else ifeq ($(PLATFORM), PSOC_064_1M)
-DEFINES_APP += -DSECURE_RAM_START=0x08000000
-DEFINES_APP += -DSECURE_RAM_SIZE=0x10000
+DEFINES_APP += -DRAM_START=0x08000000
+DEFINES_APP += -DRAM_SIZE=0x10000
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
 CY_SEC_TOOLS_TARGET := cy8cproto-064b0s1-ble
 else ifeq ($(PLATFORM), PSOC_064_512K)
-DEFINES_APP += -DSECURE_RAM_START=0x08000000
-DEFINES_APP += -DSECURE_RAM_SIZE=0x10000
+DEFINES_APP += -DRAM_START=0x08000000
+DEFINES_APP += -DRAM_SIZE=0x10000
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
 CY_SEC_TOOLS_TARGET := cyb06445lqi-s3d42

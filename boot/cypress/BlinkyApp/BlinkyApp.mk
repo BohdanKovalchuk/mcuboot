@@ -59,12 +59,12 @@ endif
 
 # Define start of application as it can be built for Secure Boot target
 # Also check if this image will be used with multi image CyBootloader
-ifneq ($(filter $(PLATFORM), $(SB_PLATFORMS)),)
+#ifneq ($(filter $(PLATFORM), $(SB_PLATFORMS)),)
 #2M devices case
 ifeq ($(PLATFORM), PSOC_064_2M)
 	# Set RAM start and size
-	DEFINES_APP += -DSECURE_RAM_START=0x08008000
-	DEFINES_APP += -DSECURE_RAM_SIZE=0x3000
+	DEFINES_APP += -DRAM_START=0x08008000
+	DEFINES_APP += -DRAM_SIZE=0x3000
 	CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
@@ -79,10 +79,11 @@ ifeq ($(PLATFORM), PSOC_064_2M)
         SLOT_SIZE ?= 0x10000
 	endif
 endif
+
 ifeq ($(PLATFORM), PSOC_064_1M)
 	# Set RAM start and size
-	DEFINES_APP += -DSECURE_RAM_START=0x08010000
-	DEFINES_APP += -DSECURE_RAM_SIZE=0x5000
+	DEFINES_APP += -DRAM_START=0x08010000
+	DEFINES_APP += -DRAM_SIZE=0x5000
 	CY_SEC_TOOLS_TARGET := cy8cproto-064b0s1-ble
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
@@ -97,10 +98,11 @@ ifeq ($(PLATFORM), PSOC_064_1M)
         SLOT_SIZE ?= 0x10000
 	endif
 endif
+
 ifeq ($(PLATFORM), PSOC_064_512K)
 	# Set RAM start and size
-	DEFINES_APP += -DSECURE_RAM_START=0x08010000
-	DEFINES_APP += -DSECURE_RAM_SIZE=0x5000
+	DEFINES_APP += -DRAM_START=0x08010000
+	DEFINES_APP += -DRAM_SIZE=0x5000
 	CY_SEC_TOOLS_TARGET := cyb06445lqi-s3d42
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
@@ -115,11 +117,13 @@ ifeq ($(PLATFORM), PSOC_064_512K)
         SLOT_SIZE ?= 0x10000
 	endif
 endif
+
 ifeq ($(PLATFORM), PSOC_062_2M)
-	DEFINES_APP += -DSECURE_RAM_START=0x08000000
-	DEFINES_APP += -DSECURE_RAM_SIZE=0x20000
+	DEFINES_APP += -DRAM_START=0x08000000
+	DEFINES_APP += -DRAM_SIZE=0x20000
 	DEFINES_APP += -DUSER_APP_START=0x10018000
     SLOT_SIZE ?= 0x10000
+	HEADER_OFFSET := 0x10018000 + $(HEADER_OFFSET)
 endif
 
 # Collect Test Application sources
@@ -155,7 +159,7 @@ OUT_CFG := $(OUT_TARGET)/$(BUILDCFG)
 # Set build directory for BOOT and UPGRADE images
 ifeq ($(IMG_TYPE), UPGRADE)
 	SIGN_ARGS += --pad
-	UPGRADE_SUFFIX :=_upgrade
+	#UPGRADE_SUFFIX :=_upgrade
 	OUT_CFG := $(OUT_CFG)/upgrade
 else
 	OUT_CFG := $(OUT_CFG)/boot
@@ -177,6 +181,6 @@ else
 endif
 else
 	mv -f $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_unsigned.hex
-	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME)_unsigned.hex $(OUT_CFG)/$(APP_NAME)$(UPGRADE_SUFFIX).hex
-endif
+	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME)_unsigned.hex $(OUT_CFG)/$(APP_NAME).hex 
+	#$(UPGRADE_SUFFIX).hex
 endif
