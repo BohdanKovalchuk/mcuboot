@@ -75,7 +75,7 @@ variables:
     - if [ ! -z $HEADER_OFFSET ]; then export APP_BUILD_OPTIONS+=HEADER_OFFSET=$HEADER_OFFSET; fi
     - if [ -z $HEX_NAME ]; then export HEX_NAME=$APP_NAME; fi
     - export APP_BUILD_OPTIONS+=$BUILD_OPTIONS
-    - mkdir -p  ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG
+    - mkdir -p  ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT
     - mkdir -p  ./develop/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT
     - cd boot/cypress
     - make clean APP_NAME=$APP_NAME
