@@ -33,7 +33,10 @@ endif
 
 CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 
+# Set path to cypress key for certificate generation
+# Choose script name base for certificate generation
 KEY ?= $(APP_NAME)/scripts/cy_state_internal.json
+IMAGE_CERT := image_cert
 
 include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
@@ -44,19 +47,24 @@ DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
 
-# add start address for each target device, since flash size is different
-# define maximum image sectors and choose script name for certificate generation
+# Add start address for each target device, since flash size is different
+#
+# Define maximum image sectors number, considering maximum slot size
+# equal to all available flash for BOOT slot. it is assumed that UPGRADE 
+# slot in this case is located in External Memory
 ifeq ($(PLATFORM), PSOC_064_2M)
 CY_BOOTLOADER_APP_START ?= 0x101D0000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=14848 # 0x30B600 slot size
-IMAGE_CERT := image_cert_2M
+# 0x1D0000 max slot size
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=3712
 else ifeq ($(PLATFORM), PSOC_064_1M)
 CY_BOOTLOADER_APP_START ?= 0x100D0000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=640 # 0x50000 slot size
-IMAGE_CERT := image_cert_2M
+# 0xD0000 max slot size
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=1664
 else ifeq ($(PLATFORM), PSOC_064_512K)
 CY_BOOTLOADER_APP_START ?= 0x10030000
-DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384 # 0x30000 slot size
+# 0x30000 slot size
+DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=384
+# Use specific certificate script for 512K
 IMAGE_CERT := image_cert_512k
 else
 $(error "Not suppoted target name $(PLATFORM)")
