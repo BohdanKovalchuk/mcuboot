@@ -23,6 +23,7 @@ import imgtool.keys as keys
 import sys
 from imgtool import image, imgtool_version
 from imgtool.version import decode_version
+from .keys import RSAUsageError, ECDSAUsageError, Ed25519UsageError
 
 
 def gen_rsa2048(keyfile, passwd):
@@ -81,7 +82,8 @@ def get_password():
 @click.option('-p', '--password', is_flag=True,
               help='Prompt for password to protect key')
 @click.option('-t', '--type', metavar='type', required=True,
-              type=click.Choice(keygens.keys()))
+              type=click.Choice(keygens.keys()), prompt=True,
+              help='{}'.format('One of: {}'.format(', '.join(keygens.keys()))))
 @click.option('-k', '--key', metavar='filename', required=True)
 @click.command(help='Generate pub/private keypair')
 def keygen(type, key, password):
@@ -92,17 +94,34 @@ def keygen(type, key, password):
 @click.option('-l', '--lang', metavar='lang', default=valid_langs[0],
               type=click.Choice(valid_langs))
 @click.option('-k', '--key', metavar='filename', required=True)
-@click.command(help='Get public key from keypair')
+@click.command(help='Dump public key from keypair')
 def getpub(key, lang):
     key = load_key(key)
     if key is None:
         print("Invalid passphrase")
     elif lang == 'c':
-        key.emit_c()
+        key.emit_c_public()
     elif lang == 'rust':
-        key.emit_rust()
+        key.emit_rust_public()
     else:
         raise ValueError("BUG: should never get here!")
+
+
+@click.option('--minimal', default=False, is_flag=True,
+              help='Reduce the size of the dumped private key to include only '
+                   'the minimum amount of data required to decrypt. This '
+                   'might require changes to the build config. Check the docs!'
+              )
+@click.option('-k', '--key', metavar='filename', required=True)
+@click.command(help='Dump private key from keypair')
+def getpriv(key, minimal):
+    key = load_key(key)
+    if key is None:
+        print("Invalid passphrase")
+    try:
+        key.emit_private(minimal)
+    except (RSAUsageError, ECDSAUsageError, Ed25519UsageError) as e:
+        raise click.UsageError(e)
 
 
 @click.argument('imgfile')
@@ -190,6 +209,10 @@ class BasedIntParamType(click.ParamType):
               help='Adjust address in hex output file.')
 @click.option('-L', '--load-addr', type=BasedIntParamType(), required=False,
               help='Load address for image when it is in its primary slot.')
+@click.option('--save-enctlv', default=False, is_flag=True,
+              help='When upgrading, save encrypted key TLVs instead of plain '
+                   'keys. Enable when BOOT_SWAP_SAVE_ENCTLV config option '
+                   'was set.')
 @click.option('-E', '--encrypt', metavar='filename',
               help='Encrypt image using the provided public key')
 @click.option('-e', '--endian', type=click.Choice(['little', 'big']),
@@ -197,13 +220,15 @@ class BasedIntParamType(click.ParamType):
 @click.option('--overwrite-only', default=False, is_flag=True,
               help='Use overwrite-only instead of swap upgrades')
 @click.option('-M', '--max-sectors', type=int,
-              help='When padding allow for this amount of sectors (defaults to 128)')
+              help='When padding allow for this amount of sectors (defaults '
+                   'to 128)')
 @click.option('--pad', default=False, is_flag=True,
               help='Pad image to --slot-size bytes, adding trailer magic')
 @click.option('-S', '--slot-size', type=BasedIntParamType(), required=True,
               help='Size of the slot where the image will be written')
 @click.option('--pad-header', default=False, is_flag=True,
-              help='Add --header-size zeroed bytes at the beginning of the image')
+              help='Add --header-size zeroed bytes at the beginning of the '
+                   'image')
 @click.option('-H', '--header-size', callback=validate_header_size,
               type=BasedIntParamType(), required=True)
 @click.option('-d', '--dependencies', callback=get_dependencies,
@@ -220,21 +245,25 @@ class BasedIntParamType(click.ParamType):
 @click.pass_context
 def sign(ctx, key, align, version, header_size, pad_header, slot_size, pad,
          max_sectors, overwrite_only, endian, encrypt, infile, outfile,
-         dependencies, load_addr, hex_addr, erased_val):
+         dependencies, load_addr, hex_addr, erased_val, save_enctlv):
     img = image.Image(version=decode_version(version), header_size=header_size,
                       pad_header=pad_header, pad=pad, align=int(align),
                       slot_size=slot_size, max_sectors=max_sectors,
                       overwrite_only=overwrite_only, endian=endian,
-                      load_addr=load_addr, erased_val=erased_val)
+                      load_addr=load_addr, erased_val=erased_val,
+                      save_enctlv=save_enctlv)
     img.load(infile)
     key = load_key(key) if key else None
     enckey = load_key(encrypt) if encrypt else None
-    if enckey:
-        if not isinstance(enckey, (keys.RSA, keys.RSAPublic)):
-            raise Exception("Encryption only available with RSA key")
-        if key and not isinstance(key, keys.RSA):
-            raise Exception("Signing only available with private RSA key")
-    # Find custom TLVs in the command-line arguments
+    if enckey and key:
+        if ((isinstance(key, keys.ECDSA256P1) and
+             not isinstance(enckey, keys.ECDSA256P1Public))
+                or (isinstance(key, keys.RSA) and
+                    not isinstance(enckey, keys.RSAPublic))):
+            # FIXME
+            raise click.UsageError("Signing and encryption must use the same "
+                                   "type of key")
+	# Find custom TLVs in the command-line arguments
     custom_tlv = {}
     for i in range(0, len(ctx.args), 3):
         tag = ctx.args[i][2:].upper()
@@ -278,6 +307,7 @@ def imgtool():
 
 imgtool.add_command(keygen)
 imgtool.add_command(getpub)
+imgtool.add_command(getpriv)
 imgtool.add_command(verify)
 imgtool.add_command(sign)
 imgtool.add_command(version)

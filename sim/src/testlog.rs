@@ -1,3 +1,8 @@
+// Copyright (c) 2017 Linaro LTD
+// Copyright (c) 2019 JUUL Labs
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Logging support for the test framework.
 //!
 //! https://stackoverflow.com/questions/30177845/how-to-initialize-the-logger-for-integration-tests
@@ -7,9 +12,9 @@
 //! the tests.
 
 use env_logger;
-use std::sync::{Once, ONCE_INIT};
+use std::sync::Once;
 
-static INIT: Once = ONCE_INIT;
+static INIT: Once = Once::new();
 
 /// Setup the logging system.  Intended to be called at the beginning of each test.
 pub fn setup() {

@@ -126,21 +126,58 @@ config BOOT_UPGRADE_ONLY
 	  of swapping them. This prevents the fallback recovery, but
 	  uses a much simpler code path.
 
+config BOOT_SWAP_USING_MOVE
+	bool "Swap mode that can run without a scratch partition"
+	default n
+	help
+	  If y, the swap upgrade is done in two steps, where first every
+	  sector of the primary slot is moved up one sector, then for
+	  each sector X in the secondary slot, it is moved to index X in
+	  the primary slot, then the sector at X+1 in the primary is
+	  moved to index X in the secondary.
+	  This allows a swap upgrade without using a scratch partition,
+	  but is currently limited to all sectors in both slots being of
+	  the same size.
+
 config BOOT_BOOTSTRAP
-	bool "Boostrap erased the primary slot from the secondary slot"
+	bool "Bootstrap erased the primary slot from the secondary slot"
 	default n
 	help
 	  If y, enables bootstraping support. Bootstrapping allows an erased
 	  primary slot to be initialized from a valid image in the secondary slot.
 	  If unsure, leave at the default value.
 
+config BOOT_SWAP_SAVE_ENCTLV
+	bool "Save encrypted key TLVs instead of plaintext keys in swap metadata"
+	default n
+	help
+	  If y, instead of saving the encrypted image keys in plaintext in the
+	  swap resume metadata, save the encrypted image TLVs. This should be used
+	  when there is no security mechanism protecting the data in the primary
+	  slot from being dumped. If n is selected (default), the keys are written
+	  after being decrypted from the image TLVs and could be read by an
+	  attacker who has access to the flash contents of the primary slot (eg
+	  JTAG/SWD or primary slot in external flash).
+	  If unsure, leave at the default value.
+
 config BOOT_ENCRYPT_RSA
-	bool "Support for encrypted upgrade images"
+	bool "Support for encrypted upgrade images using RSA"
 	default n
 	help
 	  If y, images in the secondary slot can be encrypted and are decrypted
 	  on the fly when upgrading to the primary slot, as well as encrypted
-	  back when swapping from the primary slot to the secondary slot.
+	  back when swapping from the primary slot to the secondary slot. The
+	  encryption mechanism used in this case is RSA-OAEP (2048 bits).
+
+config BOOT_ENCRYPT_EC256
+	bool "Support for encrypted upgrade images using ECIES-P256"
+	default n
+	help
+	  If y, images in the secondary slot can be encrypted and are decrypted
+	  on the fly when upgrading to the primary slot, as well as encrypted
+	  back when swapping from the primary slot to the secondary slot. The
+	  encryption mechanism used in this case is ECIES using primitives
+	  described under "ECIES-P256 encryption" in docs/encrypted_images.md.
 
 config BOOT_MAX_IMG_SECTORS
 	int "Maximum number of sectors per image slot"
@@ -181,6 +218,15 @@ config ZEPHYR_TRY_MASS_ERASE
 	  are in a consistent state.
 
 	  This is not available for all targets.
+
+config BOOT_USE_BENCH
+        bool "Enable benchmark code"
+        default n
+        help
+          If y, adds support for simple benchmarking that can record
+          time intervals between two calls.  The time printed depends
+          on the particular Zephyr target, and is generally ticks of a
+          specific board-specific timer.
 
 module = MCUBOOT
 module-str = MCUBoot bootloader
@@ -299,5 +345,15 @@ config UPDATEABLE_IMAGE_NUMBER
 	default 1
 	help
 	  Enables support of multi image update.
+
+config MCUBOOT_DOWNGRADE_PREVENTION
+	bool "Downgrade prevention"
+	depends on BOOT_UPGRADE_ONLY
+	help
+	  Prevent downgrades by enforcing incrementing version numbers.
+	  When this option is set, any upgrade must have greater major version
+	  or greater minor version with equal major version. This mechanism
+	  only protects against some attacks against version downgrades (for
+	  example, a JTAG could be used to write an older version).
 
 source "$ZEPHYR_BASE/Kconfig.zephyr"

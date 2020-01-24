@@ -27,6 +27,8 @@ sig-ed25519 = []
 # Overwrite only upgrade
 overwrite-only = []
 
+swap-move = []
+
 # Disable validation of the primary slot
 validate-primary-slot = []
 
@@ -36,11 +38,17 @@ enc-rsa = []
 # Encrypt image in the secondary slot using AES-KW-128
 enc-kw = []
 
+# Encrypt image in the secondary slot using ECIES-P256
+enc-ec256 = []
+
 # Allow bootstrapping an empty/invalid primary slot from a valid secondary slot
 bootstrap = []
 
 # Support multiple images (currently 2 instead of 1).
 multiimage = []
+
+# Check (in software) against version downgrades.
+downgrade-prevention = []
 
 [build-dependencies]
 cc = "1.0.25"

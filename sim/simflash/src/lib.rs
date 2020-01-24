@@ -1,3 +1,8 @@
+// Copyright (c) 2017-2019 Linaro LTD
+// Copyright (c) 2017-2018 JUUL Labs
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! A flash simulator
 //!
 //! This module is capable of simulating the type of NOR flash commonly used in microcontrollers.
@@ -83,7 +88,7 @@ fn esimulatedwrite<T: AsRef<str>>(message: T) -> FlashError {
 }
 
 /// An emulated flash device.  It is represented as a block of bytes, and a list of the sector
-/// mapings.
+/// mappings.
 #[derive(Clone)]
 pub struct SimFlash {
     data: Vec<u8>,
