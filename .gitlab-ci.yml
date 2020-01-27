@@ -428,7 +428,7 @@ deploy_asset:
   tags:
     - devops-assets
   dependencies:
-    - mac_test_512K
+    # - mac_test_512K
   only:
     - /^develop$/
     - /^cypress$/

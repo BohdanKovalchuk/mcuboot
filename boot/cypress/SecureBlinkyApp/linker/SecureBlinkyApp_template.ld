@@ -228,7 +228,9 @@ SECTIONS
         __data_start__ = .;
 
         *(vtable)
+        __sdata_start__ = .;
         *(.data*)
+        __sdata_end__ = .;
 
         . = ALIGN(4);
         /* preinit data */
