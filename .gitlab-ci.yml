@@ -335,7 +335,7 @@ mac_build_512K_BlinkyApp:
 
 
 
-mac_test_512K:
+.mac_test_512K:
   stage: test
   tags:
     - MBED_TEST_MAC1014
@@ -428,6 +428,10 @@ deploy_asset:
   tags:
     - devops-assets
   dependencies:
+    - mac_build_512K_bootloader
+    - mac_build_512K_Multi_BlinkyApp
+    - mac_build_512K_SecureBlinkyApp
+    - mac_build_512K_BlinkyApp
     # - mac_test_512K
   only:
     - /^develop$/
