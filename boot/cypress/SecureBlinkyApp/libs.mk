@@ -41,6 +41,13 @@ SOURCES_HAL := $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.
 SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
 SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
 
+# Cy secureboot utils
+SOURCES_SECBOOT_UTILS := $(wildcard $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_jwt/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_secure_utils/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_base64/base64/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_cjson/cJSON/*.c)
+SOURCES_SECBOOT_UTILS += $(wildcard $(CUR_LIBS_PATH)/cy_secureboot_utils/protections/*.c)
+
 # PDL related include directories
 INCLUDE_DIRS_PDL := $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/include
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/devices/include/ip
@@ -56,6 +63,14 @@ INCLUDE_DIRS_MBEDTLS := $(CUR_LIBS_PATH)/mbedtls/crypto/include
 # core-libs related include directories
 INCLUDE_DIRS_CORE_LIB := $(CUR_LIBS_PATH)/core-lib/include
 
+# Include secure bootloader utility dependencies
+INCLUDE_DIRS_SECBOOT_UTILS := $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_secure_utils
+INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_jwt
+INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_cjson/cJSON
+INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_base64
+INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/protections
+INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/protections/protections_config
+
 # core-libs related include directories
 INCLUDE_DIRS_HAL := $(CUR_LIBS_PATH)/psoc6hal/include
 INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
@@ -66,6 +81,7 @@ INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/trigger
 SOURCES_LIBS := $(SOURCES_PDL)
 SOURCES_LIBS += $(SOURCES_RETARGET_IO)
 SOURCES_LIBS += $(SOURCES_HAL)
+SOURCES_LIBS += $(SOURCES_SECBOOT_UTILS)
 
 # Collected include directories for libraries
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
@@ -73,6 +89,7 @@ INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_MBEDTLS))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_CORE_LIB))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_HAL))
+INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_SECBOOT_UTILS))
 
 ASM_FILES_PDL :=
 ifeq ($(COMPILER), GCC_ARM)

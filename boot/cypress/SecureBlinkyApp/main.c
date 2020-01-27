@@ -115,6 +115,13 @@ bnu_policy_t cy_bl_bnu_policy;
 /** Debug policy structure */
 debug_policy_t debug_policy;
 
+/* This function is required by Cy_Utils_StartAppCM4() */
+void AppSystemInit(void)
+{
+    SystemInit();
+}
+
+
 void check_result(int res)
 {
     if (res != CY_RSLT_SUCCESS)

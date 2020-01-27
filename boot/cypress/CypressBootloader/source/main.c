@@ -159,6 +159,12 @@ struct flash_area *boot_area_descs[] =
 };
 #endif
 
+/* This function is required by Cy_Utils_StartAppCM4() */
+void AppSystemInit(void)
+{
+    Cy_BLServ_SystemInit();
+}
+
 /* Next image runner API */
 static void do_boot(struct boot_rsp *rsp)
 {
@@ -325,7 +331,7 @@ int main(void)
         scratch.fa_off = bootloader.fa_off - CY_BOOTLOADER_SCRATCH_SIZE;
         scratch.fa_size = CY_BOOTLOADER_SCRATCH_SIZE;
 
-        // TODO: apply protections if supported/requested
+        apply_protections();
 #endif
     }
 
