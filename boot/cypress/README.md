@@ -4,7 +4,7 @@
 
 Given solution demonstrates operation of MCUBoot on Cypress' PSoC6 device.
 
-There are two applications implemented:
+There are four applications implemented:
 * MCUBootApp - PSoC6 MCUBoot-based bootloading application;
 * CypressBootloader - PSoC6 MCUBoot-based Cypress' Secure Boot application;
 * SecureBlinkyApp - simple PSoC6 blinking LED application which is a target of BOOT/UPGRADE, running on CM0p and playing a role of SPE;
@@ -12,10 +12,10 @@ There are two applications implemented:
 
 The default flash map for MCUBootApp implemented is next:
 
-* [0x10000000, 0x10010000] - MCUBootApp (bootloader) area;
-* [0x10010000, 0x10020000] - primary slot for BlinkyApp;
-* [0x10020000, 0x10030000] - secondary slot for BlinkyApp;
-* [0x10030000, 0x10031000] - scratch area;
+* [0x10000000, 0x10018000] - MCUBootApp (bootloader) area;
+* [0x10018000, 0x10028000] - primary slot for BlinkyApp;
+* [0x10028000, 0x10038000] - secondary slot for BlinkyApp;
+* [0x10038000, 0x10039000] - scratch area;
 
 The flash map is defined through sysflash.h and cy_flash_map.c.
 
@@ -45,27 +45,26 @@ Submodules can also be updated and initialized separately:
 
 **Building Solution**
 
-This folder contains make files infrastructure for building both MCUBoot Bootloader and sample BlinkyLed application used to with Bootloader.
+This folder contains make files infrastructure for building both MCUBoot Bootloader, CypressBootloader and sample SecureBlinkyApp and BlinkyApp applications used for Bootloader demo functionality.
 
-Instructions on how to build and upload Bootloader and sample image are located is `Readme.md` files in corresponding folders.
+Instructions on how to build and upload Bootloader and sample image are located in `Readme.md` files in corresponding folders.
 
 Root directory for build is **boot/cypress.**
 
-**Currently supported targets:**
+**Currently supported platforms:**
 
-`*  CY8CPROTO-062-4343W` - for MCUBoot, BlinkyApp;
+* PSOC_062_2M - for MCUBoot, BlinkyApp;
 
-`*  CY8CKIT-064S2-4343W` - for CypressBootloader, SecureBlinkyApp, BlinkyApp;
+* PSOC_064_2M, PSOC_064_1M, PSOC_064_512K - for CypressBootloader, SecureBlinkyApp;
 
-`*  CY8CKIT-064B0S2-4343W` - for CypressBootloader, SecureBlinkyApp, BlinkyApp;
+* PSOC_062_2M, PSOC_064_2M, PSOC_064_1M, PSOC_064_512K - for BlinkyApp;
 
 **Build environment troubleshooting:**
 
-Following CLI / IDE can be used for project build:
+Following CLI / IDE are supported for project build:
 
-* Cygwin
-* Msys2
-* Git bash
+* Cygwin on Windows systems
+* unix style sheels on *nix systems
 * Eclipse / ModusToolbox ("makefile project from existing source")
 
 *Make* - make sure it is added to system's `PATH` variable and correct path is first in the list;
@@ -74,5 +73,5 @@ Following CLI / IDE can be used for project build:
 
 *Msys2* - to use systems PATH navigate to msys2 folder, open `msys2_shell.cmd`, uncomment set `MSYS2_PATH_TYPE=inherit`, restart MSYS2 shell.
 
-This will iherit system's PATH so should find `python3.7` installed in regular way as well as imgtool and its dependencies.
+This will inherit system's PATH so should find `python3.7` installed in regular way as well as imgtool and its dependencies.
 
