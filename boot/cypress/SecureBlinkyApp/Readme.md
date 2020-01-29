@@ -16,24 +16,21 @@ It is started by CypressBootloader which is also running on `CM0p`.
 
 **Currently supported targets:**
 
-`*  CY8CKIT-064S2-4343W`
-
-`*  CY8CKIT-064B0S2-4343W`
+* PSOC_064_2M
+* PSOC_064_1M
+* PSOC_064_512K
 
 **Pre-build action:**
 
-Pre-build action is implemented for defining start address and size of flash dedicated to `SecureBlinkyApp`. Pre-build action calls GCC preprocessor to instantiate values to `SecureBlinkyApp_template.ld` found in `main.h` file of BlinkyApp of defined at compile time via macroses `-DSECURE_APP_START` and `-DSECURE_APP_SIZE`.
+Pre-build action is implemented for defining start address and size of flash, as well as RAM start address and size for BlinkyApp. 
+These values are set by specifing following macros: `-DUSER_APP_SIZE`, `-DUSER_APP_START`, `-DRAM_SIZE`, `-DRAM_START` in makefile.
+
+Pre-build action calls GCC preprocessor which intantiates defines for particular values in `BlinkyApp_template.ld`. 
 
 Default values set for currently supported targets:
-* CY8CKIT_064S2_4343W in `SecureBlinkyApp.mk` to `-DSECURE_APP_START=0x10000000`
+* PSOC_064_2M, PSOC_064_1M, PSOC_064_512K in `BlinkyApp.mk` to `-DUSER_APP_START=0x10000000`
 
-Start of `SecureBlinkyApp` built to use with Secure Boot enabled targets corresponds to default policy settings provided with `cysecuretools` package.
-
-`SecureBlinkyApp` can be built to use in multi-image bootloader configuration. In this case there is `SecureBlinkyApp` running on `CM0p` and launches `BlinkyApp` on `CM4`.
-
-*Note:* only 2 images are supported at the moment.
-
-To build appropriate image build flag `MULTI_IMAGE=1`("Enabled") has to be passed to `make`. Default value is `MULTI_IMAGE=0`("Disabled").
+Start address of `BlinkyApp` is set to be used with Secure Boot enabled targets and corresponds to default policy settings provided with `cysecuretools` package.
 
 **Building an application:**
 
@@ -41,7 +38,7 @@ Root directory for build is **boot/cypress.**
 
 The following command will build regular HEX file of a Secure Blinky Application, BOOT slot:
 
-    make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W IMG_TYPE=BOOT
+    make app APP_NAME=SecureBlinkyApp PLATFORM=PSOC_064_2M IMG_TYPE=BOOT
 
 This have following defaults suggested:
 
@@ -50,33 +47,32 @@ This have following defaults suggested:
 
 To build UPGRADE image use following command:
 
-    make app APP_NAME=SecureBlinkyApp TARGET=CY8KIT-064S2-4343W IMG_TYPE=UPGRADE HEADER_OFFSET=0x10000
+    make app APP_NAME=SecureBlinkyApp PLATFORM=PSOC_064_2M IMG_TYPE=UPGRADE
     
 Example command-line for dual-image:
 
-    make app APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W IMG_TYPE=BOOT MULTI_IMAGE=1
+    make app APP_NAME=SecureBlinkyApp PLATFORM=PSOC_064_2M IMG_TYPE=BOOT MULTI_IMAGE=1
 
 **Post-Build:**
 
-Post build action is executed at compile time for `SecureBlinkyApp`. It calls `imgtool` from `MCUBoot` scripts and add signature to compiled image. This signature is then validated by CypressBootloader application.
+Post build action is executed at compile time for `BlinkyApp`. In case of build for `PSOC_062_2M` platform it calls `imgtool` from `MCUBoot` scripts and adds signature to compiled image. In case build to use with CupressBootloader - `cysecuretools` package is used to add signature. This signature is then validated by CypressBootloader or MCUBoot application.
 
 **How to program an application:**
 
-**_Use any preferred tool for programming hex files._**
+**How to program an application:**
 
-Currently implemented makefile jobs use CMSIS DAP interface for programming.
+Use any preferred tool for programming hex files.
 
-To program BOOT image:
+Hex file names to use for programming:
 
-    make load_boot APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W
+`SecureBlinkyApp` always produces build artifacts in 2 separate folders - `boot` and `upgrade`.
 
-To program UPGRADE image:
+`SecureBlinkyApp` built to use with `CypressBootloader` produces artifacts, according to `cysecuretools` naming convention. Each folder - `boot` and `upgrade` contains files with `_upgrade.hex` and `_unsigned.hex` suffixes and plain name - BlinkyApp.hex. File with suffix `_upgrade.hex` always contains padding, required by MCUBoot for upgrade images. It's start address is also shifted to correspond start address of UPGRADE slot for image in policy file used for signing.
 
-    make load_upgrade APP_NAME=SecureBlinkyApp TARGET=CY8CKIT-064S2-4343W
+Files to use for programming are:
 
-Flags defaults:
-
-    BUILDCFG=Debug
+`BOOT` - boot/BlinkyApp.hex
+`UPGRADE` - upgrade/BlinkyApp_upgrade.hex
 
 **Flags:**
 - `BUILDCFG` - configuration **Release** or **Debug**
@@ -84,7 +80,7 @@ Flags defaults:
 - `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size CyBootloader in this example.
 - `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of CyBootloader, `UPGRADE` - build image for UPGRADE slot of CyBootloader.
 
-**NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to MCUBoot Bootloader slot size
+**NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to Bootloader slot size
 
 **Example terminal output:**
 

@@ -11,14 +11,20 @@ Features implemented:
 * Starts image located in BOOT slot after validating signature
 * Performs upgrade operation from UPGRADE slot to BOOT slot after UPGRADE image hash verification
 * Supports Multi-Image processing
-  
-**Flash map used for CypressBootloader:**
+
+**Example flash map used for CypressBootloader on PSOC_064_2M in multi image configuration:**
 
     0x101D 0000 - 0x101D FE00 - CypressBootloader
     0x1000 0000 - 0x1001 0000 - BOOT slot of CypressBootloader
     0x1001 0000 - 0x1002 0000 - UPGRADE slot of CypressBootloader
 
-Size of slots `0x10000` - 64kb
+All flash maps of slots are defined by policy. Default policies for supported targets can be found in `cysecuretools` package, used with CypressBootloader.
+
+**Currently supported platfroms:**
+
+* PSOC_064_2M
+* PSOC_064_1M
+* PSOC_064_512K
 
 **How to build CypressBootloader:**
 
@@ -26,18 +32,12 @@ Root directory for build is **boot/cypress**.
 
 The following command will build CypressBootloader HEX file:
 
-    make app APP_NAME=CypressBootloader TARGET=CY8CKIT-064S2-4343W
+    make app APP_NAME=CypressBootloader PLATFORM=PSOC_064_2M
 
 Flags by defalt:
 
     BUILDCFG=Debug
     MAKEINFO=0
-
-**Currently supported targets:**
-
-`*  CY8CKIT-064S2-4343W`
-
-`*  CY8CKIT-064B0S2-4343W`
     
 **Multi-Image Operation**
 
@@ -69,7 +69,7 @@ This ensures two dependent applications can be accepted by device only in case b
 
 `0x10040000 - 0x10040100` - Scratch of Bootloader
 
-Size of slots `0x10000` - 64kb
+These values are set as default in policies provided by `cysecuretools`.
 
 **Multi-image policy**
 
