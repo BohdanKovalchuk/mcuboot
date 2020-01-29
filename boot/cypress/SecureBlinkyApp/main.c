@@ -115,6 +115,15 @@ bnu_policy_t cy_bl_bnu_policy;
 /** Debug policy structure */
 debug_policy_t debug_policy;
 
+
+#warning "Enable code below to Debug"
+#if(0)
+void Cy_SystemInit(void)
+{
+    Cy_Utils_AcquireWindow();
+}
+#endif
+
 /* This function is required by Cy_Utils_StartAppCM4() */
 void AppSystemInit(void)
 {

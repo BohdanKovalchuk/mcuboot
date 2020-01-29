@@ -175,7 +175,7 @@ void Cy_BLServ_Assert(int expr)
             IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
             Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
 
-            BOOT_LOG_INF("TEST MODE");
+            BOOT_LOG_INF("TEST MODE : Cy_BLServ_Assert()");
             __disable_irq();
         }
 
