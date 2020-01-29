@@ -171,6 +171,7 @@ static void do_boot(struct boot_rsp *rsp)
     uintptr_t flash_base;
     int rc;
     uint32_t app_addr = 0;
+    uint32_t en_acq = 1;
 
     /* The beginning of the image is the ARM vector table, containing
      * the initial stack pointer address and the reset vector
@@ -180,18 +181,24 @@ static void do_boot(struct boot_rsp *rsp)
     app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
     BOOT_LOG_INF("Application at: 0x%08x", app_addr);
 
+    if((cy_bl_bnu_policy.bnu_img_policy[0].multi_image == 1) &&
+        (cy_bl_bnu_policy.bnu_img_policy[1].multi_image == 2))
+    {
+        en_acq = 0;
+    }
+
     /* hardcode image id to run CM0p first until fwsecurity-645 merged */
     switch (cy_bl_bnu_policy.bnu_img_policy[0].id)
     {
         case CY_BOOTLOADER_IMG_ID_TEE_CM0P:
             /* Do not change protection context for CM0p SPM image with ID=1 */
-            Cy_Utils_StartAppCM0p(app_addr);
+            Cy_Utils_StartAppCM0p(app_addr, en_acq);
             break;
         case CY_BOOTLOADER_IMG_ID_CYTF_CM0P:
         case CY_BOOTLOADER_IMG_ID_OEMTF_CM0P:
             /* Set Protection Context 2 for CM0p trusted apps with IDs 2 and 3 */
             Cy_Prot_SetActivePC(CPUSS_MS_ID_CM0, (uint32_t)CY_PROT_PC2);
-            Cy_Utils_StartAppCM0p(app_addr);
+            Cy_Utils_StartAppCM0p(app_addr, en_acq);
             break;
         case CY_BOOTLOADER_IMG_ID_CM4:
             /* Set Protection Context 6 for CM4 application */

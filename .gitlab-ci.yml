@@ -119,8 +119,8 @@ mac_build_512K_bootloader:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-tc1
-    # - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
 
     - pwd
     - git submodule deinit --all -f
@@ -167,8 +167,8 @@ mac_build_512K_Multi_BlinkyApp:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-tc1
-    # - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
 
     - pwd
     - git submodule deinit --all -f
@@ -230,8 +230,8 @@ mac_build_512K_SecureBlinkyApp:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-tc1
-    # - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
 
     - pwd
     - git submodule deinit --all -f
@@ -292,8 +292,8 @@ mac_build_512K_BlinkyApp:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-tc1
-    # - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
 
     - pwd
     - git submodule deinit --all -f
@@ -335,7 +335,7 @@ mac_build_512K_BlinkyApp:
 
 
 
-.mac_test_512K:
+mac_test_512K:
   stage: test
   tags:
     - MBED_TEST_MAC1014
@@ -350,8 +350,8 @@ mac_build_512K_BlinkyApp:
     - virtualenv venv
     - source venv/bin/activate
     - python3 -m pip install pyserial
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-tc1
-    # - pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@88efb3bbb56a0bedf2ad0917098463a13bcbe00d
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
     - pwd
     - rm -rf ./venv/lib/python3.7/site-packages/cysecuretools/targets/cyb06xx5/prebuilt/CyBootloader_Release
     - rm ./venv/lib/python3.7/site-packages/cysecuretools/targets/cyb06xx5/prebuilt/CyBootloader_WithLogs/CypressBootloader_CM0p.jwt
@@ -428,11 +428,11 @@ deploy_asset:
   tags:
     - devops-assets
   dependencies:
-    - mac_build_512K_bootloader
-    - mac_build_512K_Multi_BlinkyApp
-    - mac_build_512K_SecureBlinkyApp
-    - mac_build_512K_BlinkyApp
-    # - mac_test_512K
+    # - mac_build_512K_bootloader
+    # - mac_build_512K_Multi_BlinkyApp
+    # - mac_build_512K_SecureBlinkyApp
+    # - mac_build_512K_BlinkyApp
+    - mac_test_512K
   only:
     - /^develop$/
     - /^cypress$/
