@@ -12,6 +12,27 @@ variables:
     CY_BOOTLOADER_REV: 0
     CY_BOOTLOADER_BUILD: $CI_PIPELINE_IID
 
+cache: &global_cache
+  key: ${CI_COMMIT_SHORT_SHA}
+  paths:
+    - ext/mbedtls
+    - boot/cypress/libs/pdl/psoc6pdl
+    - boot/cypress/libs/mbedtls
+    - boot/cypress/libs/bsp/TARGET_CY8CPROTO-062-4343W
+    - boot/cypress/libs/retarget-io
+    - boot/cypress/libs/bsp/TARGET_CY8CKIT-064S2-4343W
+    - boot/cypress/libs/bsp/TARGET_CY8CKIT-064S2-4343W-M0
+    - boot/cypress/libs/bsp/TARGET_CY8CKIT-064B0S2-4343W
+    - boot/cypress/libs/cy-mbedtls-acceleration
+    - boot/cypress/libs/bsp/TARGET_CY8CPROTO-064B0S3
+    - boot/cypress/libs/core-lib
+    - boot/cypress/libs/psoc6hal
+    - boot/cypress/libs/cy_secureboot_utils
+    
+
+.check_submodules: &check_submodules
+    - if [ -z "$(ls -A boot/cypress/libs/cy-mbedtls-acceleration)" ]; then git submodule deinit --all -f; git submodule update --init --recursive; fi
+
 .cleanup_build_params: &cleanup_build_params
     - unset APP_NAME
     - unset APP_SUFX
@@ -92,25 +113,41 @@ variables:
     - cp -r boot/cypress/$APP_NAME/out/$PLATFORM/$BUILDCFG/$SLOT/${HEX_NAME}_unsigned.hex ./deploy/$PLATFORM/$APP_NAME$APP_SUFX/$BUILDCFG/$SLOT/${HEX_NAME}_unsigned.hex
 
 stages:
-  - build_mac
+  - create_cache
+  - build_mac_512K
+  - build_mac_2M
   - cppcheck
-  - test
+  - test_512K
+  - test_2M
   - sim
   - deploy
   
+
+fetch_submodules:
+  stage: create_cache
+  tags:
+    - MBED_TEST_MAC1014
+  cache:
+    <<: *global_cache
+  before_script:
+    - export https_proxy=http://proxy.ua.cypress.com:8080  
+  script:
+    - *check_submodules
+
   
 #######################################################################################################################################################
-##################------------------------------------------------ BUILDS ------------------------------------------------#############################
+##################------------------------------------------------ BUILDS 512K -------------------------------------------#############################
 #######################################################################################################################################################
 
 mac_build_512K_bootloader:
-  stage: build_mac
+  stage: build_mac_512K
   tags:
     - MBED_TEST_MAC1014
-
   variables:
     TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
-
+  cache:
+    <<: *global_cache
+    policy: pull
   before_script:
     - python3 --version
     - export https_proxy=http://proxy.ua.cypress.com:8080
@@ -119,13 +156,10 @@ mac_build_512K_bootloader:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
 
-    - pwd
-    - git submodule deinit --all -f
-    - git submodule update --init --recursive
-    
+    - *check_submodules
     
     # Build CypressBootloader for PSOC_064_512K family
     - *cleanup_build_params
@@ -152,13 +186,15 @@ mac_build_512K_bootloader:
       
       
 mac_build_512K_Multi_BlinkyApp:
-  stage: build_mac
+  stage: build_mac_512K
   tags:
     - MBED_TEST_MAC1014
 
   variables:
     TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
-
+  cache:
+    <<: *global_cache
+    policy: pull
   before_script:
     - python3 --version
     - export https_proxy=http://proxy.ua.cypress.com:8080
@@ -167,12 +203,10 @@ mac_build_512K_Multi_BlinkyApp:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
 
-    - pwd
-    - git submodule deinit --all -f
-    - git submodule update --init --recursive
+    - *check_submodules
     
 
     ########################### BlinkyApp BOOT MULTI-IMAGE ##############################
@@ -194,7 +228,7 @@ mac_build_512K_Multi_BlinkyApp:
 
     ########################### BlinkyApp UPGRADE MULTI-IMAGE ##############################
     # Build BlinkyApp UPGRADE for PSOC_064_512K
-    - export HEADER_OFFSET='0x10000'
+
     - export IMG_TYPE=UPGRADE
 
     - export BUILDCFG=Debug
@@ -215,13 +249,15 @@ mac_build_512K_Multi_BlinkyApp:
       
       
 mac_build_512K_SecureBlinkyApp:
-  stage: build_mac
+  stage: build_mac_512K
   tags:
     - MBED_TEST_MAC1014
 
   variables:
     TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
-
+  cache:
+    <<: *global_cache
+    policy: pull
   before_script:
     - python3 --version
     - export https_proxy=http://proxy.ua.cypress.com:8080
@@ -230,12 +266,10 @@ mac_build_512K_SecureBlinkyApp:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
 
-    - pwd
-    - git submodule deinit --all -f
-    - git submodule update --init --recursive
+    - *check_submodules
 
     ########################### SecureBlinkyApp BOOT ##############################
     # Build SecureBlinkyApp BOOT for PSOC_064_512K
@@ -256,7 +290,6 @@ mac_build_512K_SecureBlinkyApp:
     ########################### SecureBlinkyApp UPGRADE ##############################
     # Build SecureBlinkyApp UPGRADE for PSOC_064_512K
 
-    - export HEADER_OFFSET='0x10000'
     - export IMG_TYPE=UPGRADE
 
     - export BUILDCFG=Debug
@@ -277,13 +310,15 @@ mac_build_512K_SecureBlinkyApp:
 
 
 mac_build_512K_BlinkyApp:
-  stage: build_mac
+  stage: build_mac_512K
   tags:
     - MBED_TEST_MAC1014
 
   variables:
     TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
-
+  cache:
+    <<: *global_cache
+    policy: pull
   before_script:
     - python3 --version
     - export https_proxy=http://proxy.ua.cypress.com:8080
@@ -292,12 +327,10 @@ mac_build_512K_BlinkyApp:
     # install cysecuretools for post build actions
     - python3 -m pip install pyserial
     - python3 -m pip uninstall cysecuretools -y
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
 
-    - pwd
-    - git submodule deinit --all -f
-    - git submodule update --init --recursive
+    - *check_submodules
 
     ########################### BlinkyApp BOOT ##############################
     # Build BlinkyApp BOOT for PSOC_064_512K
@@ -318,7 +351,6 @@ mac_build_512K_BlinkyApp:
     ########################### BlinkyApp UPGRADE ##############################
     # Build BlinkyApp UPGRADE for PSOC_064_512K
 
-    - export HEADER_OFFSET='0x10000'
     - export IMG_TYPE=UPGRADE
 
     - export BUILDCFG=Debug
@@ -335,10 +367,253 @@ mac_build_512K_BlinkyApp:
 
 
 
-mac_test_512K:
-  stage: test
+
+#######################################################################################################################################################
+##################------------------------------------------------ BUILDS 2M -------------------------------------------###############################
+#######################################################################################################################################################
+
+mac_build_2M_bootloader:
+  stage: build_mac_2M
   tags:
     - MBED_TEST_MAC1014
+
+  variables:
+    TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+  cache:
+    <<: *global_cache
+    policy: pull
+  before_script:
+    - python3 --version
+    - export https_proxy=http://proxy.ua.cypress.com:8080
+
+  script:
+    # install cysecuretools for post build actions
+    - python3 -m pip install pyserial
+    - python3 -m pip uninstall cysecuretools -y
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
+
+    - *check_submodules
+    
+    # Build CypressBootloader for PSOC_064_2M family
+    - *cleanup_build_params
+    
+    - export PLATFORM=PSOC_064_2M
+    - export BUILDCFG=Debug
+    - export MAKEINFO=1
+    - *make_cybootloader_app
+
+    - export PLATFORM=PSOC_064_2M
+    - export BUILDCFG=Release
+    - export MAKEINFO=0
+    - *make_cybootloader_app
+
+    - cd boot/cypress
+    - make clean APP_NAME=CypressBootloader
+    - cd ../..
+
+  artifacts:
+    expire_in: 1 weeks
+    paths:
+      - deploy
+      - develop
+      
+      
+mac_build_2M_Multi_BlinkyApp:
+  stage: build_mac_2M
+  tags:
+    - MBED_TEST_MAC1014
+
+  variables:
+    TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+  cache:
+    <<: *global_cache
+    policy: pull
+  before_script:
+    - python3 --version
+    - export https_proxy=http://proxy.ua.cypress.com:8080
+
+  script:
+    # install cysecuretools for post build actions
+    - python3 -m pip install pyserial
+    - python3 -m pip uninstall cysecuretools -y
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
+
+    - *check_submodules
+    
+
+    ########################### BlinkyApp BOOT MULTI-IMAGE ##############################
+    # Build BlinkyApp BOOT for PSOC_064_2M
+    - *cleanup_build_params
+    - export APP_SUFX='Multi'
+
+    - export APP_NAME=BlinkyApp
+    - export PLATFORM=PSOC_064_2M
+    - export IMG_TYPE=BOOT
+    - export MULTI_IMAGE=1
+    - export MAKEINFO=0
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+    ########################### BlinkyApp UPGRADE MULTI-IMAGE ##############################
+    # Build BlinkyApp UPGRADE for PSOC_064_2M
+
+    - export IMG_TYPE=UPGRADE
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+    - cd boot/cypress
+    - make clean APP_NAME=BlinkyApp
+    - cd ../..
+
+  artifacts:
+    expire_in: 1 weeks
+    paths:
+      - deploy
+      - develop
+      
+      
+mac_build_2M_SecureBlinkyApp:
+  stage: build_mac_2M
+  tags:
+    - MBED_TEST_MAC1014
+
+  variables:
+    TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+  cache:
+    <<: *global_cache
+    policy: pull
+  before_script:
+    - python3 --version
+    - export https_proxy=http://proxy.ua.cypress.com:8080
+
+  script:
+    # install cysecuretools for post build actions
+    - python3 -m pip install pyserial
+    - python3 -m pip uninstall cysecuretools -y
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
+
+    - *check_submodules
+
+    ########################### SecureBlinkyApp BOOT ##############################
+    # Build SecureBlinkyApp BOOT for PSOC_064_2M
+    - *cleanup_build_params
+
+    - export APP_NAME=SecureBlinkyApp
+    - export PLATFORM=PSOC_064_2M
+    - export IMG_TYPE=BOOT
+    - export MAKEINFO=0
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+
+    ########################### SecureBlinkyApp UPGRADE ##############################
+    # Build SecureBlinkyApp UPGRADE for PSOC_064_2M
+
+    - export IMG_TYPE=UPGRADE
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+    - cd boot/cypress
+    - make clean APP_NAME=SecureBlinkyApp
+    - cd ../..
+
+  artifacts:
+    expire_in: 1 weeks
+    paths:
+      - deploy
+      - develop
+
+
+mac_build_2M_BlinkyApp:
+  stage: build_mac_2M
+  tags:
+    - MBED_TEST_MAC1014
+
+  variables:
+    TOOLCHAIN_PATH: /Applications/ModusToolbox/tools_2.0/gcc-7.2.1
+  cache:
+    <<: *global_cache
+    policy: pull
+  before_script:
+    - python3 --version
+    - export https_proxy=http://proxy.ua.cypress.com:8080
+
+  script:
+    # install cysecuretools for post build actions
+    - python3 -m pip install pyserial
+    - python3 -m pip uninstall cysecuretools -y
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
+
+    - *check_submodules
+
+    ########################### BlinkyApp BOOT ##############################
+    # Build BlinkyApp BOOT for PSOC_064_2M
+    - *cleanup_build_params
+
+    - export APP_NAME=BlinkyApp
+    - export PLATFORM=PSOC_064_2M
+    - export IMG_TYPE=BOOT
+    - export MULTI_IMAGE=0
+    - export MAKEINFO=0
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+    ########################### BlinkyApp UPGRADE ##############################
+    # Build BlinkyApp UPGRADE for PSOC_064_2M
+
+    - export IMG_TYPE=UPGRADE
+
+    - export BUILDCFG=Debug
+    - *make_boot_app
+
+    - export BUILDCFG=Release
+    - *make_boot_app
+
+  artifacts:
+    expire_in: 1 weeks
+    paths:
+      - deploy
+      - develop
+
+
+
+
+
+
+#######################################################################################################################################################
+##################------------------------------------------------- TESTS 512K -------------------------------------------#############################
+#######################################################################################################################################################
+
+
+mac_test_512K:
+  stage: test_512K
+  tags:
+    - MBED_TEST_MAC1014
+  cache: {}
   dependencies:
     - mac_build_512K_bootloader
     - mac_build_512K_Multi_BlinkyApp
@@ -350,8 +625,8 @@ mac_test_512K:
     - virtualenv venv
     - source venv/bin/activate
     - python3 -m pip install pyserial
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@feature/rsa
-    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@8d09c059c7dd838a2538b4b4e2e3b07ad8e6cf6a
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
     - pwd
     - rm -rf ./venv/lib/python3.7/site-packages/cysecuretools/targets/cyb06xx5/prebuilt/CyBootloader_Release
     - rm ./venv/lib/python3.7/site-packages/cysecuretools/targets/cyb06xx5/prebuilt/CyBootloader_WithLogs/CypressBootloader_CM0p.jwt
@@ -361,7 +636,7 @@ mac_test_512K:
 
     - echo "[INFO] Start tests"
 
-    - '[ -d tests ] && echo "[INFO] Directory tests exists." || echo "[INFO] Directory tests does not exists." && git clone http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_mcuboot.git tests && cd tests && git checkout tests && git branch && cd .. '
+    - '[ -d tests ] && echo "[INFO] Directory tests exists." || echo "[INFO] Directory tests does not exists." && git clone http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_mcuboot.git tests && cd tests && git checkout tests_kosx_temp && git branch && cd .. '
     - cd tests
     - mbedls -j > mbedls_data.json
     - pwd
@@ -372,7 +647,7 @@ mac_test_512K:
     - cd ..
     - rm -rf tests
 
-    - '[ -d tests ] && echo "[INFO] Directory tests exists." || echo "[INFO] Directory tests does not exists." && git clone http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_mcuboot.git tests && cd tests && git checkout tests && git branch && cd .. '
+    - '[ -d tests ] && echo "[INFO] Directory tests exists." || echo "[INFO] Directory tests does not exists." && git clone http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_mcuboot.git tests && cd tests && git checkout tests_kosx_temp && git branch && cd .. '
     - cd tests
     - mbedls -j > mbedls_data.json
     - pwd
@@ -391,6 +666,66 @@ mac_test_512K:
       - deploy
 
 
+#######################################################################################################################################################
+##################------------------------------------------------- TESTS 2M ---------------------------------------------#############################
+#######################################################################################################################################################
+
+mac_test_2M:
+  stage: test_2M
+  tags:
+    - MBED_TEST_MAC1014
+  cache: {}
+  dependencies:
+    - mac_build_2M_bootloader
+    - mac_build_2M_Multi_BlinkyApp
+    - mac_build_2M_SecureBlinkyApp
+    - mac_build_2M_BlinkyApp
+  script:
+    - export https_proxy=http://proxy.ua.cypress.com:8080
+    - python3 --version
+    - virtualenv venv
+    - source venv/bin/activate
+    - python3 -m pip install pyserial
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/cysecuretools.git@v1.4.0-es10.3-rc1
+    - python3 -m pip install --upgrade --force-reinstall git+http://git-ore.aus.cypress.com/repo/pyocd.git@ww05-sync-0.24.1
+    - pwd
+    - rm -rf ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8ckit_064x0s2_4343w/prebuilt/CyBootloader_Release
+    - rm ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8ckit_064x0s2_4343w/prebuilt/CyBootloader_WithLogs/CypressBootloader_CM0p.jwt
+    - rm ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8ckit_064x0s2_4343w/prebuilt/CyBootloader_WithLogs/CypressBootloader_CM0p.hex
+    - cp -r ./develop/PSOC_064_2M/CypressBootloader/Debug/*.hex ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8ckit_064x0s2_4343w/prebuilt/CyBootloader_WithLogs/
+    - cp -r ./develop/PSOC_064_2M/CypressBootloader/Debug/*.jwt ./venv/lib/python3.7/site-packages/cysecuretools/targets/cy8ckit_064x0s2_4343w/prebuilt/CyBootloader_WithLogs/
+
+    - echo "[INFO] Start tests"
+
+    - '[ -d tests ] && echo "[INFO] Directory tests exists." || echo "[INFO] Directory tests does not exists." && git clone http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_mcuboot.git tests && cd tests && git checkout tests_kosx_temp && git branch && cd .. '
+    - cd tests
+    - mbedls -j > mbedls_data.json
+    - pwd
+
+    - echo "[INFO] Test provisioning using single stage policy (CM4), CyBootloader WithLogs"
+    - python3 -m unittest test_provisioning.TestProvisioning.test_provision_2M_release_single_image
+
+    - cd ..
+    - rm -rf tests
+
+    - '[ -d tests ] && echo "[INFO] Directory tests exists." || echo "[INFO] Directory tests does not exists." && git clone http://git-ore.aus.cypress.com/repo/cy_mcuboot_project/cy_mcuboot.git tests && cd tests && git checkout tests_kosx_temp && git branch && cd .. '
+    - cd tests
+    - mbedls -j > mbedls_data.json
+    - pwd
+
+    - echo "[INFO] Test provisioning multi image, CyBootloader WithLogs"
+    - python3 -m unittest test_provisioning.TestProvisioning.test_provision_2M_release_muilti_image
+
+    - cd ..
+    - rm -rf tests
+
+    - deactivate
+
+  artifacts:
+    expire_in: 1 weeks
+    paths:
+      - deploy
+
 
 
 # static code analyzer with Cppcheck tool
@@ -398,6 +733,7 @@ win_cpp_check:
   stage: cppcheck
   tags:
     - MBED_TEST
+  cache: {}
   script:
     - cd boot/cypress/libs/bsp
     - git clone http://git-ore.aus.cypress.com/repo-staging/TARGET_CY8CPROTO-062-4343W.git
@@ -412,6 +748,7 @@ win_cpp_check:
   stage: sim
   tags:
     - FW_SECURITY_TEST_UBUNTU1804
+  cache: {}
   script:
     - export https_proxy=http://proxy.ua.cypress.com:8080
     - python3 --version
@@ -427,12 +764,14 @@ deploy_asset:
   stage: deploy
   tags:
     - devops-assets
+  cache: {}
   dependencies:
     # - mac_build_512K_bootloader
     # - mac_build_512K_Multi_BlinkyApp
     # - mac_build_512K_SecureBlinkyApp
     # - mac_build_512K_BlinkyApp
     - mac_test_512K
+    - mac_test_2M
   only:
     - /^develop$/
     - /^cypress$/
