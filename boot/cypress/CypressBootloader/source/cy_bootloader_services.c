@@ -51,9 +51,19 @@
 /** SysCall timeout value */
 #define SYSCALL_TIMEOUT                 (15000UL)
 
-extern const volatile int __HeapBase;
-extern const volatile int __HeapLimit;
 extern debug_policy_t debug_policy;
+
+extern const volatile uint32_t __sdata_start__[];
+extern const volatile uint32_t __sdata_end__[];
+
+extern const volatile uint32_t __bss_start__[];
+extern const volatile uint32_t __bss_end__[];
+
+extern const volatile uint32_t __HeapBase[];
+extern const volatile uint32_t __HeapLimit[];
+
+extern const volatile uint32_t __StackLimit[];
+extern const volatile uint32_t __StackTop[];
 
 #if defined(CY_IPC_DEFAULT_CFG_DISABLE)
 void Cy_SysIpcPipeIsrCm0(void)
@@ -161,13 +171,35 @@ void Cy_BLServ_Assert(int expr)
 
     if(0 == expr)
     {
+        uint32_t cm4ApPermission = debug_policy.m4_policy.permission;
+        uint32_t sysApPermission = debug_policy.sys_policy.permission;
+
         BOOT_LOG_ERR("There is an error occurred during bootloader flow. MCU stopped.");
 
+        /* Clean SRAM */
+        memset((void*)__sdata_start__, 0, ((size_t)__sdata_end__ - (size_t)__sdata_start__));
+
+        memset((void*)__bss_start__, 0, ((size_t)__bss_end__ - (size_t)__bss_start__));
+        memset((void*)__HeapBase,    0, ((size_t)__HeapLimit - (size_t)__HeapBase));
+
+        debug_policy.m4_policy.permission = cm4ApPermission;
+        debug_policy.sys_policy.permission = sysApPermission;
+
+        __set_MSP((uint32_t)__HeapBase);
+        memset((void*)__StackLimit,  0, ((size_t)__StackTop - (size_t)__StackLimit));
+
+        __set_MSP((uint32_t)__StackTop);
+
+        release_protections(true);
+
+        /* System initialization after .bss section was cleared */
+        Cy_BLServ_SystemInit();
+
         rc = Cy_Utils_EnableAccessPorts();
-       if(0 != rc)
-       {
-           BOOT_LOG_ERR("Error %x while enabling access ports", rc);
-       }
+        if(0 != rc)
+        {
+            BOOT_LOG_ERR("Error %x while enabling access ports", rc);
+        }
 
         if((CY_GET_REG32(CY_SRSS_TST_MODE_ADDR) & TST_MODE_TEST_MODE_MASK) != 0UL)
         {
@@ -175,7 +207,6 @@ void Cy_BLServ_Assert(int expr)
             IPC_STRUCT_Type * ipcStruct = Cy_IPC_Drv_GetIpcBaseAddress(CY_IPC_CHAN_SYSCALL_DAP);
             Cy_IPC_Drv_WriteDataValue(ipcStruct, TST_MODE_ENTERED_MAGIC);
 
-            BOOT_LOG_INF("TEST MODE : Cy_BLServ_Assert()");
             __disable_irq();
         }
 

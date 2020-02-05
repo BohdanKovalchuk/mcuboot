@@ -210,7 +210,7 @@ int main(void)
         Cy_GPIO_Inv(LED_PORT, LED_PIN);
 #endif
     }
-    Cy_Utils_StartAppCM4(app_addr);
+    Cy_Utils_StartAppCM4(app_addr, true);
 
     return 0;
 }
