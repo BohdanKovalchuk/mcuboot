@@ -99,6 +99,7 @@ SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/source/*.c)
 # Collect Flash Layer port sources
 SOURCES_FLASH_PORT := $(wildcard $(CURDIR)/cy_flash_pal/*.c)
+SOURCES_FLASH_PORT += $(wildcard $(CURDIR)/cy_flash_pal/flash_qspi/*.c)
 
 # Collect all the sources
 SOURCES_APP := $(SOURCES_MCUBOOT)
@@ -110,6 +111,7 @@ INCLUDES_DIRS_MCUBOOT += $(addprefix -I, $(CURDIR)/../bootutil/src)
 
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/flash_qspi)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include/flash_map_backend)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/config)

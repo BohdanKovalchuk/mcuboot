@@ -63,6 +63,7 @@
 
 #include "sysflash/sysflash.h"
 #include "flash_map_backend/flash_map_backend.h"
+#include "flash_qspi.h"
 
 #include "bootutil/image.h"
 #include "bootutil/bootutil.h"
@@ -101,6 +102,9 @@
 #define CY_BOOTLOADER_MASTER_IMG_ID      CY_BOOTLOADER_IMG_ID_CM0P
 
 #define CY_BOOTLOADER_SCRATCH_SIZE (0x1000)
+
+#define CY_BOOTLOADER_SMIF_SFDP (0x1)
+#define CY_BOOTLOADER_SMIF_CFG  (0x2)
 
 /* TOC3 Table */
 /* valid TOC3, section name cy_toc_part2 used for CRC calculation */
@@ -215,8 +219,107 @@ static void do_boot(struct boot_rsp *rsp)
 }
 
 /************************************
- * CypressBootloader main()
-  ************************************/
+* Apply Policies
+***********************************/
+void Cy_Bl_ApplyPolicy(void)
+{
+    primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
+    primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+    primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.start;
+    primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.size;
+
+    secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
+    secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+        /* check if upgrade slot is requested from external memory */
+    if(cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id != 0)
+    {
+        secondary_1.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id)|
+                                    (FLASH_DEVICE_EXTERNAL_FLAG));
+        BOOT_LOG_INF("Secondary Slot 1 initialized to External Memory");
+    }
+    secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.start;
+    secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.size;
+
+    if((cy_bl_bnu_policy.bnu_img_policy[0].multi_image == 1) &&
+        (cy_bl_bnu_policy.bnu_img_policy[1].multi_image == 2))
+    {
+        boot_img_number = 2;
+
+        primary_2.fa_id = FLASH_AREA_IMAGE_PRIMARY(1);
+        primary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+
+        primary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.start;
+        primary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.size;
+
+        secondary_2.fa_id = FLASH_AREA_IMAGE_SECONDARY(1);
+        secondary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
+            /* check if upgrade slot is requested from external memory */
+        if(cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id != 0)
+        {
+            secondary_2.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id)|
+                                        (FLASH_DEVICE_EXTERNAL_FLAG));
+            BOOT_LOG_INF("Secondary Slot 2 initialized to External Memory");
+        }
+        secondary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.start;
+        secondary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.size;
+
+        BOOT_LOG_INF("Enabled multi-image N = %d:", boot_img_number);
+    }
+    else{
+        BOOT_LOG_INF("Single-image N = %d:", boot_img_number);
+    }
+}
+
+/************************************
+* Initialize External Memory Module
+***********************************/
+int Cy_Bl_InitSMIF(void)
+{
+    int rc = 0;
+    uint32_t smif_id = 0;
+    cy_stc_smif_block_config_t *smifConfigPtr;
+
+        /* initialize SMIF if at least one secondary slot requires it */
+    if(cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id != 0)
+    {
+        smif_id = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id;
+        // TODO: implement in JWT parser
+        // smifConfigPtr = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_config;
+    }
+        /* OR */
+    if(cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id != 0)
+    {
+        smif_id = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id;
+        // TODO: implement in JWT parser
+        // smifConfigPtr = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_config;
+    }
+        /* if at least one secondary requires SMIF */
+    if(smif_id != 0)
+    {
+        /* if (SFDP) */
+        if(smif_id == CY_BOOTLOADER_SMIF_SFDP)
+        {
+            rc = qspi_init_sfdp();
+        }
+        else
+        if(smif_id == CY_BOOTLOADER_SMIF_CFG)
+        {
+            // TODO: precompiled from BSP, remove it further
+            smifConfigPtr = &smifBlockConfig;
+            rc = qspi_init(smifConfigPtr);
+        }
+        else
+        {   /* Erroneous undefined condition */
+            rc = -1;
+        }
+    }
+    return rc;
+}
+
+/************************************
+* CypressBootloader main()
+************************************/
 int main(void)
 {
     cy_rslt_t rc = !CY_RSLT_SUCCESS;
@@ -246,9 +349,6 @@ int main(void)
         rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy,
                 CY_BOOTLOADER_MASTER_IMG_ID);
     }
-
-    // TODO: initialize SMIF if supported/requested
-    // FWSECURITY-676
     if(0 != rc)
     {
         BOOT_LOG_ERR("Policy parsing failed with code 0x%08x", (int)rc);
@@ -292,41 +392,8 @@ int main(void)
 #else
             /* assume single-image is requested by policy */
         boot_img_number = 1;
-
-        primary_1.fa_id = FLASH_AREA_IMAGE_PRIMARY(0);
-        primary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-
-        primary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.start;
-        primary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].boot_area.size;
-
-        secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
-        secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-
-        secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.start;
-        secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.size;
-
-        if((cy_bl_bnu_policy.bnu_img_policy[0].multi_image == 1) &&
-            (cy_bl_bnu_policy.bnu_img_policy[1].multi_image == 2))
-        {
-            boot_img_number = 2;
-
-            primary_2.fa_id = FLASH_AREA_IMAGE_PRIMARY(1);
-            primary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-
-            primary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.start;
-            primary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.size;
-
-            secondary_2.fa_id = FLASH_AREA_IMAGE_SECONDARY(1);
-            secondary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-
-            secondary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.start;
-            secondary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.size;
-
-            BOOT_LOG_INF("Enabled multi-image N = %d:", boot_img_number);
-        }
-        else{
-            BOOT_LOG_INF("Single-image N = %d:", boot_img_number);
-        }
+            /* Apply policy data to flash map and external memory IF */
+        Cy_Bl_ApplyPolicy();
             /* add bootloader */
         bootloader.fa_id = FLASH_AREA_BOOTLOADER;
         bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
@@ -337,6 +404,11 @@ int main(void)
         scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
         scratch.fa_off = bootloader.fa_off - CY_BOOTLOADER_SCRATCH_SIZE;
         scratch.fa_size = CY_BOOTLOADER_SCRATCH_SIZE;
+
+        // TODO: initialize SMIF if supported/requested
+        // FWSECURITY-676
+        // TODO: what to do if SMIF init failed ?
+        rc = Cy_Bl_InitSMIF();
 
         apply_protections();
 #endif

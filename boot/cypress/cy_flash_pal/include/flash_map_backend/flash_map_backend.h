@@ -70,6 +70,23 @@
 
 #include <mcuboot_config/mcuboot_config.h>
 #include "cy_flash.h"
+#define FLASH_DEVICE_INDEX_MASK                 (0x7F)
+#define FLASH_DEVICE_GET_EXT_INDEX(n)           ((n) & FLASH_DEVICE_INDEX_MASK)
+#define FLASH_DEVICE_EXTERNAL_FLAG              (0x80)
+#define FLASH_DEVICE_INTERNAL_FLASH             (0x7F)
+#define FLASH_DEVICE_EXTERNAL_FLASH(index)      (FLASH_DEVICE_EXTERNAL_FLAG | index)
+
+#ifndef CY_BOOT_EXTERNAL_DEVICE_INDEX
+/* assume first(one) SMIF device is used */
+#define CY_BOOT_EXTERNAL_DEVICE_INDEX            (0)
+#endif
+
+#ifndef CY_BOOT_USE_EXTERNAL_FLASH
+#define CY_BOOT_USE_EXTERNAL_FLASH
+#endif
+
+// TODO: use PDL-defined offset or one from SMFI config
+#define CY_SMIF_BASE_MEM_OFFSET (0x18000000)
 
 /**
  *
