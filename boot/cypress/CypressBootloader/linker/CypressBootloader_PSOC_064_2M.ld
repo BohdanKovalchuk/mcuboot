@@ -68,7 +68,7 @@ MEMORY
     public_ram        (rw)    : ORIGIN = 0x080EC000, LENGTH = 0x800
     flash             (rx)    : ORIGIN = 0x101D0000, LENGTH = 0xFE00
 
-    toc_3             (rx)    : ORIGIN = 0x101DFE00, LENGTH = 0x200 /* Used by Secure FlashBoot */
+/* OBSOLETED    toc_3             (rx)    : ORIGIN = 0x101DFE00, LENGTH = 0x200 *//* Used by Secure FlashBoot */
  /* toc_2             (rx)    : ORIGIN = 0x16007C00, LENGTH = 0x200 */ /* For old FlashBoot */
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.

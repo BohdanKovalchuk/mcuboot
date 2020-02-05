@@ -61,6 +61,7 @@
 #include "cy_retarget_io.h"
 #include "cy_result.h"
 
+#include "cycfg_qspi_memslot.h"
 #include "sysflash/sysflash.h"
 #include "flash_map_backend/flash_map_backend.h"
 #include "flash_qspi.h"
@@ -108,23 +109,23 @@
 
 /* TOC3 Table */
 /* valid TOC3, section name cy_toc_part2 used for CRC calculation */
-__attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 ] =
-{
-    0x200-4,                /* Object Size, bytes */
-    0x01211221,             /* TOC Part 3, ID */
-    0x00000000,             /* Reserved */
-    0x00000000,             /* Reserved */
-    CY_BOOTLOADER_START,    /* Bootloader image start address */
-    0x0000FE00,             /* Bootloader image length */
-    CY_BOOTLOADER_VERSION,  /* Bootloader version Major.Minor.Rev */
-    CY_BOOTLOADER_BUILD,    /* Bootloader build number */
-    1,                      /* Number of the next objects to add to SECURE_HASH */
-    0x100FDA00,             /* TODO: it is obsoleted. Provisioning JWT string starting with length  */
-    0,
-    [(512 / sizeof(int)) - 2] =
-    (TOC_LISTEN_WINDOW_20MS_IDX << 2) |
-    (TOC_FREQ_50MHZ_IDX << 0),
-};
+//__attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 ] =
+//{
+//    0x200-4,                /* Object Size, bytes */
+//    0x01211221,             /* TOC Part 3, ID */
+//    0x00000000,             /* Reserved */
+//    0x00000000,             /* Reserved */
+//    CY_BOOTLOADER_START,    /* Bootloader image start address */
+//    0x0000FE00,             /* Bootloader image length */
+//    CY_BOOTLOADER_VERSION,  /* Bootloader version Major.Minor.Rev */
+//    CY_BOOTLOADER_BUILD,    /* Bootloader build number */
+//    1,                      /* Number of the next objects to add to SECURE_HASH */
+//    0x100FDA00,             /* TODO: it is obsoleted. Provisioning JWT string starting with length  */
+//    0,
+//    [(512 / sizeof(int)) - 2] =
+//    (TOC_LISTEN_WINDOW_20MS_IDX << 2) |
+//    (TOC_FREQ_50MHZ_IDX << 0),
+//};
 
 /** SecureBoot policies*/
 /** Boot & Upgrade policy structure */
@@ -232,9 +233,9 @@ void Cy_Bl_ApplyPolicy(void)
     secondary_1.fa_id = FLASH_AREA_IMAGE_SECONDARY(0);
     secondary_1.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
         /* check if upgrade slot is requested from external memory */
-    if(cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id != 0)
+    if(cy_bl_bnu_policy.bnu_img_policy[0].smif_id != 0)
     {
-        secondary_1.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id)|
+        secondary_1.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[0].smif_id)|
                                     (FLASH_DEVICE_EXTERNAL_FLAG));
         BOOT_LOG_INF("Secondary Slot 1 initialized to External Memory");
     }
@@ -255,9 +256,9 @@ void Cy_Bl_ApplyPolicy(void)
         secondary_2.fa_id = FLASH_AREA_IMAGE_SECONDARY(1);
         secondary_2.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
             /* check if upgrade slot is requested from external memory */
-        if(cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id != 0)
+        if(cy_bl_bnu_policy.bnu_img_policy[1].smif_id != 0)
         {
-            secondary_2.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id)|
+            secondary_2.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[1].smif_id)|
                                         (FLASH_DEVICE_EXTERNAL_FLAG));
             BOOT_LOG_INF("Secondary Slot 2 initialized to External Memory");
         }
@@ -281,16 +282,16 @@ int Cy_Bl_InitSMIF(void)
     cy_stc_smif_block_config_t *smifConfigPtr;
 
         /* initialize SMIF if at least one secondary slot requires it */
-    if(cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id != 0)
+    if(cy_bl_bnu_policy.bnu_img_policy[0].smif_id != 0)
     {
-        smif_id = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_id;
+        smif_id = cy_bl_bnu_policy.bnu_img_policy[0].smif_id;
         // TODO: implement in JWT parser
         // smifConfigPtr = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_config;
     }
         /* OR */
-    if(cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id != 0)
+    if(cy_bl_bnu_policy.bnu_img_policy[1].smif_id != 0)
     {
-        smif_id = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_id;
+        smif_id = cy_bl_bnu_policy.bnu_img_policy[1].smif_id;
         // TODO: implement in JWT parser
         // smifConfigPtr = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_config;
     }
@@ -397,8 +398,8 @@ int main(void)
             /* add bootloader */
         bootloader.fa_id = FLASH_AREA_BOOTLOADER;
         bootloader.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
-        bootloader.fa_off = cyToc[4];
-        bootloader.fa_size = cyToc[5];
+        bootloader.fa_off = CY_BOOTLOADER_START;
+        bootloader.fa_size = 0x10000;
             /* initialize scratch */
         scratch.fa_id = FLASH_AREA_IMAGE_SCRATCH;
         scratch.fa_device_id = FLASH_DEVICE_INTERNAL_FLASH;
