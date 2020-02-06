@@ -67,7 +67,7 @@ DEFINES_APP += -DRAM_SIZE=0x20000
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
 CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
 else ifeq ($(PLATFORM), PSOC_064_1M)
-DEFINES_APP += -DRAM_START=0x0804000
+DEFINES_APP += -DRAM_START=0x08040000
 DEFINES_APP += -DRAM_SIZE=0x10000
 # Determine path to multi image policy file
 MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
