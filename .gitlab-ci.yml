@@ -765,6 +765,9 @@ deploy_asset:
   tags:
     - devops-assets
   cache: {}
+  variables:
+    GIT_STRATEGY: none
+    GIT_SUBMODULE_STRATEGY: none
   dependencies:
     # - mac_build_512K_bootloader
     # - mac_build_512K_Multi_BlinkyApp
