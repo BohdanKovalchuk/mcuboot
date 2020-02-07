@@ -46,6 +46,7 @@ DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
 # BSP does not define this macro for CM0p so define it here
 DEFINES_APP += -DCY_USING_HAL
+DEFINES_APP += -DNDEBUG
 
 DEFINES_APP += -DMCUBOOT_IMAGE_NUMBER=$(MCUBOOT_IMAGE_NUMBER)
 
@@ -58,8 +59,10 @@ endif
 SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
 # Collect MCUBoot Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/*.c)
+#SOURCES_APP_SRC += $(wildcard $(CUR_APP_PATH)/smif_config/*.c)
 # Collect Flash Layer port sources
 SOURCES_FLASH_PORT := $(wildcard $(CURDIR)/cy_flash_pal/*.c)
+SOURCES_FLASH_PORT += $(wildcard $(CURDIR)/cy_flash_pal/flash_qspi/*.c)
 # Collect all the sources
 SOURCES_APP := $(SOURCES_MCUBOOT)
 SOURCES_APP += $(SOURCES_APP_SRC)
@@ -69,10 +72,12 @@ INCLUDES_DIRS_MCUBOOT := $(addprefix -I, $(CURDIR)/../bootutil/include)
 INCLUDES_DIRS_MCUBOOT += $(addprefix -I, $(CURDIR)/../bootutil/src)
 
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
+INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/flash_qspi)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include/flash_map_backend)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/config)
+#INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/smif_config)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/os)
 
 ASM_FILES_APP :=

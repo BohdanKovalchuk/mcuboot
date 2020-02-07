@@ -57,6 +57,9 @@
 #include "cy_retarget_io.h"
 #include "cy_result.h"
 
+#include "cycfg_qspi_memslot.h"
+#include "flash_qspi.h"
+
 #include "sysflash/sysflash.h"
 #include "flash_map_backend/flash_map_backend.h"
 
@@ -75,7 +78,7 @@ static void do_boot(struct boot_rsp *rsp)
     BOOT_LOG_INF("Starting User Application on CM4 (wait)...");
     Cy_SysLib_Delay(100);
 
-    cy_retarget_io_deinit();
+//    cy_retarget_io_deinit();
 
     Cy_SysEnableCM4(app_addr);
 
@@ -98,11 +101,19 @@ int main(void)
         CY_ASSERT(0);
     }
 
+    /* enable interrupts */
+    __enable_irq();
+
     /* Initialize retarget-io to use the debug UART port */
-    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+//    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+
+    BOOT_LOG_INF("TEST: MCUBoot Bootloader Started");
+
+    //rc = qspi_init(&smifBlockConfig);
+    rc = qspi_init_sfdp();
 
     /* enable interrupts */
-    if (rc != CY_RSLT_SUCCESS)
+    if (rc != CY_SMIF_SUCCESS)
     {
         CY_ASSERT(0);
     }
@@ -110,7 +121,6 @@ int main(void)
     {
         BOOT_LOG_INF("MCUBoot Bootloader Started");
     }
-    __enable_irq();
 
     if (boot_go(&rsp) == 0)
     {

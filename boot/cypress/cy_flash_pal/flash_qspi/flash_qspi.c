@@ -115,6 +115,15 @@ static cy_stc_smif_mem_device_cfg_t dev_sfdp_0 =
 
 static cy_stc_smif_mem_config_t mem_sfdp_0 =
 {
+    /* The base address the memory slave is mapped to in the PSoC memory map.
+    Valid when the memory-mapped mode is enabled. */
+    .baseAddress = 0x18000000U,
+    /* The size allocated in the PSoC memory map, for the memory slave device.
+    The size is allocated from the base address. Valid when the memory mapped mode is enabled. */
+//    .memMappedSize = 0x4000000U,
+    /* If this memory device is one of the devices in the dual quad SPI configuration.
+    Valid when the memory mapped mode is enabled. */
+//    .dualQuadSlots = 0,
     .flags = CY_SMIF_FLAG_DETECT_SFDP,
     .slaveSelect = CY_SMIF_SLAVE_SELECT_0,
     .dataSelect = CY_SMIF_DATA_SEL0,
