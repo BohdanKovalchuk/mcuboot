@@ -46,6 +46,7 @@ include $(CUR_APP_PATH)/toolchains.mk
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
+DEFINES_APP += -DNDEBUG
 
 # Add start address for each target device, since flash size is different
 #
@@ -53,7 +54,7 @@ DEFINES_APP += -DCORE=$(CORE)
 # equal to all available flash for BOOT slot. it is assumed that UPGRADE 
 # slot in this case is located in External Memory
 ifeq ($(PLATFORM), PSOC_064_2M)
-CY_BOOTLOADER_APP_START ?= 0x101D0000
+CY_BOOTLOADER_APP_START ?= 0x101CE000
 # 0x1D0000 max slot size
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=3712
 else ifeq ($(PLATFORM), PSOC_064_1M)
@@ -84,9 +85,13 @@ DEFINES_APP += $(DEFINES_USER)
 
 ifeq ($(BUILDCFG), Debug)
 DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_INFO
-DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
-else
-DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
+#DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
+else 
+	ifeq ($(BUILDCFG), Release) 
+		DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
+	else
+		$(error "Not supported build configuration : $(BUILDCFG)")
+	endif
 endif
 
 # TODO: MCUBoot library
@@ -97,7 +102,7 @@ SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 
 # Collect CypresBootloader Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/source/*.c)
-#SOURCES_APP_SRC += $(wildcard $(CUR_APP_PATH)/smif_config/*.c)
+SOURCES_APP_SRC += $(wildcard $(CUR_APP_PATH)/smif_config/*.c)
 # Collect Flash Layer port sources
 SOURCES_FLASH_PORT := $(wildcard $(CURDIR)/cy_flash_pal/*.c)
 SOURCES_FLASH_PORT += $(wildcard $(CURDIR)/cy_flash_pal/flash_qspi/*.c)

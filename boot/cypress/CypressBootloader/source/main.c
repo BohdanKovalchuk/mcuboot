@@ -109,23 +109,23 @@
 
 /* TOC3 Table */
 /* valid TOC3, section name cy_toc_part2 used for CRC calculation */
-//__attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 ] =
-//{
-//    0x200-4,                /* Object Size, bytes */
-//    0x01211221,             /* TOC Part 3, ID */
-//    0x00000000,             /* Reserved */
-//    0x00000000,             /* Reserved */
-//    CY_BOOTLOADER_START,    /* Bootloader image start address */
-//    0x0000FE00,             /* Bootloader image length */
-//    CY_BOOTLOADER_VERSION,  /* Bootloader version Major.Minor.Rev */
-//    CY_BOOTLOADER_BUILD,    /* Bootloader build number */
-//    1,                      /* Number of the next objects to add to SECURE_HASH */
-//    0x100FDA00,             /* TODO: it is obsoleted. Provisioning JWT string starting with length  */
-//    0,
-//    [(512 / sizeof(int)) - 2] =
-//    (TOC_LISTEN_WINDOW_20MS_IDX << 2) |
-//    (TOC_FREQ_50MHZ_IDX << 0),
-//};
+__attribute__((used, section(".cy_toc_part2") )) static const int cyToc[512 / 4 ] =
+{
+    0x200-4,                /* Object Size, bytes */
+    0x01211221,             /* TOC Part 3, ID */
+    0x00000000,             /* Reserved */
+    0x00000000,             /* Reserved */
+    CY_BOOTLOADER_START,    /* Bootloader image start address */
+    0x00011E00,             /* Bootloader image length */
+    CY_BOOTLOADER_VERSION,  /* Bootloader version Major.Minor.Rev */
+    CY_BOOTLOADER_BUILD,    /* Bootloader build number */
+    1,                      /* Number of the next objects to add to SECURE_HASH */
+    0x100FDA00,             /* TODO: it is obsoleted. Provisioning JWT string starting with length  */
+    0,
+    [(512 / sizeof(int)) - 2] =
+    (TOC_LISTEN_WINDOW_20MS_IDX << 2) |
+    (TOC_FREQ_50MHZ_IDX << 0),
+};
 
 /** SecureBoot policies*/
 /** Boot & Upgrade policy structure */
@@ -235,9 +235,8 @@ void Cy_Bl_ApplyPolicy(void)
         /* check if upgrade slot is requested from external memory */
     if(cy_bl_bnu_policy.bnu_img_policy[0].smif_id != 0)
     {
-        secondary_1.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[0].smif_id)|
-                                    (FLASH_DEVICE_EXTERNAL_FLAG));
-        BOOT_LOG_INF("Secondary Slot 1 initialized to External Memory");
+        secondary_1.fa_device_id = FLASH_DEVICE_EXTERNAL_FLAG;
+        BOOT_LOG_INF("Secondary Slot 1 will upgrade from External Memory");
     }
     secondary_1.fa_off = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.start;
     secondary_1.fa_size = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.size;
@@ -258,9 +257,8 @@ void Cy_Bl_ApplyPolicy(void)
             /* check if upgrade slot is requested from external memory */
         if(cy_bl_bnu_policy.bnu_img_policy[1].smif_id != 0)
         {
-            secondary_2.fa_device_id = ((cy_bl_bnu_policy.bnu_img_policy[1].smif_id)|
-                                        (FLASH_DEVICE_EXTERNAL_FLAG));
-            BOOT_LOG_INF("Secondary Slot 2 initialized to External Memory");
+            secondary_2.fa_device_id = FLASH_DEVICE_EXTERNAL_FLAG;
+            BOOT_LOG_INF("Secondary Slot 2 will upgrade from External Memory");
         }
         secondary_2.fa_off = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.start;
         secondary_2.fa_size = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.size;
@@ -302,13 +300,30 @@ int Cy_Bl_InitSMIF(void)
         if(smif_id == CY_BOOTLOADER_SMIF_SFDP)
         {
             rc = qspi_init_sfdp();
+            if(rc == 0)
+            {
+                BOOT_LOG_INF("External Memory initialized w/ SFDP.");
+            }
+            else
+            {
+                BOOT_LOG_ERR("External Memory initialization w/ SFDP FAILED: 0x%02x", rc);
+            }
         }
         else
         if(smif_id == CY_BOOTLOADER_SMIF_CFG)
         {
             // TODO: precompiled from BSP, remove it further
+            // TODO: create ptr reference to Flash-based precompiled structure
             smifConfigPtr = &smifBlockConfig;
             rc = qspi_init(smifConfigPtr);
+            if(rc == 0)
+            {
+                BOOT_LOG_INF("External Memory initialized w/ Flash Config.");
+            }
+            else
+            {
+                BOOT_LOG_ERR("External Memory initialization w/ Flash Config FAILED: 0x%02x", rc);
+            }
         }
         else
         {   /* Erroneous undefined condition */
@@ -424,7 +439,7 @@ int main(void)
     else
     {
         BOOT_LOG_INF("CypressBootloader found none of bootable images") ;
-        Cy_BLServ_Assert(0 == rc);
+        //Cy_BLServ_Assert(0 == rc);
     }
 
     return 0;

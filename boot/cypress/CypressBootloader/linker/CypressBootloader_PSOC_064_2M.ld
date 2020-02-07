@@ -41,7 +41,7 @@ GROUP(-lgcc -lc -lnosys)
 ENTRY(Reset_Handler)
 
 /* Size of the stack section at the end of CM0+ SRAM */
-STACK_SIZE = 0x1000;
+STACK_SIZE = 0x4000;
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing
 * this may, for example, trigger linking of additional modules from standard
@@ -66,9 +66,9 @@ MEMORY
     ram_heap          (rwx)   : ORIGIN = 0x0804E000, LENGTH = 0xA000
     ram               (rwx)   : ORIGIN = 0x08058000, LENGTH = 0x94000
     public_ram        (rw)    : ORIGIN = 0x080EC000, LENGTH = 0x800
-    flash             (rx)    : ORIGIN = 0x101D0000, LENGTH = 0xFE00
+    flash             (rx)    : ORIGIN = 0x101CE000, LENGTH = 0x11E00
 
-/* OBSOLETED    toc_3             (rx)    : ORIGIN = 0x101DFE00, LENGTH = 0x200 *//* Used by Secure FlashBoot */
+   toc_3             (rx)    : ORIGIN = 0x101DFE00, LENGTH = 0x200 /* Used by Secure FlashBoot */
  /* toc_2             (rx)    : ORIGIN = 0x16007C00, LENGTH = 0x200 */ /* For old FlashBoot */
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.
