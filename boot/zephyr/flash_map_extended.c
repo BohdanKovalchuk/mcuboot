@@ -105,11 +105,11 @@ int flash_area_sector_from_off(off_t off, struct flash_sector *sector)
     return rc;
 }
 
-#define ERASED_VAL 0xff
+#define ERASED_VAL 0x0
 uint8_t flash_area_erased_val(const struct flash_area *fap)
 {
     (void)fap;
-    return ERASED_VAL;
+    return (uint8_t)ERASED_VAL;
 }
 
 int flash_area_read_is_empty(const struct flash_area *fa, uint32_t off,

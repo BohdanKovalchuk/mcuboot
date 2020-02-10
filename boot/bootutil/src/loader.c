@@ -1627,7 +1627,7 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
         /* Indicate that swap is not aborted */
         boot_status_reset(&bs);
 //#endif /* (BOOT_IMAGE_NUMBER > 1) */
-
+        }
         /* Set the previously determined swap type */
         bs.swap_type = BOOT_SWAP_TYPE(state);
 
@@ -1738,7 +1738,6 @@ out:
         }
     }
     return rc;
-}
 }
 
 /**
