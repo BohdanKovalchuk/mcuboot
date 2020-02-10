@@ -3,7 +3,7 @@
 #ifndef __SYSFLASH_H__
 #define __SYSFLASH_H__
 
-#include <generated_dts_board.h>
+#include <devicetree.h>
 #include <mcuboot_config/mcuboot_config.h>
 
 #if (MCUBOOT_IMAGE_NUMBER == 1)
@@ -37,6 +37,8 @@
 #error "Image slot and flash area mapping is not defined"
 #endif
 
+#if !defined(CONFIG_BOOT_SWAP_USING_MOVE)
 #define FLASH_AREA_IMAGE_SCRATCH    DT_FLASH_AREA_IMAGE_SCRATCH_ID
+#endif
 
 #endif /* __SYSFLASH_H__ */

@@ -15,20 +15,22 @@ target with a complete port planned.
 
 ## Contents
 
-- General: this document
+- General - this document
 - [Release notes](release-notes.md)
-- [design](design.md): for the design
-- [imgtool](imgtool.md): The image signing and key management
+- [Bootloader design](design.md)
+- [Encrypted images](encrypted_images.md)
+- [imgtool](imgtool.md) - image signing and key management
+- [ecdsa](ecdsa.md) - Information about ECDSA signature formats
 - Usage instructions:
   - [Zephyr](readme-zephyr.md)
   - [Mynewt](readme-mynewt.md)
   - [RIOT](readme-riot.md)
-- [Patch submission](SubmittingPatches.md) for information
-  on how to contribute to mcuboot.
+- [Patch submission](SubmittingPatches.md) - information
+  on how to contribute to mcuboot
 - Testing
-  - The [Zephyr](testplan-zephyr.md) test plan.
-  - The [mynewt](testplan-mynewt.md) test plan.
-- Our [release process](release.md).
+  - [Zephyr](testplan-zephyr.md) test plan
+  - [mynewt](testplan-mynewt.md) test plan
+- [Release process](release.md)
 
 There is also a document about [signed images](signed_images.md) that is out
 of date.  You should use `imgtool.py` instead of these documents.
@@ -63,7 +65,7 @@ For more information in the source, here are some pointers:
 
 Developers welcome!
 
-* [Our developer mailing list](http://lists.runtime.co/mailman/listinfo/dev-mcuboot_lists.runtime.co)
+* [Our developer mailing list](https://groups.io/g/MCUBoot)
 * [Our Slack channel](https://mcuboot.slack.com/)<br />
   Get your invite [here!](https://join.slack.com/t/mcuboot/shared_invite/MjE2NDcwMTQ2MTYyLTE1MDA4MTIzNTAtYzgyZTU0NjFkMg)
 * [Our IRC channel](http://irc.freenode.net), channel #mcuboot ([IRC
