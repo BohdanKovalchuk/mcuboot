@@ -327,7 +327,6 @@ int flash_area_erase(const struct flash_area *fa, uint32_t off, uint32_t len)
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
         // TODO:
-        return 0;
         addr = fa->fa_off + off;
         rc = psoc6_flash_erase(addr, len);
     }
@@ -451,8 +450,9 @@ uint8_t flash_area_erased_val(const struct flash_area *fap)
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fap->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
     {
-// TODO:        ret = CY_BOOT_EXTERNAL_FLASH_ERASE_VALUE;
+// TODO:
         ret = 0;
+//        ret = CY_BOOT_EXTERNAL_FLASH_ERASE_VALUE;
     }
 #endif
     else
