@@ -422,7 +422,35 @@ cy_en_smif_status_t qspi_init(cy_stc_smif_block_config_t *blk_config)
     return st;
 }
 
-cy_en_smif_status_t qspi_init_sfdp(void)
+cy_en_smif_status_t qspi_init_sfdp(uint32_t smif_id)
 {
-    return qspi_init(&smifBlockConfig_sfdp);
+    cy_en_smif_status_t stat = CY_SMIF_SUCCESS;
+
+    cy_stc_smif_mem_config_t **memCfg = smifBlockConfig_sfdp.memConfig;
+
+    switch(smif_id)
+    {
+    case 1:
+        (*memCfg)->slaveSelect = CY_SMIF_SLAVE_SELECT_0;
+        break;
+    case 2:
+        (*memCfg)->slaveSelect = CY_SMIF_SLAVE_SELECT_1;
+        break;
+    case 3:
+        (*memCfg)->slaveSelect = CY_SMIF_SLAVE_SELECT_2;
+        break;
+    case 4:
+        (*memCfg)->slaveSelect = CY_SMIF_SLAVE_SELECT_3;
+        break;
+    default:
+        stat = -1;
+        break;
+    }
+
+    if (stat == CY_SMIF_SUCCESS)
+    {
+        stat = qspi_init(&smifBlockConfig_sfdp);
+    }
+
+    return stat;
 }

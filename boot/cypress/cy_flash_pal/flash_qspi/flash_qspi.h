@@ -49,7 +49,7 @@
 
 #include "cy_pdl.h"
 
-cy_en_smif_status_t qspi_init_sfdp(void);
+cy_en_smif_status_t qspi_init_sfdp(uint32_t smif_id);
 cy_en_smif_status_t qspi_init(cy_stc_smif_block_config_t *blk_config);
 cy_en_smif_status_t qspi_init_hardware(void);
 

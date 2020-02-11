@@ -104,7 +104,7 @@
 
 #define CY_BOOTLOADER_SCRATCH_SIZE (0x1000)
 
-#define CY_BOOTLOADER_SMIF_SFDP (0x1)
+#define CY_BOOTLOADER_SMIF_SFDP_MAX (0x4)
 #define CY_BOOTLOADER_SMIF_CFG  (0x2)
 
 /* TOC3 Table */
@@ -301,9 +301,9 @@ int Cy_Bl_InitSMIF(void)
     if(smif_id != 0)
     {
         /* if (SFDP) */
-        if(smif_id == CY_BOOTLOADER_SMIF_SFDP)
+        if(smif_id <= CY_BOOTLOADER_SMIF_SFDP_MAX)
         {
-            rc = qspi_init_sfdp();
+            rc = qspi_init_sfdp(smif_id);
             if(rc == 0)
             {
                 BOOT_LOG_INF("External Memory initialized w/ SFDP.");
@@ -315,7 +315,7 @@ int Cy_Bl_InitSMIF(void)
         }
         /* Not Supported yet */
 /*        else
-        if(smif_id == CY_BOOTLOADER_SMIF_CFG)
+        if(smif_id == TBD)
         {
             smifConfigPtr = &smifBlockConfig;
             rc = qspi_init(smifConfigPtr);
