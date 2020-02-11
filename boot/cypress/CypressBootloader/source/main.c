@@ -167,7 +167,11 @@ struct flash_area *boot_area_descs[] =
 /* This function is required by Cy_Utils_StartAppCM4() */
 void AppSystemInit(void)
 {
+#if defined(__NO_SYSTEM_INIT)
     Cy_BLServ_SystemInit();
+#else
+    SystemInit();
+#endif /* __NO_SYSTEM_INIT */
 }
 
 /* Next image runner API */
@@ -309,11 +313,10 @@ int Cy_Bl_InitSMIF(void)
                 BOOT_LOG_ERR("External Memory initialization w/ SFDP FAILED: 0x%02x", rc);
             }
         }
-        else
+        /* Not Supported yet */
+/*        else
         if(smif_id == CY_BOOTLOADER_SMIF_CFG)
         {
-            // TODO: precompiled from BSP, remove it further
-            // TODO: create ptr reference to Flash-based precompiled structure
             smifConfigPtr = &smifBlockConfig;
             rc = qspi_init(smifConfigPtr);
             if(rc == 0)
@@ -324,7 +327,7 @@ int Cy_Bl_InitSMIF(void)
             {
                 BOOT_LOG_ERR("External Memory initialization w/ Flash Config FAILED: 0x%02x", rc);
             }
-        }
+        } */
         else
         {   /* Erroneous undefined condition */
             rc = -1;
@@ -344,6 +347,9 @@ int main(void)
 #if defined(__NO_SYSTEM_INIT)
     Cy_BLServ_SystemInit();
 #endif /* __NO_SYSTEM_INIT */
+
+    //  TODO: hot-fix, remove it later
+    cybsp_init();
 
     /* Initialize PSOC6 specific */
     Cy_InitPSoC6_HW();
@@ -429,8 +435,12 @@ int main(void)
         apply_protections();
 #endif
     }
+    /* if policy parsing and SMIF initialization successful */
+    if(rc == 0)
+    {
+        rc = boot_go(&rsp);
+    }
 
-    rc = boot_go(&rsp);
     if(rc == 0)
     {
         BOOT_LOG_INF("User Application validated successfully");
@@ -439,7 +449,7 @@ int main(void)
     else
     {
         BOOT_LOG_INF("CypressBootloader found none of bootable images") ;
-        //Cy_BLServ_Assert(0 == rc);
+        Cy_BLServ_Assert(0 == rc);
     }
 
     return 0;

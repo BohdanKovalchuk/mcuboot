@@ -59,7 +59,8 @@ PLATFORM_SUFFIX := 03
 endif
 # Additional components supported by the target
 COMPONENTS+=COMPONENT_BSP_DESIGN_MODUS
-# Use CyHAL
+# Use CyHAL - NOPE
+# DEFINES:=CY_USING_HAL
 DEFINES:=CY_USING_HAL
 
 # Collect C source files for PLATFORM BSP
