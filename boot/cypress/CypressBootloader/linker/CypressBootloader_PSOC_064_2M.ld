@@ -41,7 +41,7 @@ GROUP(-lgcc -lc -lnosys)
 ENTRY(Reset_Handler)
 
 /* Size of the stack section at the end of CM0+ SRAM */
-STACK_SIZE = 0x4000;
+STACK_SIZE = 0x1000;
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing
 * this may, for example, trigger linking of additional modules from standard

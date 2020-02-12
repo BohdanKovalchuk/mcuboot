@@ -102,7 +102,6 @@ SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 
 # Collect CypresBootloader Application sources
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/source/*.c)
-#SOURCES_APP_SRC += $(wildcard $(CUR_APP_PATH)/smif_config/*.c)
 # Collect Flash Layer port sources
 SOURCES_FLASH_PORT := $(wildcard $(CURDIR)/cy_flash_pal/*.c)
 SOURCES_FLASH_PORT += $(wildcard $(CURDIR)/cy_flash_pal/flash_qspi/*.c)
@@ -121,7 +120,6 @@ INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/flash_qspi)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include/flash_map_backend)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/config)
-#INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/smif_config)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/os)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/source)
 
