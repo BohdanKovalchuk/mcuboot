@@ -287,15 +287,11 @@ int Cy_Bl_InitSMIF(void)
     if(cy_bl_bnu_policy.bnu_img_policy[0].smif_id != 0)
     {
         smif_id = cy_bl_bnu_policy.bnu_img_policy[0].smif_id;
-        // TODO: implement in JWT parser
-        // smifConfigPtr = cy_bl_bnu_policy.bnu_img_policy[0].upgrade_area.smif_config;
     }
         /* OR */
     if(cy_bl_bnu_policy.bnu_img_policy[1].smif_id != 0)
     {
         smif_id = cy_bl_bnu_policy.bnu_img_policy[1].smif_id;
-        // TODO: implement in JWT parser
-        // smifConfigPtr = cy_bl_bnu_policy.bnu_img_policy[1].upgrade_area.smif_config;
     }
         /* if at least one secondary requires SMIF */
     if(smif_id != 0)
@@ -328,10 +324,6 @@ int Cy_Bl_InitSMIF(void)
                 BOOT_LOG_ERR("External Memory initialization w/ Flash Config FAILED: 0x%02x", rc);
             }
         } */
-        else
-        {   /* Erroneous undefined condition */
-            rc = -1;
-        }
     }
     return rc;
 }
