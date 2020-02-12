@@ -1,22 +1,84 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+/***************************************************************************//**
+* \file flash_qspi.c
+* \version 1.0
+*
+* \brief
+*  This is the source file of external flash driver adaptation layer between PSoC6
+*  and standard MCUBoot code.
+*
+********************************************************************************
+* \copyright
+*
+* (c) 2020, Cypress Semiconductor Corporation
+* or a subsidiary of Cypress Semiconductor Corporation. All rights
+* reserved.
+*
+* This software, including source code, documentation and related
+* materials ("Software"), is owned by Cypress Semiconductor
+* Corporation or one of its subsidiaries ("Cypress") and is protected by
+* and subject to worldwide patent protection (United States and foreign),
+* United States copyright laws and international treaty provisions.
+* Therefore, you may use this Software only as provided in the license
+* agreement accompanying the software package from which you
+* obtained this Software ("EULA").
+*
+* If no EULA applies, Cypress hereby grants you a personal, non-
+* exclusive, non-transferable license to copy, modify, and compile the
+* Software source code solely for use in connection with Cypress?s
+* integrated circuit products. Any reproduction, modification, translation,
+* compilation, or representation of this Software except as specified
+* above is prohibited without the express written permission of Cypress.
+*
+* Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO
+* WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING,
+* BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+* PARTICULAR PURPOSE. Cypress reserves the right to make
+* changes to the Software without notice. Cypress does not assume any
+* liability arising out of the application or use of the Software or any
+* product or circuit described in the Software. Cypress does not
+* authorize its products for use in any products where a malfunction or
+* failure of the Cypress product may reasonably be expected to result in
+* significant property damage, injury or death ("High Risk Product"). By
+* including Cypress's product in a High Risk Product, the manufacturer
+* of such system or application assumes all risk of such use and in doing
+* so agrees to indemnify Cypress against all liability.
+*
+******************************************************************************/
 #include "cy_pdl.h"
 #include <stdio.h>
 #include "flash_qspi.h"
 
-////////////////////////////////////////////////////////////////
-//
-// This is the board specific stuff that should align with
-// your board.
-//
-//
-// QSPI resources:
-// SS  - P11_2
-// D3  - P11_3
-// D2  - P11_4
-// D1  - P11_5
-// D0  - P11_6
-// SCK - P11_7
-// SMIF Block - SMIF0
-//
+/* This is the board specific stuff that should align with your board.
+ *
+ * QSPI resources:
+ * SS  - P11_2
+ * D3  - P11_3
+ * D2  - P11_4
+ * D1  - P11_5
+ * D0  - P11_6
+ * SCK - P11_7
+ * SMIF Block - SMIF0
+ *
+ */
 
 static GPIO_PRT_Type *SS0Port = GPIO_PRT11;
 static int SS0Pin = 2;
@@ -48,11 +110,6 @@ static en_hsiom_sel_t SCKMuxPort = P11_7_SMIF_SPI_CLK;
 
 static SMIF_Type *QSPIPort  = SMIF0;
 
-////////////////////////////////////////////////////////////////
-
-//
-// Used for printing information about the discovered device
-//
 cy_stc_smif_mem_cmd_t sfdpcmd =
 {
     .command = 0x5A,
@@ -88,31 +145,6 @@ static cy_stc_smif_mem_device_cfg_t dev_sfdp_0 =
     .writeStsRegQeCmd = &writestseqcmd0,
 };
 
-//static cy_stc_smif_mem_cmd_t rdcmd1;
-//static cy_stc_smif_mem_cmd_t wrencmd1;
-//static cy_stc_smif_mem_cmd_t wrdiscmd1;
-//static cy_stc_smif_mem_cmd_t erasecmd1;
-//static cy_stc_smif_mem_cmd_t chiperasecmd1;
-//static cy_stc_smif_mem_cmd_t pgmcmd1;
-//static cy_stc_smif_mem_cmd_t readsts1;
-//static cy_stc_smif_mem_cmd_t readstsqecmd1;
-//static cy_stc_smif_mem_cmd_t writestseqcmd1;
-//
-//static cy_stc_smif_mem_device_cfg_t dev1 =
-//{
-//    .numOfAddrBytes = 0,
-//    .readSfdpCmd = &sfdpcmd,
-//    .readCmd = &rdcmd1,
-//    .writeEnCmd = &wrencmd1,
-//    .writeDisCmd = &wrdiscmd1,
-//    .programCmd = &pgmcmd1,
-//    .eraseCmd = &erasecmd1,
-//    .chipEraseCmd = &chiperasecmd1,
-//    .readStsRegWipCmd = &readsts1,
-//    .readStsRegQeCmd = &readstsqecmd1,
-//    .writeStsRegQeCmd = &writestseqcmd1,
-//};
-
 static cy_stc_smif_mem_config_t mem_sfdp_0 =
 {
     /* The base address the memory slave is mapped to in the PSoC memory map.
@@ -120,28 +152,16 @@ static cy_stc_smif_mem_config_t mem_sfdp_0 =
     .baseAddress = 0x18000000U,
     /* The size allocated in the PSoC memory map, for the memory slave device.
     The size is allocated from the base address. Valid when the memory mapped mode is enabled. */
-//    .memMappedSize = 0x4000000U,
-    /* If this memory device is one of the devices in the dual quad SPI configuration.
-    Valid when the memory mapped mode is enabled. */
-//    .dualQuadSlots = 0,
+/*    .memMappedSize = 0x4000000U, */
     .flags = CY_SMIF_FLAG_DETECT_SFDP,
     .slaveSelect = CY_SMIF_SLAVE_SELECT_0,
     .dataSelect = CY_SMIF_DATA_SEL0,
     .deviceCfg = &dev_sfdp_0
 };
 
-//static cy_stc_smif_mem_config_t mem_sfdp_s1 =
-//{
-//    .flags = CY_SMIF_FLAG_DETECT_SFDP,
-//    .slaveSelect = CY_SMIF_SLAVE_SELECT_2,
-//    .dataSelect = CY_SMIF_DATA_SEL0,
-//    .deviceCfg = &dev1
-//};
-//
-cy_stc_smif_mem_config_t *mems_sfdp[2] =
+cy_stc_smif_mem_config_t *mems_sfdp[1] =
 {
-    &mem_sfdp_0,
-//    &mem_sfdp_1,
+    &mem_sfdp_0
 };
 
 static cy_stc_smif_block_config_t smifBlockConfig_sfdp =
@@ -163,14 +183,13 @@ cy_stc_smif_config_t const QSPI_config =
 };
 
 cy_stc_sysint_t smifIntConfig =
-{
-//    .intrSrc =  smif_interrupt_IRQn,
-        // TODO: check which is valid for CM0p
+{/* ATTENTION: make sure proper Interrupts configured for CM0p or M4 cores */
     .intrSrc = NvicMux7_IRQn,
     .cm0pSrc = smif_interrupt_IRQn,
     .intrPriority = 1
 };
 
+/* SMIF pinouts configurations */
 const cy_stc_gpio_pin_config_t QSPI_SS_config = 
 {
 	.outVal = 1,
@@ -187,7 +206,6 @@ const cy_stc_gpio_pin_config_t QSPI_SS_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-   
 const cy_stc_gpio_pin_config_t QSPI_DATA3_config = 
 {
 	.outVal = 1,
@@ -274,49 +292,6 @@ void Isr_SMIF(void)
     Cy_SMIF_Interrupt(QSPIPort, &QSPI_context);
 }
 
-static void failed(const char *fun, cy_en_smif_status_t st)
-{
-    printf("%s", fun);
-    printf(" failed - ");
-    switch(st)
-    {
-        case CY_SMIF_SUCCESS:
-            printf("CY_SMIF_SUCCESS");
-            break;
-        case CY_SMIF_CMD_FIFO_FULL:
-            printf("CY_SMIF_CMD_FIFO_FULL");
-            break;
-        case CY_SMIF_EXCEED_TIMEOUT:
-            printf("CY_SMIF_EXCEED_TIMEOUT");
-            break;
-        case CY_SMIF_NO_QE_BIT:
-            printf("CY_SMIF_NO_QE_BIT");
-            break;
-        case CY_SMIF_BAD_PARAM:
-            printf("CY_SMIF_BAD_PARAM");
-            break;
-        case CY_SMIF_NO_SFDP_SUPPORT:
-            printf("CY_SMIF_NO_SFDP_SUPPORT");
-            break;
-        case CY_SMIF_SFDP_SS0_FAILED:
-            printf("CY_SMIF_SFDP_SS0_FAILED");
-            break;
-        case CY_SMIF_SFDP_SS1_FAILED:
-            printf("CY_SMIF_SFDP_SS1_FAILED");
-            break;
-        case CY_SMIF_SFDP_SS2_FAILED:
-            printf("CY_SMIF_SFDP_SS2_FAILED");
-            break;
-        case CY_SMIF_SFDP_SS3_FAILED:
-            printf("CY_SMIF_SFDP_SS3_FAILED");
-            break;
-        case CY_SMIF_CMD_NOT_FOUND:
-            printf("CY_SMIF_CMD_NOT_FOUND");
-            break;
-    }
-    printf("\r\n");
-}
-
 cy_en_smif_status_t qspi_init_hardware()
 {
     cy_en_smif_status_t st;
@@ -352,46 +327,13 @@ cy_en_smif_status_t qspi_init_hardware()
     st = Cy_SMIF_Init(QSPIPort, &QSPI_config, 1000, &QSPI_context);
     if (st != CY_SMIF_SUCCESS)
     {
-        failed("Cy_SMIF_Init", st);
         return st;
     }
-
     NVIC_EnableIRQ(smifIntConfig.intrSrc); /* Finally, Enable the SMIF interrupt */
 
     Cy_SMIF_Enable(QSPIPort, &QSPI_context);
 
     return CY_SMIF_SUCCESS;
-}
-
-void qspi_dump_device(cy_stc_smif_mem_device_cfg_t *dev)
-{
-    uint32_t s;
-
-    if (dev->memSize & 0x80000000)
-    {
-        s = (1 << (dev->memSize & 0x7fffffff));
-    }
-    else
-    {
-        s = dev->memSize;
-    }
-
-    printf("Address Bytes.......... %ld bytes\n", dev->numOfAddrBytes);
-    printf("Memory Size............ %ld bytes\n", s);
-    printf("Erase Size............. %ld bytes\n", dev->eraseSize);
-    printf("Program Size........... %ld bytes\n", dev->programSize);
-    printf("Sector Erase Time ..... %ld ms\n", dev->eraseTime);
-    printf("Chip Erase Time ....... %ld ms\n", dev->chipEraseTime);
-    printf("Program Time .......... %ld ms\n", dev->programTime);
-    printf("Read Command .......... %lx\n", dev->readCmd->command);
-    printf("Sector Erase Command .. %lx\n", dev->eraseCmd->command);
-    printf("Chip Erase Command..... %lx\n", dev->chipEraseCmd->command);
-    printf("Program Command ....... %lx\n", dev->programCmd->command);
-    printf("WriteEnable Command.... %lx\n", dev->writeEnCmd->command);
-    printf("WriteDisable Command .. %lx\n", dev->writeDisCmd->command);
-    printf("ReadWIPStatus Command . %lx, mask %lx\n", dev->readStsRegWipCmd->command, dev->stsRegBusyMask);
-    printf("ReadQEStatus Command .. %lx, mask %lx\n", dev->readStsRegQeCmd->command, dev->stsRegQuadEnableMask);
-    printf("WriteQEStatus Command . %lx, mask %lx\n", dev->writeStsRegQeCmd->command, dev->stsRegQuadEnableMask);
 }
 
 cy_stc_smif_mem_config_t *qspi_get_memory_config(int index) 
@@ -451,6 +393,5 @@ cy_en_smif_status_t qspi_init_sfdp(uint32_t smif_id)
     {
         stat = qspi_init(&smifBlockConfig_sfdp);
     }
-
     return stat;
 }

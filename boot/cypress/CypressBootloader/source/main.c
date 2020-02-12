@@ -61,7 +61,6 @@
 #include "cy_retarget_io.h"
 #include "cy_result.h"
 
-#include "cycfg_qspi_memslot.h"
 #include "sysflash/sysflash.h"
 #include "flash_map_backend/flash_map_backend.h"
 #include "flash_qspi.h"
@@ -419,8 +418,7 @@ int main(void)
         scratch.fa_off = bootloader.fa_off - CY_BOOTLOADER_SCRATCH_SIZE;
         scratch.fa_size = CY_BOOTLOADER_SCRATCH_SIZE;
 
-        // TODO: initialize SMIF if supported/requested
-        // FWSECURITY-676
+        /* if supported/requested */
         // TODO: what to do if SMIF init failed ?
         rc = Cy_Bl_InitSMIF();
 

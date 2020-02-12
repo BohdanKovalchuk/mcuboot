@@ -46,7 +46,6 @@ include $(CUR_APP_PATH)/toolchains.mk
 DEFINES_APP := -DMBEDTLS_CONFIG_FILE="\"mcuboot_crypto_config.h\""
 DEFINES_APP += -DECC256_KEY_FILE="\"keys/$(SIGN_KEY_FILE).pub\""
 DEFINES_APP += -DCORE=$(CORE)
-DEFINES_APP += -DNDEBUG
 
 # Add start address for each target device, since flash size is different
 #
@@ -85,10 +84,11 @@ DEFINES_APP += $(DEFINES_USER)
 
 ifeq ($(BUILDCFG), Debug)
 DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_INFO
-#DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
+DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
 else 
 	ifeq ($(BUILDCFG), Release) 
 		DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
+		DEFINES_APP += -DNDEBUG
 	else
 		$(error "Not supported build configuration : $(BUILDCFG)")
 	endif

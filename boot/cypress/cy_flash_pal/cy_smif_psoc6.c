@@ -63,8 +63,6 @@
 #include "cy_flash.h"
 #include "cy_syspm.h"
 
-#include "cycfg_qspi_memslot.h"
-
 #include "flash_qspi.h"
 
 #define PSOC6_WR_SUCCESS                    (0)
@@ -77,26 +75,15 @@ int psoc6_smif_read(const struct flash_area *fap,
                                         off_t addr,
                                         void *data,
                                         size_t len)
-{   /* TODO: implement it */
+{
 	int rc = -1;
     cy_stc_smif_mem_config_t *cfg;
     cy_en_smif_status_t st;
 
     cfg = qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
-    /* convert to offset inside memory device */
-//    addr = addr - cfg->baseAddress; // memory-mapped only
-//    addr = addr - CY_SMIF_BASE_MEM_OFFSET;
-
-    // TODO: add IF XIP
-    // if (XIP)
-//    if (cfg->flags && CY_SMIF_FLAG_MEMORY_MAPPED)
-//    {
-//        addr = addr + cfg->baseAddress;
-//        psoc6_flash_read(addr, data, len);
-//    }
-//    else
-//    {
+        /* convert to offset inside memory device */
+    addr = addr - CY_SMIF_BASE_MEM_OFFSET;
 
     st = Cy_SMIF_MemRead(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
@@ -108,16 +95,15 @@ int psoc6_smif_write(const struct flash_area *fap,
                                         off_t addr,
                                         const void *data,
                                         size_t len)
-{   /* TODO: implement it */
+{
 	int rc = -1;    
     cy_en_smif_status_t st ;
     cy_stc_smif_mem_config_t *cfg;
 
     cfg =  qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
-    /* convert to offset inside memory device */
-//    addr = addr - cfg->baseAddress;
-//    addr = addr - CY_SMIF_BASE_MEM_OFFSET;
+        /* convert to offset inside memory device */
+    addr = addr - CY_SMIF_BASE_MEM_OFFSET;
 
     st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
@@ -130,53 +116,10 @@ int psoc6_smif_erase(off_t addr, size_t size)
 	int rc = -1;
     
 //    /* TODO: implement it */
-//    uint8_t addrBuf[4];
-//    if(IS_FLASH_SMIF(addr))
-//    {
-//#ifdef MCUBOOT_USE_SMIF_XIP
-//        if(0 != cy_bl_bnu_policy.bnu_img_policy.smif_id)
-//        {
-//            /* Memory/XIP Read is Done. Switching back to Normal/CMD */
-//            Cy_SMIF_SetMode(SMIF0, CY_SMIF_NORMAL);
-//        }
-//#endif
-//        uint8_t zero_buff[SMIF_ZERO_BUFF_SIZE];
-//        uint32_t buff_num, rem_num, cur_addr;
-//        /* Zeroise data on external Flash instead of Erasing */
-//        memset(zero_buff, 0x00, sizeof(zero_buff));
-//
-//        /* We do not know how big piece of data needs
-//         * to be Erased, so splitting it into 256-bytes
-//         * chunks to save zero-buffer RAM */
-//        buff_num = len/SMIF_ZERO_BUFF_SIZE;
-//        rem_num  = len%SMIF_ZERO_BUFF_SIZE;
-//
-//        /* convert to offset inside memory device */
-//        addr = addr - smifMemConfigs[0]->baseAddress;
-//
-//        for(;((buff_num>0)&&(0 == rc)); buff_num--)
-//        {
-//            Flash_SMIF_GetAddrBuff(cur_addr, addrBuf);
-//
-//            rc = Flash_SMIF_WriteMemory(SMIF0       /* SMIF_Type *baseaddr */,
-//                                        &QSPIContext/* cy_stc_smif_context_t *smifContext */,
-//                                        zero_buff   /* uint8_t txBuffer[] */,
-//                                        SMIF_ZERO_BUFF_SIZE     /* uint32_t txSize */,
-//                                        addrBuf   /* uint8_t *address */);
-//
-//            cur_addr += SMIF_ZERO_BUFF_SIZE;
-//        }
-//
-//        if((0 != rem_num)&&(0 == rc))
-//        {
-//            Flash_SMIF_GetAddrBuff(cur_addr, addrBuf);
-//            rc = Flash_SMIF_WriteMemory(SMIF0       /* SMIF_Type *baseaddr */,
-//                                        &QSPIContext/* cy_stc_smif_context_t *smifContext */,
-//                                        zero_buff   /* uint8_t txBuffer[] */,
-//                                        rem_num     /* uint32_t txSize */,
-//                                        addrBuf   /* uint8_t *address */);
-//        }
-//    }
+// we will erase sector-only
+// there is no power-safe way to erase flash partially
+// this leads upgrade slots have to be at least
+// eraseSectorSize far from each other
 	// TODO:
 	rc = 0;
 	return rc;

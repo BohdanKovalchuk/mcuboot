@@ -109,8 +109,10 @@ int main(void)
 
     BOOT_LOG_INF("TEST: MCUBoot Bootloader Started");
 
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
     //rc = qspi_init(&smifBlockConfig);
     rc = qspi_init_sfdp();
+#endif
 
     /* enable interrupts */
     if (rc != CY_SMIF_SUCCESS)

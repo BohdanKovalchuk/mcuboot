@@ -3,7 +3,7 @@
 * \version 1.0
 *
 * \brief
-*  This is the header file for PSoC6 flash driver adoption layer.
+*  This is the header file for PSoC6 external flash driver adoption layer.
 *
 ********************************************************************************
 * \copyright
