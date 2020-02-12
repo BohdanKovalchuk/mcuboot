@@ -395,3 +395,15 @@ cy_en_smif_status_t qspi_init_sfdp(uint32_t smif_id)
     }
     return stat;
 }
+
+uint32_t qspi_get_prog_size(void)
+{
+    cy_stc_smif_mem_config_t **memCfg = smifBlockConfig_sfdp.memConfig;
+    return (*memCfg)->deviceCfg->programSize;
+}
+
+uint32_t qspi_get_erase_size(void)
+{
+    cy_stc_smif_mem_config_t **memCfg = smifBlockConfig_sfdp.memConfig;
+    return (*memCfg)->deviceCfg->eraseSize;
+}

@@ -356,7 +356,9 @@ size_t flash_area_align(const struct flash_area *fa)
     {
         // TODO: implement for SMIF WR/ERASE size
         // assume it is the same
-        ret = CY_FLASH_ALIGN;
+        // TODO: read from SFDP data
+//        ret = CY_FLASH_ALIGN;
+        return qspi_get_prog_size();
     }
 #endif
     else

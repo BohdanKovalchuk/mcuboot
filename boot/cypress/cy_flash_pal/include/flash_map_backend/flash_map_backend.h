@@ -81,9 +81,6 @@
 #define CY_BOOT_EXTERNAL_DEVICE_INDEX            (0)
 #endif
 
-// TODO: use PDL-defined offset or one from SMFI config
-#define CY_SMIF_BASE_MEM_OFFSET (0x18000000)
-
 /**
  *
  * Provides abstraction of flash regions for type of use.
