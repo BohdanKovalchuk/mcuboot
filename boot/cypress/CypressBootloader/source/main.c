@@ -441,6 +441,5 @@ int main(void)
         BOOT_LOG_INF("CypressBootloader found none of bootable images") ;
         Cy_BLServ_Assert(0 == rc);
     }
-
     return 0;
 }
