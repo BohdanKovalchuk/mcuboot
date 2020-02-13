@@ -83,9 +83,6 @@ int psoc6_smif_read(const struct flash_area *fap,
 
     cfg = qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
-//        /* convert to offset inside memory device */
-//    address = addr - CY_SMIF_BASE_MEM_OFFSET;
-
     st = Cy_SMIF_MemRead(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
@@ -103,9 +100,6 @@ int psoc6_smif_write(const struct flash_area *fap,
     uint32_t address;
 
     cfg =  qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
-
-//        /* convert to offset inside memory device */
-//    address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
     st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
