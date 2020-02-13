@@ -419,7 +419,6 @@ int main(void)
         scratch.fa_size = CY_BOOTLOADER_SCRATCH_SIZE;
 
         /* if supported/requested */
-        // TODO: what to do if SMIF init failed ?
         rc = Cy_Bl_InitSMIF();
 
         apply_protections();
