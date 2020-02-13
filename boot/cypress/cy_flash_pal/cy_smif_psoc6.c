@@ -83,10 +83,10 @@ int psoc6_smif_read(const struct flash_area *fap,
 
     cfg = qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
-        /* convert to offset inside memory device */
-    address = addr - CY_SMIF_BASE_MEM_OFFSET;
+//        /* convert to offset inside memory device */
+//    address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
-    st = Cy_SMIF_MemRead(qspi_get_device(), cfg, address, data, len, qspi_get_context());
+    st = Cy_SMIF_MemRead(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
 	return rc;
@@ -104,10 +104,10 @@ int psoc6_smif_write(const struct flash_area *fap,
 
     cfg =  qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
-        /* convert to offset inside memory device */
-    address = addr - CY_SMIF_BASE_MEM_OFFSET;
+//        /* convert to offset inside memory device */
+//    address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
-    st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, address, data, len, qspi_get_context());
+    st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
 	return rc;
@@ -124,10 +124,12 @@ int psoc6_smif_erase(off_t addr, size_t size)
      * this leads upgrade slots have to be at least
      * eraseSectorSize far from each other;
      */
+    cy_stc_smif_mem_config_t *memCfg = qspi_get_memory_config(0);
+
     st = Cy_SMIF_MemEraseSector(qspi_get_device(),
-                                    qspi_get_memory_config(0),
+                                    memCfg,
                                     addr,
-                                    size,
+                                    memCfg->deviceCfg->eraseSize,
                                     qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
