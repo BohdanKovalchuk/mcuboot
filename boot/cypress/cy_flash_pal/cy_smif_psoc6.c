@@ -79,13 +79,14 @@ int psoc6_smif_read(const struct flash_area *fap,
 	int rc = -1;
     cy_stc_smif_mem_config_t *cfg;
     cy_en_smif_status_t st;
+    uint32_t address;
 
     cfg = qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
         /* convert to offset inside memory device */
-    addr = addr - CY_SMIF_BASE_MEM_OFFSET;
+    address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
-    st = Cy_SMIF_MemRead(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
+    st = Cy_SMIF_MemRead(qspi_get_device(), cfg, address, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
 	return rc;
@@ -97,15 +98,16 @@ int psoc6_smif_write(const struct flash_area *fap,
                                         size_t len)
 {
 	int rc = -1;    
-    cy_en_smif_status_t st ;
+    cy_en_smif_status_t st;
     cy_stc_smif_mem_config_t *cfg;
+    uint32_t address;
 
     cfg =  qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
         /* convert to offset inside memory device */
-    addr = addr - CY_SMIF_BASE_MEM_OFFSET;
+    address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
-    st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
+    st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, address, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
 	return rc;
@@ -114,13 +116,20 @@ int psoc6_smif_write(const struct flash_area *fap,
 int psoc6_smif_erase(off_t addr, size_t size)
 {
 	int rc = -1;
-    
-//    /* TODO: implement it */
-// we will erase sector-only
-// there is no power-safe way to erase flash partially
-// this leads upgrade slots have to be at least
-// eraseSectorSize far from each other
-	// TODO:
-	rc = 0;
+    cy_en_smif_status_t st;
+
+    /* It is erase sector-only
+     *
+     * There is no power-safe way to erase flash partially
+     * this leads upgrade slots have to be at least
+     * eraseSectorSize far from each other;
+     */
+    st = Cy_SMIF_MemEraseSector(qspi_get_device(),
+                                    qspi_get_memory_config(0),
+                                    addr,
+                                    size,
+                                    qspi_get_context());
+    if (st == CY_SMIF_SUCCESS)
+        rc = 0;
 	return rc;
 }

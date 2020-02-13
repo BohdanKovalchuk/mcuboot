@@ -74,7 +74,7 @@ ifeq ($(PLATFORM), PSOC_064_2M)
         SLOT_SIZE ?= 0x50000
 	else
 		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0p_CM4.json
+		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10020000
         SLOT_SIZE ?= 0x10000
 	endif
