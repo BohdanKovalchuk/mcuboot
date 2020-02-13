@@ -97,7 +97,7 @@ endif
 # TODO: MCUBoot library
 # Collect MCUBoot sourses
 # SOURCES_MCUBOOT := $(wildcard $(CURDIR)/../bootutil/src/*.c)
-SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c loader.c tlv.c
+SRC_FILES_MCUBOOT := bootutil_misc.c caps.c encrypted.c loader.c tlv.c swap_misc.c swap_move.c swap_scratch.c
 SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 
 # Collect CypresBootloader Application sources

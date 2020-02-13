@@ -6,7 +6,7 @@
  */
 
 #include <zephyr.h>
-#include <flash.h>
+#include <drivers/flash.h>
 
 #include "target.h"
 
@@ -58,7 +58,9 @@ int flash_area_id_from_multi_image_slot(int image_index, int slot)
     switch (slot) {
     case 0: return FLASH_AREA_IMAGE_PRIMARY(image_index);
     case 1: return FLASH_AREA_IMAGE_SECONDARY(image_index);
+#if !defined(CONFIG_BOOT_SWAP_USING_MOVE)
     case 2: return FLASH_AREA_IMAGE_SCRATCH;
+#endif
     }
 
     return -EINVAL; /* flash_area_open will fail on that */
@@ -103,11 +105,11 @@ int flash_area_sector_from_off(off_t off, struct flash_sector *sector)
     return rc;
 }
 
-#define ERASED_VAL 0xff
+#define ERASED_VAL 0x0
 uint8_t flash_area_erased_val(const struct flash_area *fap)
 {
     (void)fap;
-    return ERASED_VAL;
+    return (uint8_t)ERASED_VAL;
 }
 
 int flash_area_read_is_empty(const struct flash_area *fa, uint32_t off,

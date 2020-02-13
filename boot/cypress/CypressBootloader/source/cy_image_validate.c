@@ -417,7 +417,7 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
 {
     uint32_t off;
     uint16_t len;
-    uint8_t type;
+    uint16_t type;
     int valid_sha256 = 0;
     int valid_image_id = 0;
 #ifdef EXPECTED_SIG_TLV

@@ -178,7 +178,7 @@ static void do_boot(struct boot_rsp *rsp)
 {
     uintptr_t flash_base;
     int rc;
-    uint32_t app_addr = 0;
+    static uint32_t app_addr = 0;
     uint32_t en_acq = 1;
 
     /* The beginning of the image is the ARM vector table, containing
@@ -211,7 +211,8 @@ static void do_boot(struct boot_rsp *rsp)
         case CY_BOOTLOADER_IMG_ID_CM4:
             /* Set Protection Context 6 for CM4 application */
             Cy_Prot_SetActivePC(CPUSS_MS_ID_CM4, (uint32_t)CY_PROT_PC6);
-            Cy_Utils_StartAppCM4(app_addr);
+            Cy_Utils_CleanSecureAppRam(app_addr, &app_addr);
+            Cy_Utils_StartAppCM4(app_addr, false);
             break;
         default:
             BOOT_LOG_ERR("Unable to find bootable image");
