@@ -51,6 +51,8 @@
 #include "stddef.h"
 #include "stdbool.h"
 
+#include "flash_qspi.h"
+
 #ifndef off_t
 typedef long int off_t;
 #endif
