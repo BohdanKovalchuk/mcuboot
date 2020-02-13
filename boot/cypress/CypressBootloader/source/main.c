@@ -180,13 +180,14 @@ static void do_boot(struct boot_rsp *rsp)
     int rc;
     static uint32_t app_addr = 0;
     uint32_t en_acq = 1;
+    register uint32_t application_start;
 
     /* The beginning of the image is the ARM vector table, containing
      * the initial stack pointer address and the reset vector
      * consecutively. Manually set the stack pointer and jump into the
      * reset vector
      */
-    app_addr = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
+    application_start = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
     BOOT_LOG_INF("Application at: 0x%08x", app_addr);
 
     if((cy_bl_bnu_policy.bnu_img_policy[0].multi_image == 1) &&
@@ -200,19 +201,19 @@ static void do_boot(struct boot_rsp *rsp)
     {
         case CY_BOOTLOADER_IMG_ID_TEE_CM0P:
             /* Do not change protection context for CM0p SPM image with ID=1 */
-            Cy_Utils_StartAppCM0p(app_addr, en_acq);
+            Cy_Utils_StartAppCM0p(application_start, en_acq);
             break;
         case CY_BOOTLOADER_IMG_ID_CYTF_CM0P:
         case CY_BOOTLOADER_IMG_ID_OEMTF_CM0P:
             /* Set Protection Context 2 for CM0p trusted apps with IDs 2 and 3 */
             Cy_Prot_SetActivePC(CPUSS_MS_ID_CM0, (uint32_t)CY_PROT_PC2);
-            Cy_Utils_StartAppCM0p(app_addr, en_acq);
+            Cy_Utils_StartAppCM0p(application_start, en_acq);
             break;
         case CY_BOOTLOADER_IMG_ID_CM4:
             /* Set Protection Context 6 for CM4 application */
             Cy_Prot_SetActivePC(CPUSS_MS_ID_CM4, (uint32_t)CY_PROT_PC6);
             Cy_Utils_CleanSecureAppRam(app_addr, &app_addr);
-            Cy_Utils_StartAppCM4(app_addr, false);
+            Cy_Utils_StartAppCM4(application_start, false);
             break;
         default:
             BOOT_LOG_ERR("Unable to find bootable image");
