@@ -259,7 +259,7 @@ int flash_area_read(const struct flash_area *fa, uint32_t off, void *dst,
     assert(off < fa->fa_off);
     assert(off + len < fa->fa_off);
         /* convert to absolute address inside a device*/
-     addr = fa->fa_off + off;
+    addr = fa->fa_off + off;
 
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
@@ -268,7 +268,7 @@ int flash_area_read(const struct flash_area *fa, uint32_t off, void *dst,
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fa->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
     {
-        rc = psoc6_smif_read(fa, off, dst, len);
+        rc = psoc6_smif_read(fa, addr, dst, len);
     }
 #endif
     else
@@ -302,7 +302,7 @@ int flash_area_write(const struct flash_area *fa, uint32_t off,
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fa->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
     {
-        rc = psoc6_smif_write(fa, off, len);
+        rc = psoc6_smif_write(fa, addr, len);
     }
 #endif
     else
@@ -331,7 +331,7 @@ int flash_area_erase(const struct flash_area *fa, uint32_t off, uint32_t len)
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fa->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
     {
-        rc = psoc6_smif_erase(off, len);
+        rc = psoc6_smif_erase(addr, len);
     }
 #endif
     else
