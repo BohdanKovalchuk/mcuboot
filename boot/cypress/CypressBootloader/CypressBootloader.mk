@@ -89,7 +89,7 @@ DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
 else 
 	ifeq ($(BUILDCFG), Release) 
 		DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
-		DEFINES_APP += -DNDEBUG
+#		DEFINES_APP += -DNDEBUG
 	else
 		$(error "Not supported build configuration : $(BUILDCFG)")
 	endif
