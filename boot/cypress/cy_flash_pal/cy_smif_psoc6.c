@@ -83,6 +83,8 @@ int psoc6_smif_read(const struct flash_area *fap,
 
     cfg = qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
+    address = addr - CY_SMIF_BASE_MEM_OFFSET;
+
     st = Cy_SMIF_MemRead(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
@@ -101,6 +103,8 @@ int psoc6_smif_write(const struct flash_area *fap,
 
     cfg =  qspi_get_memory_config(FLASH_DEVICE_GET_EXT_INDEX(fap->fa_device_id));
 
+    address = addr - CY_SMIF_BASE_MEM_OFFSET;
+
     st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, addr, data, len, qspi_get_context());
     if (st == CY_SMIF_SUCCESS)
         rc = 0;
@@ -111,6 +115,7 @@ int psoc6_smif_erase(off_t addr, size_t size)
 {
 	int rc = -1;
     cy_en_smif_status_t st;
+    uint32_t address;
 
     /* It is erase sector-only
      *
@@ -119,6 +124,8 @@ int psoc6_smif_erase(off_t addr, size_t size)
      * eraseSectorSize far from each other;
      */
     cy_stc_smif_mem_config_t *memCfg = qspi_get_memory_config(0);
+
+    address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
     st = Cy_SMIF_MemEraseSector(qspi_get_device(),
                                     memCfg,
