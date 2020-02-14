@@ -114,10 +114,10 @@ cache: &global_cache
 
 stages:
   - create_cache
-  - build_mac_512K
+  # - build_mac_512K
   - build_mac_2M
   - cppcheck
-  - test_512K
+  # - test_512K
   - test_2M
   - sim
   - deploy
@@ -185,7 +185,7 @@ mac_build_512K_bootloader:
       - develop
       
       
-mac_build_512K_Multi_BlinkyApp:
+.mac_build_512K_Multi_BlinkyApp:
   stage: build_mac_512K
   tags:
     - MBED_TEST_MAC1014
@@ -248,7 +248,7 @@ mac_build_512K_Multi_BlinkyApp:
       - develop
       
       
-mac_build_512K_SecureBlinkyApp:
+.mac_build_512K_SecureBlinkyApp:
   stage: build_mac_512K
   tags:
     - MBED_TEST_MAC1014
@@ -309,7 +309,7 @@ mac_build_512K_SecureBlinkyApp:
       - develop
 
 
-mac_build_512K_BlinkyApp:
+.mac_build_512K_BlinkyApp:
   stage: build_mac_512K
   tags:
     - MBED_TEST_MAC1014
@@ -609,7 +609,7 @@ mac_build_2M_BlinkyApp:
 #######################################################################################################################################################
 
 
-mac_test_512K:
+.mac_test_512K:
   stage: test_512K
   tags:
     - MBED_TEST_MAC1014
@@ -773,7 +773,7 @@ deploy_asset:
     # - mac_build_512K_Multi_BlinkyApp
     # - mac_build_512K_SecureBlinkyApp
     # - mac_build_512K_BlinkyApp
-    - mac_test_512K
+    # - mac_test_512K
     - mac_test_2M
   only:
     - /^develop$/
