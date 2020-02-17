@@ -71,7 +71,7 @@ ifeq ($(PLATFORM), PSOC_064_2M)
 		CYB_IMG_ID := 4
 		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
-        SLOT_SIZE ?= 0x50000
+        SLOT_SIZE ?= 0x10000
 	else
 		# Determine path to multi image policy file
 		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
@@ -90,7 +90,7 @@ ifeq ($(PLATFORM), PSOC_064_1M)
 		CYB_IMG_ID := 4
 		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
-        SLOT_SIZE ?= 0x50000
+        SLOT_SIZE ?= 0x10000
 	else
 		# Determine path to multi image policy file
 		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
@@ -109,7 +109,7 @@ ifeq ($(PLATFORM), PSOC_064_512K)
 		CYB_IMG_ID := 4
 		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
-        SLOT_SIZE ?= 0x30000
+        SLOT_SIZE ?= 0x10000
 	else
 		# Determine path to multi image policy file
 		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
@@ -123,7 +123,6 @@ ifeq ($(PLATFORM), PSOC_062_2M)
 	DEFINES_APP += -DRAM_SIZE=0x20000
 	DEFINES_APP += -DUSER_APP_START=0x10018000
     SLOT_SIZE ?= 0x10000
-	HEADER_OFFSET := 0x10018000 + $(HEADER_OFFSET)
 endif
 
 # Collect Test Application sources
@@ -147,7 +146,10 @@ ASM_FILES_APP :=
 # We still need this for MCUBoot apps signing
 IMGTOOL_PATH ?=	../../scripts/imgtool.py
 
-SIGN_ARGS := sign --header-size 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -R 0 -k keys/$(SIGN_KEY_FILE).pem
+SIGN_ARGS := sign --header-size 1024 --pad-header --align 8 -v "2.0" -S $(SLOT_SIZE) -M 512 --overwrite-only -k keys/$(SIGN_KEY_FILE).pem
+ifeq ($(HEADER_OFFSET), 1)
+# SIGN_ARGS += -R 0 
+endif
 
 # Output folder
 OUT := $(APP_NAME)/out

@@ -130,7 +130,7 @@
  * defining BOOT_LOG_LEVEL before #including `bootutil_log.h`
  */
 #ifndef MCUBOOT_HAVE_LOGGING
-#define MCUBOOT_HAVE_LOGGING 1
+//#define MCUBOOT_HAVE_LOGGING 1
 #endif
 
 /*

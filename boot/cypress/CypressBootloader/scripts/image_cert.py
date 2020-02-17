@@ -27,7 +27,7 @@ from jwcrypto import jwk, jwt
 from intelhex import IntelHex
 
 IMAGE_ID = 0
-CERT_EXP = datetime(2019, 12, 31)
+CERT_EXP = datetime(2020, 12, 31)
 IMAGE_ADDR_OFFST = 16
 IMAGE_SIZE_OFFST = 20
 IMAGE_VERSION_OFFST = 24

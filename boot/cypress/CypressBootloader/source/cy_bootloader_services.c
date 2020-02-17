@@ -171,8 +171,8 @@ void Cy_BLServ_Assert(int expr)
 
     if(0 == expr)
     {
-        uint32_t cm4ApPermission = debug_policy.m4_policy.permission;
-        uint32_t sysApPermission = debug_policy.sys_policy.permission;
+        volatile uint32_t cm4ApPermission = debug_policy.m4_policy.permission;
+        volatile uint32_t sysApPermission = debug_policy.sys_policy.permission;
 
         BOOT_LOG_ERR("There is an error occurred during bootloader flow. MCU stopped.");
 
