@@ -129,7 +129,7 @@
  * NOTE: Each source file is still able to request its own logging level by
  * defining BOOT_LOG_LEVEL before #including `bootutil_log.h`
  */
-#define MCUBOOT_HAVE_LOGGING 1
+//#define MCUBOOT_HAVE_LOGGING 1
 
 /*
  * Assertions

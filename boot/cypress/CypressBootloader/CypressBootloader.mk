@@ -53,7 +53,7 @@ DEFINES_APP += -DCORE=$(CORE)
 # equal to all available flash for BOOT slot. it is assumed that UPGRADE 
 # slot in this case is located in External Memory
 ifeq ($(PLATFORM), PSOC_064_2M)
-CY_BOOTLOADER_APP_START ?= 0x101D0000
+CY_BOOTLOADER_APP_START ?= 0x101CE000
 # 0x1D0000 max slot size
 DEFINES_APP += -DMCUBOOT_MAX_IMG_SECTORS=3712
 else ifeq ($(PLATFORM), PSOC_064_1M)
@@ -81,12 +81,18 @@ DEFINES_APP += -DCY_BOOTLOADER_START=$(CY_BOOTLOADER_APP_START)
 DEFINES_APP += -D__NO_SYSTEM_INIT
 DEFINES_APP += -DCY_BOOTLOADER_DIAGNOSTIC_GPIO
 DEFINES_APP += $(DEFINES_USER)
+DEFINES_APP += -D$(BUILDCFG)
 
 ifeq ($(BUILDCFG), Debug)
 DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_INFO
 DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
-else
-DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
+else 
+	ifeq ($(BUILDCFG), Release) 
+		DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
+#		DEFINES_APP += -DNDEBUG
+	else
+		$(error "Not supported build configuration : $(BUILDCFG)")
+	endif
 endif
 
 # TODO: MCUBoot library
@@ -99,6 +105,7 @@ SOURCES_MCUBOOT := $(addprefix $(CURDIR)/../bootutil/src/, $(SRC_FILES_MCUBOOT))
 SOURCES_APP_SRC := $(wildcard $(CUR_APP_PATH)/source/*.c)
 # Collect Flash Layer port sources
 SOURCES_FLASH_PORT := $(wildcard $(CURDIR)/cy_flash_pal/*.c)
+SOURCES_FLASH_PORT += $(wildcard $(CURDIR)/cy_flash_pal/flash_qspi/*.c)
 
 # Collect all the sources
 SOURCES_APP := $(SOURCES_MCUBOOT)
@@ -110,6 +117,7 @@ INCLUDES_DIRS_MCUBOOT += $(addprefix -I, $(CURDIR)/../bootutil/src)
 
 INCLUDE_DIRS_APP := $(addprefix -I, $(CURDIR))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include)
+INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/flash_qspi)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CURDIR)/cy_flash_pal/include/flash_map_backend)
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH))
 INCLUDE_DIRS_APP += $(addprefix -I, $(CUR_APP_PATH)/config)
