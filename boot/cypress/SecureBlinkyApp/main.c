@@ -150,7 +150,6 @@ void test_app_init_hardware(void)
     /* Initialize retarget-io to use the debug UART port */
     check_result(cy_retarget_io_init(CY_DEBUG_UART_TX, CY_DEBUG_UART_RX,
                                      CY_RETARGET_IO_BAUDRATE));
-#endif
 
     printf("\n======================================\r\n");
     printf(GREETING_MESSAGE_VER);
@@ -158,6 +157,7 @@ void test_app_init_hardware(void)
     printf("\r[SecureBlinkyApp] GPIO initialized \r\n");
     printf("[SecureBlinkyApp] UART initialized \r\n");
     printf("[SecureBlinkyApp] Retarget I/O set to 115200 baudrate \r\n");
+#endif
 }
 
 int main(void)
@@ -171,7 +171,9 @@ int main(void)
 
     test_app_init_hardware();
 
+#if defined(DEBUG)
     printf(GREETING_MESSAGE_INFO);
+#endif
 
     /* Processing of policy in JWT format */
     rc = Cy_JWT_GetProvisioningDetails(FB_POLICY_JWT, &jwt, &jwtLen);
@@ -180,14 +182,19 @@ int main(void)
         rc = Cy_JWT_ParseProvisioningPacket(jwt, &cy_bl_bnu_policy, &debug_policy, MASTER_IMG_ID);
     }
 
+#if defined(DEBUG)
     if(0 != rc)
     {
         printf("%s Policy parsing failed with code 0x%08x\n\r", GREETING_MESSAGE, rc);
     }
+#endif
 
     app_addr = cy_bl_bnu_policy.bnu_img_policy[1].boot_area.start + CM4_APP_HEADER_SIZE;
+
+#if defined(DEBUG)
     printf("%s CM4 app address 0x%08lx\n\r", GREETING_MESSAGE, app_addr);
     printf("%s Memory regions to protect:\n\r", GREETING_MESSAGE);
+
     for(i = 0; i < POLICY_MAX_N_OF_PROT_REGIONS; i++)
     {
         if(0 != cy_bl_bnu_policy.prot_regions[i].start)
@@ -197,6 +204,7 @@ int main(void)
                    (uint32_t)(1 << (cy_bl_bnu_policy.prot_regions[i].size + 1)));
         }
     }
+#endif
 
     apply_protections();
 
