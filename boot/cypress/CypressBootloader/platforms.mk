@@ -32,7 +32,7 @@
 
 # this must be 064-series only
 PLATFORM ?= PSOC_064_2M
- 
+
 # supported platforms
 PLATFORMS := PSOC_064_2M PSOC_064_1M PSOC_064_512K
 
@@ -59,23 +59,22 @@ PLATFORM_SUFFIX := 03
 endif
 # Additional components supported by the target
 COMPONENTS+=COMPONENT_BSP_DESIGN_MODUS
-# Use CyHAL - NOPE
+# Use CyHAL
 # DEFINES:=CY_USING_HAL
-DEFINES:=CY_USING_HAL
 
 # Collect C source files for PLATFORM BSP
 SOURCES_PLATFORM += $(wildcard $(PLATFORM_PATH)/*.c)
-SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.c)
-SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
-SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
+# SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.c)
+# SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
+# SOURCES_PLATFORM += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
 
 SOURCES_PLATFORM := $(filter-out %/system_psoc6_cm4.c, $(SOURCES_PLATFORM))
 
 # Collect dirrectories containing headers for PLATFORM BSP
 INCLUDE_DIRS_PLATFORM := $(PLATFORM_PATH)
-INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/include
-INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
-INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages
+# INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/include
+# INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
+# INCLUDE_DIRS_PLATFORM += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages
 # Collect Assembler files for PLATFORM BSP
 # Include _01_, _02_ or _03_ PLATFORM_SUFFIX depending on device family.
 STARTUP_FILE := $(PLATFORM_PATH)/$(PLATFORM)/$(CORE)/$(COMPILER)/startup_psoc6_$(PLATFORM_SUFFIX)_cm0plus
@@ -91,7 +90,7 @@ DEFINES += $(DEVICE)
 DEFINES += $(COMPONENTS)
 DEFINES += $(PLATFORM)
 
-# Get defines from BSP makefile and convert it to regular -DMY_NAME style 
+# Get defines from BSP makefile and convert it to regular -DMY_NAME style
 ifneq ($(DEFINES),)
 	DEFINES_PLATFORM :=$(addprefix -D, $(subst -,_,$(DEFINES)))
 endif

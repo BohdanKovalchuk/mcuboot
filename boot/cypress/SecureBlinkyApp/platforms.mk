@@ -32,7 +32,7 @@
 
 # 512k is a priority
 PLATFORM ?= PSOC_064_512K
- 
+
 # supported platforms
 PLATFORMS := PSOC_064_2M PSOC_064_1M PSOC_064_512K
 
@@ -65,10 +65,9 @@ DEVICE ?= CYB06445LQI-S3D42
 PLATFORM_SUFFIX := 03
 endif
 # Additional components supported by the target
-# TODO:
-#COMPONENTS+=COMPONENT_BSP_DESIGN_MODUS
+# COMPONENTS+=COMPONENT_BSP_DESIGN_MODUS
 # Use CyHAL
-DEFINES:=CY_USING_HAL
+# DEFINES:=CY_USING_HAL
 
 # Collect C source files for PLATFORM BSP
 SOURCES_PLATFORM += $(wildcard $(PLATFORMS_PATH)/*.c)
@@ -92,9 +91,10 @@ endif
 
 # Add device name from BSP makefile to defines
 DEFINES += $(DEVICE)
+DEFINES += $(COMPONENTS)
 DEFINES += $(PLATFORM)
 
-# Get defines from platform makefile and convert it to regular -DMY_NAME style 
+# Get defines from platform makefile and convert it to regular -DMY_NAME style
 ifneq ($(DEFINES),)
 	DEFINES_PLATFORM :=$(addprefix -D, $(subst -,_,$(DEFINES)))
 endif

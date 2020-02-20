@@ -33,6 +33,9 @@ extern "C" {
 
 #include "cycfg_system.h"
 #include "cycfg_clocks.h"
+#include "cycfg_peripherals.h"
+#include "cycfg_pins.h"
+#include "cycfg_routing.h"
 
 void init_cycfg_all(void);
 

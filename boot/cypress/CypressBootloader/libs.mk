@@ -34,10 +34,10 @@ CUR_LIBS_PATH = $(CURDIR)/libs
 SOURCES_PDL := $(wildcard $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/source/*.c)
 
 # Collect source files for Retarget-io
-SOURCES_RETARGET_IO := $(wildcard $(CUR_LIBS_PATH)/retarget-io/*.c)
+# SOURCES_RETARGET_IO := $(wildcard $(CUR_LIBS_PATH)/retarget-io/*.c)
 
 # Collect source files for HAL
-SOURCES_HAL := $(wildcard $(CUR_LIBS_PATH)/psoc6hal/src/*.c)
+# SOURCES_HAL := $(wildcard $(CUR_LIBS_PATH)/psoc6hal/src/*.c)
 
 # Cy secureboot utils
 SOURCES_SECBOOT_UTILS := $(wildcard $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_jwt/*.c)
@@ -54,13 +54,13 @@ INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/devices/include
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/cmsis/include
 
 # Retarget-io related include directories
-INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
+# INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
 
 # core-libs related include directories
 INCLUDE_DIRS_CORE_LIB := $(CUR_LIBS_PATH)/core-lib/include
 
 # core-libs related include directories
-INCLUDE_DIRS_HAL := $(CUR_LIBS_PATH)/psoc6hal/include
+# INCLUDE_DIRS_HAL := $(CUR_LIBS_PATH)/psoc6hal/include
 
 # Include secure bootloader utility dependencies
 INCLUDE_DIRS_SECBOOT_UTILS := $(CUR_LIBS_PATH)/cy_secureboot_utils
@@ -80,16 +80,16 @@ INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/protections/p
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
 SOURCES_LIBS += $(SOURCES_PLATFORM)
-SOURCES_LIBS += $(SOURCES_RETARGET_IO)
-SOURCES_LIBS += $(SOURCES_HAL)
+# SOURCES_LIBS += $(SOURCES_RETARGET_IO)
+# SOURCES_LIBS += $(SOURCES_HAL)
 SOURCES_LIBS += $(SOURCES_SECBOOT_UTILS)
 
 # Collected include directories for libraries
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_PLATFORM))
-INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
+# INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_CORE_LIB))
-INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_HAL))
+# INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_HAL))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_SECBOOT_UTILS))
 
 ################################################################################
