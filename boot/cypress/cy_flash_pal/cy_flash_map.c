@@ -75,8 +75,6 @@
 
 #include "flash_map_backend/flash_map_backend.h"
 #include <sysflash/sysflash.h>
-#include "cy_flash_psoc6.h"
-#include "cy_smif_psoc6.h"
 
 #include "bootutil/bootutil_log.h"
 
@@ -211,7 +209,9 @@ struct flash_area *boot_area_descs[] =
 };
 #endif
 
-/*< Returns device flash start based on supported fa_id */
+/*
+* Returns device flash start based on supported fa_id
+*/
 int flash_device_base(uint8_t fd_id, uintptr_t *ret)
 {
     if (fd_id != FLASH_DEVICE_INTERNAL_FLASH) {
@@ -223,7 +223,9 @@ int flash_device_base(uint8_t fd_id, uintptr_t *ret)
     return 0;
 }
 
-/*< Opens the area for use. id is one of the `fa_id`s */
+/*
+* Opens the area for use. id is one of the `fa_id`s
+*/
 int flash_area_open(uint8_t id, const struct flash_area **fa)
 {
     int ret = -1;
@@ -244,26 +246,34 @@ int flash_area_open(uint8_t id, const struct flash_area **fa)
     return ret;
 }
 
+/*
+* Clear pointer to flash area fa
+*/
+
 void flash_area_close(const struct flash_area *fa)
 {
-    (void)fa;/* Nothing to do there */
+    (void)fa; /* Nothing to do there */
 }
 
-/*< Reads `len` bytes of flash memory at `off` to the buffer at `dst` */
+/*
+* Reads `len` bytes of flash memory at `off` to the buffer at `dst`
+*/
 int flash_area_read(const struct flash_area *fa, uint32_t off, void *dst,
                      uint32_t len)
 {
     int rc = 0;
     size_t addr;
-
+    
+    /* check if requested offset not less then flash area (fa) start */
     assert(off < fa->fa_off);
     assert(off + len < fa->fa_off);
-        /* convert to absolute address inside a device*/
+    /* convert to absolute address inside a device*/
     addr = fa->fa_off + off;
 
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
-        rc = psoc6_flash_read(addr, dst, len);
+        /* flash read by simple memory copying */
+        memcpy((void *)dst, (const void*)addr, (size_t)len);
     }
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fa->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
@@ -283,26 +293,53 @@ int flash_area_read(const struct flash_area *fa, uint32_t off, void *dst,
     return rc;
 }
 
-/*< Writes `len` bytes of flash memory at `off` from the buffer at `src` */
+/*
+* Writes `len` bytes of flash memory at `off` from the buffer at `src`
+ */
 int flash_area_write(const struct flash_area *fa, uint32_t off,
                      const void *src, uint32_t len)
 {
-    int rc = 0;
-    size_t addr;
+    cy_en_flashdrv_status_t rc = CY_FLASH_DRV_SUCCESS;
+    size_t write_start_addr;
+    size_t write_end_addr;
+    uint32_t row_addr = 0;
+    int row_number = 0;
+    const uint32_t * row_ptr = NULL;
 
     assert(off < fa->fa_off);
     assert(off + len < fa->fa_off);
-        /* convert to absolute address inside a device*/
-     addr = fa->fa_off + off;
+    
+    /* convert to absolute address inside a device */
+    write_start_addr = fa->fa_off + off;
+    write_end_addr = fa->fa_off + off + len;
 
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
-        rc = psoc6_flash_write(addr, src, len);
+        assert(!(len % CY_FLASH_SIZEOF_ROW));
+        /* Check if chunk size for write request is exactly equal to 
+            one internal flash row size. This implementation is defined
+            by design of MCUBoot. If this assert is deleted, function
+            works with any length of bytes, aligned by row size. */
+        assert(!(len - CY_FLASH_SIZEOF_ROW));
+
+        row_number = (write_end_addr - write_start_addr) / CY_FLASH_SIZEOF_ROW;
+        row_addr = write_start_addr;
+
+        row_ptr = (uint32_t *) src;
+
+        for (uint32_t i = 1; i <= row_number + 1; i++){
+
+            rc = Cy_Flash_WriteRow(row_addr, row_ptr);
+            row_addr = write_start_addr + i * (uint32_t) CY_FLASH_SIZEOF_ROW;
+
+            row_number--;
+            row_ptr = row_ptr + CY_FLASH_SIZEOF_ROW / 4;
+        }
     }
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fa->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
     {
-        rc = psoc6_smif_write(fa, addr, len);
+        rc = psoc6_smif_write(fa, write_start_addr, len);
     }
 #endif
     else
@@ -310,28 +347,45 @@ int flash_area_write(const struct flash_area *fa, uint32_t off,
         /* incorrect/non-existing flash device id */
         rc = -1;
     }
-    return rc;
+
+    return (int) rc;
 }
 
 /*< Erases `len` bytes of flash memory at `off` */
 int flash_area_erase(const struct flash_area *fa, uint32_t off, uint32_t len)
 {
-    int rc = 0;
-    size_t addr;
+    cy_en_flashdrv_status_t rc = CY_FLASH_DRV_SUCCESS;
+    size_t erase_start_addr;
+    size_t erase_end_addr;
+    uint32_t row_id = 0;
+    uint32_t row_addr = 0;
+    int row_number = 0;
 
     assert(off < fa->fa_off);
     assert(off + len < fa->fa_off);
-        /* convert to absolute address inside a device*/
-    addr = fa->fa_off + off;
+    assert(!(len % CY_FLASH_SIZEOF_ROW));
+
+    /* convert to absolute address inside a device*/
+    erase_start_addr = fa->fa_off + off;
+    erase_end_addr = fa->fa_off + off + len;
 
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
-        rc = psoc6_flash_erase(addr, len);
+        row_number = (erase_end_addr - erase_start_addr) / CY_FLASH_SIZEOF_ROW;
+        row_addr = erase_start_addr;
+
+        while (row_number > 0){
+
+            rc = Cy_Flash_EraseRow(row_addr);
+            row_addr = erase_start_addr + row_number * (uint32_t) CY_FLASH_SIZEOF_ROW;
+
+            row_number--;
+        }
     }
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fa->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
     {
-        rc = psoc6_smif_erase(addr, len);
+        rc = psoc6_smif_erase(erase_start_addr, len);
     }
 #endif
     else
@@ -339,7 +393,7 @@ int flash_area_erase(const struct flash_area *fa, uint32_t off, uint32_t len)
         /* incorrect/non-existing flash device id */
         rc = -1;
     }
-    return rc;
+    return (int) rc;
 }
 
 /*< Returns this `flash_area`s alignment */
