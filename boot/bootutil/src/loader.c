@@ -702,7 +702,11 @@ boot_copy_region(struct boot_loader_state *state,
     uint8_t image_index;
 #endif
 
+#ifdef MCUBOOT_OVERWRITE_CHUNK_SIZE 
+    TARGET_STATIC uint8_t buf[MCUBOOT_OVERWRITE_CHUNK_SIZE];
+#else
     TARGET_STATIC uint8_t buf[1024];
+#endif
 
 #if !defined(MCUBOOT_ENC_IMAGES)
     (void)state;

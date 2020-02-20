@@ -55,6 +55,7 @@
 /* Uncomment to only erase and overwrite those slot 0 sectors needed
  * to install the new image, rather than the entire image slot. */
 /* #define MCUBOOT_OVERWRITE_ONLY_FAST */
+#define MCUBOOT_OVERWRITE_CHUNK_SIZE 512
 #endif
 
 /*

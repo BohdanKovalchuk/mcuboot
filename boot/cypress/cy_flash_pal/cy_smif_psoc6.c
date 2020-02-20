@@ -59,7 +59,7 @@
 #include <sysflash/sysflash.h>
 
 #include "cy_device_headers.h"
-#include "cy_flash_psoc6.h"
+#include "cy_smif_psoc6.h"
 #include "cy_flash.h"
 #include "cy_syspm.h"
 
