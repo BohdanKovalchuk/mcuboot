@@ -28,10 +28,6 @@
 #define LED_RED_PIN 0U // TODO: PSVP LED
 #endif
 
-/* Define pins for DEBUG uart port */
-#define CY_DEBUG_UART_TX (P5_1)
-#define CY_DEBUG_UART_RX (P5_0)
-
 #define QSPI_SS_ENABLED 1U
 #define QSPI_SS_PORT GPIO_PRT11
 #define QSPI_SS_PORT_NUM 11U
@@ -105,9 +101,6 @@
 #define QSPI_SPI_CLOCK_HSIOM ioss_0_port_11_pin_7_HSIOM
 #define QSPI_SPI_CLOCK_IRQ ioss_interrupts_gpio_11_IRQn
 
-#define scb_5_ENABLED 1U
-#define scb_5_HW SCB5
-#define scb_5_IRQ scb_5_interrupt_IRQn
 #define QSPI_ENABLED 1U
 #define QSPI_HW SMIF0
 #define QSPI_IRQ smif_interrupt_IRQn

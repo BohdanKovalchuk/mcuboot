@@ -57,8 +57,6 @@
 
 /* Cypress pdl/bsp headers */
 #include "cy_pdl.h"
-#include "cyhal.h"
-#include "cy_retarget_io.h"
 #include "cy_result.h"
 
 #include "sysflash/sysflash.h"
@@ -176,8 +174,6 @@ void AppSystemInit(void)
 /* Next image runner API */
 static void do_boot(struct boot_rsp *rsp)
 {
-    uintptr_t flash_base;
-    int rc;
     static uint32_t app_addr = 0;
     uint32_t en_acq = 1;
     register uint32_t application_start;
@@ -188,12 +184,13 @@ static void do_boot(struct boot_rsp *rsp)
      * reset vector
      */
     application_start = (rsp->br_image_off + rsp->br_hdr->ih_hdr_size);
-    BOOT_LOG_INF("Application at: 0x%08x", app_addr);
+    BOOT_LOG_INF("Application at: 0x%08x", application_start);
 
     if((cy_bl_bnu_policy.bnu_img_policy[0].multi_image == 1) &&
         (cy_bl_bnu_policy.bnu_img_policy[1].multi_image == 2))
     {
         en_acq = 0;
+        BOOT_LOG_INF("Acquiring is disabled");
     }
 
     /* hardcode image id to run CM0p first until fwsecurity-645 merged */
@@ -212,7 +209,7 @@ static void do_boot(struct boot_rsp *rsp)
         case CY_BOOTLOADER_IMG_ID_CM4:
             /* Set Protection Context 6 for CM4 application */
             Cy_Prot_SetActivePC(CPUSS_MS_ID_CM4, (uint32_t)CY_PROT_PC6);
-            Cy_Utils_CleanSecureAppRam(app_addr, &app_addr);
+            Cy_Utils_CleanSecureAppRam(application_start, &app_addr);
             Cy_Utils_StartAppCM4(application_start, false);
             break;
         default:
@@ -341,11 +338,9 @@ int main(void)
     Cy_BLServ_SystemInit();
 #endif /* __NO_SYSTEM_INIT */
 
-    //  TODO: hot-fix, remove it later
-    cybsp_init();
-
     /* Initialize PSOC6 specific */
     Cy_InitPSoC6_HW();
+
     BOOT_LOG_INF(" ");
     BOOT_LOG_INF("/******************************************************/");
     BOOT_LOG_INF(" PSoC6 CyBootloader Application %u.%u.%u.%u ",

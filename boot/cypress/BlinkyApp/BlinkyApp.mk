@@ -69,12 +69,12 @@ ifeq ($(PLATFORM), PSOC_064_2M)
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
 		CYB_IMG_ID := 4
-		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4.json
+		SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x10000
 	else
 		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
+		MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10020000
         SLOT_SIZE ?= 0x10000
 	endif
@@ -88,12 +88,12 @@ ifeq ($(PLATFORM), PSOC_064_1M)
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
 		CYB_IMG_ID := 4
-		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_single_stage_CM4.json
+		SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x10000
 	else
 		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
+		MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10020000
         SLOT_SIZE ?= 0x10000
 	endif
@@ -107,12 +107,12 @@ ifeq ($(PLATFORM), PSOC_064_512K)
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
 		CYB_IMG_ID := 4
-		SINGLE_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_single_stage_CM4.json
+		SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
         SLOT_SIZE ?= 0x10000
 	else
 		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY := $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
+		MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10040000
         SLOT_SIZE ?= 0x10000
 	endif
@@ -183,6 +183,6 @@ else
 endif
 else
 	mv -f $(OUT_CFG)/$(APP_NAME).hex $(OUT_CFG)/$(APP_NAME)_unsigned.hex
-	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME)_unsigned.hex $(OUT_CFG)/$(APP_NAME).hex 
+	$(PYTHON_PATH) $(IMGTOOL_PATH) $(SIGN_ARGS) $(OUT_CFG)/$(APP_NAME)_unsigned.hex $(OUT_CFG)/$(APP_NAME).hex
 	#$(UPGRADE_SUFFIX).hex
 endif

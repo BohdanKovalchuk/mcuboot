@@ -1,11 +1,11 @@
 /*******************************************************************************
-* File Name: cycfg.c
+* File Name: cycfg_routing.c
 *
 * Description:
-* Wrapper function to initialize all generated code.
+* Establishes all necessary connections between hardware elements.
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
-* Device Support Library (../../../../output/libs/COMPONENT_PSOC6/psoc6pdl): 1.5.0.1837
+* Device Support Library (../../../psoc6pdl): 1.4.0.1889
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -24,13 +24,8 @@
 * limitations under the License.
 ********************************************************************************/
 
-#include "cycfg.h"
+#include "cycfg_routing.h"
 
-void init_cycfg_all(void)
+void init_cycfg_routing(void)
 {
-	init_cycfg_system();
-	init_cycfg_clocks();
-	init_cycfg_routing();
-	init_cycfg_peripherals();
-	init_cycfg_pins();
 }

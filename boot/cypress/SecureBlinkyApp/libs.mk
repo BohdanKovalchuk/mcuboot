@@ -34,12 +34,12 @@ CUR_LIBS_PATH = $(CURDIR)/libs
 SOURCES_PDL := $(wildcard $(CUR_LIBS_PATH)/pdl/psoc6pdl/drivers/source/*.c)
 
 # Collect source files for Retarget-io
-SOURCES_RETARGET_IO := $(wildcard $(CUR_LIBS_PATH)/retarget-io/*.c)
+# SOURCES_RETARGET_IO := $(wildcard $(CUR_LIBS_PATH)/retarget-io/*.c)
 
 # Collect source files for HAL
-SOURCES_HAL := $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.c)
-SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
-SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
+# SOURCES_HAL := $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/*.c)
+# SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/*.c)
+# SOURCES_HAL += $(wildcard $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/*.c)
 
 # Cy secureboot utils
 SOURCES_SECBOOT_UTILS := $(wildcard $(CUR_LIBS_PATH)/cy_secureboot_utils/cy_jwt/*.c)
@@ -55,7 +55,7 @@ INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/devices/include
 INCLUDE_DIRS_PDL += $(CUR_LIBS_PATH)/pdl/psoc6pdl/cmsis/include
 
 # Retarget-io related include directories
-INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
+# INCLUDE_DIRS_RETARGET_IO := $(CUR_LIBS_PATH)/retarget-io
 
 # Collect source files for MbedTLS
 INCLUDE_DIRS_MBEDTLS := $(CUR_LIBS_PATH)/mbedtls/crypto/include
@@ -72,23 +72,23 @@ INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/protections
 INCLUDE_DIRS_SECBOOT_UTILS += $(CUR_LIBS_PATH)/cy_secureboot_utils/protections/protections_config
 
 # core-libs related include directories
-INCLUDE_DIRS_HAL := $(CUR_LIBS_PATH)/psoc6hal/include
-INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
-INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages
-INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/triggers
+# INCLUDE_DIRS_HAL := $(CUR_LIBS_PATH)/psoc6hal/include
+# INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include
+# INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages
+# INCLUDE_DIRS_HAL += $(CUR_LIBS_PATH)/psoc6hal/COMPONENT_PSOC6HAL/include/triggers
 
 # Collected source files for libraries
 SOURCES_LIBS := $(SOURCES_PDL)
-SOURCES_LIBS += $(SOURCES_RETARGET_IO)
-SOURCES_LIBS += $(SOURCES_HAL)
+# SOURCES_LIBS += $(SOURCES_RETARGET_IO)
+# SOURCES_LIBS += $(SOURCES_HAL)
 SOURCES_LIBS += $(SOURCES_SECBOOT_UTILS)
 
 # Collected include directories for libraries
 INCLUDE_DIRS_LIBS := $(addprefix -I,$(INCLUDE_DIRS_PDL))
-INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
+# INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_RETARGET_IO))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_MBEDTLS))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_CORE_LIB))
-INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_HAL))
+# INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_HAL))
 INCLUDE_DIRS_LIBS += $(addprefix -I,$(INCLUDE_DIRS_SECBOOT_UTILS))
 
 ASM_FILES_PDL :=

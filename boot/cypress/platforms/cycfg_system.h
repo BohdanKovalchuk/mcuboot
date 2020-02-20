@@ -64,7 +64,6 @@ extern "C" {
 #define srss_0_clock_0_pll_1_ENABLED 1U
 #define srss_0_clock_0_slowclk_0_ENABLED 1U
 #define srss_0_clock_0_timerclk_0_ENABLED 1U
-#define srss_0_clock_0_wco_0_ENABLED 1U
 
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj;
