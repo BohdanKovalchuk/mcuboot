@@ -402,17 +402,11 @@ size_t flash_area_align(const struct flash_area *fa)
     uint8_t ret = -1;
     if (fa->fa_device_id == FLASH_DEVICE_INTERNAL_FLASH)
     {
-        // TODO: it is 512 in PSoC6 which is more then uint8
-        // TODO: check how to handle that
         ret = CY_FLASH_ALIGN;
     }
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
     else if ((fa->fa_device_id & FLASH_DEVICE_EXTERNAL_FLAG) == FLASH_DEVICE_EXTERNAL_FLAG)
     {
-        // TODO: implement for SMIF WR/ERASE size
-        // assume it is the same
-        // TODO: read from SFDP data
-//        ret = CY_FLASH_ALIGN;
         return qspi_get_prog_size();
     }
 #endif
