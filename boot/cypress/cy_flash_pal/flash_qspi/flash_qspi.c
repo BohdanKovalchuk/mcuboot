@@ -67,6 +67,8 @@
 #include <stdio.h>
 #include "flash_qspi.h"
 
+#define CY_SMIF_SYSCLK_HFCLK_DIVIDER     CY_SYSCLK_CLKHF_DIVIDE_BY_4
+
 /* This is the board specific stuff that should align with your board.
  *
  * QSPI resources:
@@ -190,7 +192,7 @@ cy_stc_sysint_t smifIntConfig =
 };
 
 /* SMIF pinouts configurations */
-const cy_stc_gpio_pin_config_t QSPI_SS_config = 
+const cy_stc_gpio_pin_config_t QSPI_SS_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
@@ -206,7 +208,7 @@ const cy_stc_gpio_pin_config_t QSPI_SS_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA3_config = 
+const cy_stc_gpio_pin_config_t QSPI_DATA3_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
@@ -222,7 +224,7 @@ const cy_stc_gpio_pin_config_t QSPI_DATA3_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA2_config = 
+const cy_stc_gpio_pin_config_t QSPI_DATA2_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
@@ -238,7 +240,7 @@ const cy_stc_gpio_pin_config_t QSPI_DATA2_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA1_config = 
+const cy_stc_gpio_pin_config_t QSPI_DATA1_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
@@ -254,7 +256,7 @@ const cy_stc_gpio_pin_config_t QSPI_DATA1_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA0_config = 
+const cy_stc_gpio_pin_config_t QSPI_DATA0_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
@@ -270,7 +272,7 @@ const cy_stc_gpio_pin_config_t QSPI_DATA0_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_SCK_config = 
+const cy_stc_gpio_pin_config_t QSPI_SCK_config =
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
@@ -317,7 +319,10 @@ cy_en_smif_status_t qspi_init_hardware()
 	Cy_GPIO_Pin_Init(SCKPort, SCKPin, &QSPI_SCK_config);
     Cy_GPIO_SetHSIOM(SCKPort, SCKPin, SCKMuxPort);
 
-              
+    Cy_SysClk_ClkHfSetSource(CY_SYSCLK_CLKHF_IN_CLKPATH2, CY_SYSCLK_CLKHF_IN_CLKPATH0);
+    Cy_SysClk_ClkHfSetDivider(CY_SYSCLK_CLKHF_IN_CLKPATH2, CY_SMIF_SYSCLK_HFCLK_DIVIDER);
+    Cy_SysClk_ClkHfEnable(CY_SYSCLK_CLKHF_IN_CLKPATH2);
+
     /*
      * Setup the interrupt for the SMIF block.  For the CM0 there
      * is a two stage process to setup the interrupts.
@@ -336,7 +341,7 @@ cy_en_smif_status_t qspi_init_hardware()
     return CY_SMIF_SUCCESS;
 }
 
-cy_stc_smif_mem_config_t *qspi_get_memory_config(int index) 
+cy_stc_smif_mem_config_t *qspi_get_memory_config(int index)
 {
     return smif_blk_config->memConfig[index];
 }

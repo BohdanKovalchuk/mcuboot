@@ -1724,3 +1724,4 @@ deploy_asset:
   script:
     - git clone git@git-ore.aus.cypress.com:devops/devops_scripts.git
     - bash devops_scripts/job_deploy_to_assets.sh
+    
