@@ -37,6 +37,7 @@ CUR_APP_PATH = $(CURDIR)/$(APP_NAME)
 # Choose script name base for certificate generation
 KEY ?= $(APP_NAME)/scripts/cy_state_internal.json
 IMAGE_CERT := image_cert
+CY_BOOTLOADER_LOG_LEVEL ?= MCUBOOT_LOG_LEVEL_INFO
 
 include $(CUR_APP_PATH)/platforms.mk
 include $(CUR_APP_PATH)/libs.mk
@@ -50,7 +51,7 @@ DEFINES_APP += -DCORE=$(CORE)
 # Add start address for each target device, since flash size is different
 #
 # Define maximum image sectors number, considering maximum slot size
-# equal to all available flash for BOOT slot. it is assumed that UPGRADE 
+# equal to all available flash for BOOT slot. it is assumed that UPGRADE
 # slot in this case is located in External Memory
 ifeq ($(PLATFORM), PSOC_064_2M)
 CY_BOOTLOADER_APP_START ?= 0x101CE000
@@ -84,11 +85,11 @@ DEFINES_APP += $(DEFINES_USER)
 DEFINES_APP += -D$(BUILDCFG)
 
 ifeq ($(BUILDCFG), Debug)
-DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_INFO
+DEFINES_APP += -DMCUBOOT_LOG_LEVEL=$(CY_BOOTLOADER_LOG_LEVEL)
 DEFINES_APP += -DMCUBOOT_HAVE_LOGGING
 DEFINES_APP += -DCY_SECURE_UTILS_LOG
-else 
-	ifeq ($(BUILDCFG), Release) 
+else
+	ifeq ($(BUILDCFG), Release)
 		DEFINES_APP += -DMCUBOOT_LOG_LEVEL=MCUBOOT_LOG_LEVEL_OFF
 #		DEFINES_APP += -DNDEBUG
 	else

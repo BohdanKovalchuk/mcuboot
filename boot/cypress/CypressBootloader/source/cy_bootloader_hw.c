@@ -30,69 +30,6 @@
 #include "cy_scb_uart.h"
 #include "cy_sysclk.h"
 
-#if (MCUBOOT_LOG_LEVEL != MCUBOOT_LOG_LEVEL_OFF)
-/* Define pins for DEBUG uart port */
-#define scb_5_HW SCB5
-
-#define ioss_0_port_5_pin_1_ENABLED 1U
-#define ioss_0_port_5_pin_1_PORT GPIO_PRT5
-#define ioss_0_port_5_pin_1_PORT_NUM 5U
-#define ioss_0_port_5_pin_1_PIN 1U
-#define ioss_0_port_5_pin_1_NUM 1U
-#define ioss_0_port_5_pin_1_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
-#define ioss_0_port_5_pin_1_INIT_DRIVESTATE 1
-#define ioss_0_port_5_pin_1_HSIOM P5_1_SCB5_UART_TX
-#define ioss_0_port_5_pin_1_IRQ ioss_interrupts_gpio_5_IRQn
-
-const cy_stc_gpio_pin_config_t ioss_0_port_5_pin_1_config =
-{
-    .outVal = 1,
-    .driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-    .hsiom = ioss_0_port_5_pin_1_HSIOM,
-    .intEdge = CY_GPIO_INTR_DISABLE,
-    .intMask = 0UL,
-    .vtrip = CY_GPIO_VTRIP_CMOS,
-    .slewRate = CY_GPIO_SLEW_FAST,
-    .driveSel = CY_GPIO_DRIVE_1_2,
-    .vregEn = 0UL,
-    .ibufMode = 0UL,
-    .vtripSel = 0UL,
-    .vrefSel = 0UL,
-    .vohSel = 0UL,
-};
-
-static const cy_stc_scb_uart_config_t scb_5_config =
-{
-    .uartMode = CY_SCB_UART_STANDARD,
-    .enableMutliProcessorMode = false,
-    .smartCardRetryOnNack = false,
-    .irdaInvertRx = false,
-    .irdaEnableLowPowerReceiver = false,
-    .oversample = 8,
-    .enableMsbFirst = false,
-    .dataWidth = 8UL,
-    .parity = CY_SCB_UART_PARITY_NONE,
-    .stopBits = CY_SCB_UART_STOP_BITS_1,
-    .enableInputFilter = false,
-    .breakWidth = 11UL,
-    .dropOnFrameError = false,
-    .dropOnParityError = false,
-    .receiverAddress = 0x0UL,
-    .receiverAddressMask = 0x0UL,
-    .acceptAddrInFifo = false,
-    .enableCts = false,
-    .ctsPolarity = CY_SCB_UART_ACTIVE_LOW,
-    .rtsRxFifoLevel = 0UL,
-    .rtsPolarity = CY_SCB_UART_ACTIVE_LOW,
-    .rxFifoTriggerLevel = 63UL,
-    .rxFifoIntEnableMask = 0UL,
-    .txFifoTriggerLevel = 63UL,
-    .txFifoIntEnableMask = 0UL,
-};
-
-cy_stc_scb_uart_context_t cy_scb5_uart_context;
-#endif
-
 #if defined(CY_BOOTLOADER_DIAGNOSTIC_GPIO)
 #define LED_RED_NUM 5U
 #define LED_RED_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF

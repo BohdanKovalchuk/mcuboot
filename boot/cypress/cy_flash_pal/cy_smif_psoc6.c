@@ -3,7 +3,7 @@
 * \version 1.0
 *
 * \brief
-*  This is the source file of external flash driver adoption layer between PSoC6 
+*  This is the source file of external flash driver adoption layer between PSoC6
 *  and standard MCUBoot code.
 *
 ********************************************************************************
@@ -86,8 +86,9 @@ int psoc6_smif_read(const struct flash_area *fap,
     address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
     st = Cy_SMIF_MemRead(qspi_get_device(), cfg, address, data, len, qspi_get_context());
-    if (st == CY_SMIF_SUCCESS)
+    if (st == CY_SMIF_SUCCESS) {
         rc = 0;
+    }
 	return rc;
 }
 
@@ -96,7 +97,7 @@ int psoc6_smif_write(const struct flash_area *fap,
                                         const void *data,
                                         size_t len)
 {
-	int rc = -1;    
+	int rc = -1;
     cy_en_smif_status_t st;
     cy_stc_smif_mem_config_t *cfg;
     uint32_t address;
@@ -106,8 +107,9 @@ int psoc6_smif_write(const struct flash_area *fap,
     address = addr - CY_SMIF_BASE_MEM_OFFSET;
 
     st = Cy_SMIF_MemWrite(qspi_get_device(), cfg, address, data, len, qspi_get_context());
-    if (st == CY_SMIF_SUCCESS)
+    if (st == CY_SMIF_SUCCESS) {
         rc = 0;
+    }
 	return rc;
 }
 
@@ -125,14 +127,17 @@ int psoc6_smif_erase(off_t addr, size_t size)
      */
     cy_stc_smif_mem_config_t *memCfg = qspi_get_memory_config(0);
 
-    address = addr - CY_SMIF_BASE_MEM_OFFSET;
+    address = (addr - CY_SMIF_BASE_MEM_OFFSET ) & ~((uint32_t)(memCfg->deviceCfg->eraseSize - 1u));
+
+    (void)size;
 
     st = Cy_SMIF_MemEraseSector(qspi_get_device(),
                                     memCfg,
                                     address,
                                     memCfg->deviceCfg->eraseSize,
                                     qspi_get_context());
-    if (st == CY_SMIF_SUCCESS)
+    if (st == CY_SMIF_SUCCESS) {
         rc = 0;
+    }
 	return rc;
 }
