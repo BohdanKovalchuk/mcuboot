@@ -13,6 +13,7 @@ It is started by CypressBootloader which is also running on `CM0p`.
 * Reads provisioning package to get policy.
 * Controls CM4 access port according to the policy
 * Applies memory and peripheral protections
+* UPGRADE slot can be located in SMIF area
 
 **Currently supported targets:**
 
@@ -53,6 +54,18 @@ Example command-line for dual-image:
 
     make app APP_NAME=SecureBlinkyApp PLATFORM=PSOC_064_2M IMG_TYPE=BOOT MULTI_IMAGE=1
 
+**Building an application in systems with SMIF:**
+
+BlinkyApp can be build for platform configurations, where `UPGRADE` slot or slots are located in external memory. There is a build system flag to specify this explicitly - `SMIF_UPGRADE`. Passing this flag to build system leads to usage of `cysecuretools` policy file with flash map for SMIF. 
+
+Example command-line for BOOT image in system with SMIF:
+
+    make app APP_NAME=BlinkyApp PLATFORM=PSOC_064_2M IMG_TYPE=BOOT MULTI_IMAGE=1 SMIF_UPGRADE=1
+
+Example command-line for UPGRADE image in system with SMIF:
+
+    make app APP_NAME=BlinkyApp PLATFORM=PSOC_064_2M IMG_TYPE=UPGRADE MULTI_IMAGE=1 SMIF_UPGRADE=1
+
 **Post-Build:**
 
 Post build action is executed at compile time for `BlinkyApp`. In case of build for `PSOC_062_2M` platform it calls `imgtool` from `MCUBoot` scripts and adds signature to compiled image. In case build to use with CupressBootloader - `cysecuretools` package is used to add signature. This signature is then validated by CypressBootloader or MCUBoot application.
@@ -79,6 +92,7 @@ Files to use for programming are:
 - `MAKEINFO` - 0 (default) - less build info, 1 - verbose output of compilation.
 - `HEADER_OFFSET` - 0 (default) - no offset of output hex file, 0x%VALUE% - offset for output hex file. Value 0x10000 is slot size CyBootloader in this example.
 - `IMG_TYPE` - `BOOT` (default) - build image for BOOT slot of CyBootloader, `UPGRADE` - build image for UPGRADE slot of CyBootloader.
+- `SMIF_UPGRADE` - `0` (default) - use only internal flash. Set to `1` - build user application with `UPGRADE` slot located in SMIF. Corresponding policy from `cysecuretools` is used
 
 **NOTE**: In case of `UPGRADE` image `HEADER_OFFSET` should be set to Bootloader slot size
 
