@@ -37,6 +37,9 @@ IMG_TYPES = BOOT UPGRADE
 # BlinkyApp will be be run by CyBootloader wih multi image support
 MULTI_IMAGE ?= 1
 
+# UPGRADE slots may be located in SMIF area, corresponding policy will be used
+SMIF_UPGRADE ?= 0
+
 # CypressBootloader Image ID to use for signing, defualt is ID for multi image
 CYB_IMG_ID ?= 16
 
@@ -69,14 +72,29 @@ ifeq ($(PLATFORM), PSOC_064_2M)
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
 		CYB_IMG_ID := 4
-		SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
-        SLOT_SIZE ?= 0x10000
+		ifeq ($(SMIF_UPGRADE), 0)
+			SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4.json
+			DEFINES_APP += -DUSER_APP_SIZE=0xE1000
+			SLOT_SIZE ?= 0xE1000
+		else ifeq ($(SMIF_UPGRADE), 1)
+			SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_single_stage_CM4_smif.json
+			DEFINES_APP += -DUSER_APP_SIZE=0x180000
+			SLOT_SIZE ?= 0x180000
+		endif
 	else
-		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
-		DEFINES_APP += -DUSER_APP_START=0x10020000
-        SLOT_SIZE ?= 0x10000
+		ifeq ($(SMIF_UPGRADE), 0)
+			# Determine path to multi image policy file
+			MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
+			DEFINES_APP += -DUSER_APP_START=0x100E0000
+			DEFINES_APP += -DUSER_APP_SIZE=0x70000
+			SLOT_SIZE ?= 0x70000
+		else ifeq ($(SMIF_UPGRADE), 1)
+			MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4_smif.json
+			DEFINES_APP += -DUSER_APP_START=0x100C0000
+			DEFINES_APP += -DUSER_APP_SIZE=0xC0000
+			SLOT_SIZE ?= 0xC0000
+		endif
 	endif
 endif
 
@@ -107,14 +125,25 @@ ifeq ($(PLATFORM), PSOC_064_512K)
 	# Set flash start and size
 	ifeq ($(MULTI_IMAGE), 0)
 		CYB_IMG_ID := 4
-		SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_single_stage_CM4.json
 		DEFINES_APP += -DUSER_APP_START=0x10000000
-        SLOT_SIZE ?= 0x10000
+		ifeq ($(SMIF_UPGRADE), 0)
+			SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_single_stage_CM4.json
+			DEFINES_APP += -DUSER_APP_SIZE=0x20000
+			SLOT_SIZE ?= 0x20000
+		else ifeq ($(SMIF_UPGRADE), 1)
+			SINGLE_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_single_stage_CM4_smif.json
+			DEFINES_APP += -DUSER_APP_SIZE=0x20000
+			SLOT_SIZE ?= 0x20000
+		endif
 	else
-		# Determine path to multi image policy file
-		MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
+		ifeq ($(SMIF_UPGRADE), 0)
+			# Determine path to multi image policy file
+			MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
+		else ifeq ($(SMIF_UPGRADE), 1)
+			MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4_smif.json
+		endif
 		DEFINES_APP += -DUSER_APP_START=0x10040000
-        SLOT_SIZE ?= 0x10000
+		SLOT_SIZE ?= 0x10000
 	endif
 endif
 

@@ -37,6 +37,9 @@ IMG_TYPES = BOOT UPGRADE
 # CypressBootloader Image ID to use for signing
 CYB_IMG_ID ?= 1
 
+# UPGRADE slots may be located in SMIF area, corresponding policy will be used
+SMIF_UPGRADE ?= 0
+
 ifneq ($(COMPILER), GCC_ARM)
 $(error Only GCC ARM is supported at this moment)
 endif
@@ -63,20 +66,38 @@ SLOT_SIZE ?= 0x10000
 ifeq ($(PLATFORM), PSOC_064_2M)
 DEFINES_APP += -DRAM_START=0x08040000
 DEFINES_APP += -DRAM_SIZE=0x20000
-# Determine path to multi image policy file
-MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
+ifeq ($(SMIF_UPGRADE), 0)
+	# Determine path to multi image policy file
+	MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4.json
+	DEFINES_APP += -DSECURE_APP_SIZE=0x70000
+	SLOT_SIZE ?= 0x70000
+else ifeq ($(SMIF_UPGRADE), 1)
+	MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8ckit_064x0s2_4343w/policy/policy_multi_CM0_CM4_smif.json
+	DEFINES_APP += -DSECURE_APP_SIZE=0xC0000
+	SLOT_SIZE ?= 0xC0000
+endif
 CY_SEC_TOOLS_TARGET := cy8ckit-064b0s2-4343w
+
 else ifeq ($(PLATFORM), PSOC_064_1M)
 DEFINES_APP += -DRAM_START=0x08040000
 DEFINES_APP += -DRAM_SIZE=0x10000
-# Determine path to multi image policy file
-MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
+ifeq ($(SMIF_UPGRADE), 0)
+	# Determine path to multi image policy file
+	MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
+else ifeq ($(SMIF_UPGRADE), 1)
+	MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cy8cproto_064s1_sb/policy/policy_multi_CM0_CM4.json
+endif
 CY_SEC_TOOLS_TARGET := cy8cproto-064b0s1-ble
+
 else ifeq ($(PLATFORM), PSOC_064_512K)
 DEFINES_APP += -DRAM_START=0x08010000
 DEFINES_APP += -DRAM_SIZE=0x10000
-# Determine path to multi image policy file
-MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
+ifeq ($(SMIF_UPGRADE), 0)
+	# Determine path to multi image policy file
+	MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4.json
+else ifeq ($(SMIF_UPGRADE), 1)
+	MULTI_IMAGE_POLICY ?= $(CY_SEC_TOOLS_PATH)/cysecuretools/targets/cyb06xx5/policy/policy_multi_CM0_CM4_smif.json
+endif
 CY_SEC_TOOLS_TARGET := cyb06445lqi-s3d42
 endif
 
