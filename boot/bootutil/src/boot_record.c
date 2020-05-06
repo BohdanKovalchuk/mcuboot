@@ -67,7 +67,7 @@ boot_add_data_to_shared_area(uint8_t        major_type,
     uint16_t boot_data_size;
     uintptr_t tlv_end, offset;
 
-    sh_boot_data = (struct shared_boot_data *)((void *)MCUBOOT_SHARED_DATA_BASE);
+    sh_boot_data = (struct shared_boot_data *)(MCUBOOT_SHARED_DATA_BASE);
 
     /* Check whether first time to call this function. If does then initialise
      * shared data area.
