@@ -468,7 +468,7 @@ cy_boot_write_trailer(const struct flash_area *fap, uint32_t off,
 
     for(uint8_t i=0; i<inlen; i++)
     {
-        rc = flash_area_write_byte(fap, off+i, inbuf);
+        rc = flash_area_write_byte(fap, off+i, inbuf+i);
         if (rc != 0) {
             return BOOT_EFLASH;
         }
