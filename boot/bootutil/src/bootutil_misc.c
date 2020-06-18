@@ -229,7 +229,11 @@ boot_swap_info_off(const struct flash_area *fap)
 static inline uint32_t
 boot_swap_size_off(const struct flash_area *fap)
 {
+#if (BOOT_MAX_ALIGN<4)
+    return boot_swap_info_off(fap) - 4;
+#else
     return boot_swap_info_off(fap) - BOOT_MAX_ALIGN;
+#endif
 }
 
 #ifdef MCUBOOT_ENC_IMAGES
